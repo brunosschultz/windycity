@@ -1,0 +1,321 @@
+---
+import { Picture } from 'astro:assets';
+import interna from '../assets/images/interna-03.png';
+import interna2 from '../assets/images/interna-01.png';
+
+/* Pares exatamente como no wireframe aprovado. */
+const comparacoes = [
+  {
+    mercado:
+      'Pouca iluminação natural — ambientes que dependem de luz artificial mesmo durante o dia.',
+    windy: 'Unidades paralelas à face de iluminação — luz natural em todos os cômodos, sem exceção.',
+  },
+  {
+    mercado: 'Ventilação limitada — pouca renovação de ar e menor conforto térmico.',
+    windy:
+      'Nenhum ambiente enclausurado — ventilação natural em todos os ambientes, inclusive banheiros.',
+  },
+  {
+    mercado: 'Espaços comprimidos — plantas que acomodam funções, mas sem fluidez.',
+    windy: 'Plantas flexíveis — layout adaptável, podendo configurar 1 dormitório.',
+  },
+];
+---
+
+<section class="section theme-preto dif" id="diferenciais" aria-labelledby="dif-t">
+  <div class="wrap">
+    <!-- Coluna fixa à esquerda, argumento rolando à direita -->
+    <div class="dif-top">
+      <div class="sticky-col dif-intro">
+        <p class="eyebrow" data-rv>Diferenciais</p>
+        <h2 class="h2-xl" id="dif-t" data-rv style="--d:80ms">
+          Por que o WindyCity <em class="ac">vale</em> mais que um Studio comum
+        </h2>
+        <p class="body dif-body" data-rv style="--d:160ms">
+          A maioria dos Studios reduz a metragem e reduz junto aquilo que mais importa no dia a dia:
+          luz, ar e espaço para viver bem. O WindyCity foi desenhado para não fazer essa troca.
+        </p>
+      </div>
+
+      <ol class="cmp">
+        {
+          comparacoes.map((c, i) => (
+            <li class="cmp-row" data-rv style={`--d:${i * 80}ms`}>
+              <span class="cmp-ix label">{String(i + 1).padStart(2, '0')}</span>
+
+              <p class="cmp-m">
+                <span class="cmp-m-lbl">O padrão do mercado</span>
+                {c.mercado}
+              </p>
+
+              <p class="cmp-w">
+                <span class="cmp-w-lbl">
+                  <span class="cmp-mk" aria-hidden="true" />
+                  WindyCity
+                </span>
+                {c.windy}
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+
+  <!-- Prova visual em sangria total -->
+  <div class="bleed dif-hero" data-px="90" data-rv-img>
+    <Picture
+      src={interna}
+      formats={['avif', 'webp']}
+      fallbackFormat="webp"
+      widths={[760, 1100, 1500, 1920]}
+      sizes="100vw"
+      alt="Interior do studio decorado com marcenaria em madeira clara e luz natural entrando pela varanda"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+
+  <div class="wrap">
+    <!-- Partido arquitetônico: diagrama solto, sem moldura -->
+    <div class="arch">
+      <figure class="arch-fig" data-rv>
+        <svg viewBox="0 0 320 240" role="img" aria-labelledby="arch-desc">
+          <title id="arch-desc">
+            Planta esquemática: unidades implantadas paralelas às fachadas leste e oeste, com janela
+            acompanhando toda a extensão da unidade e corredor central entre elas
+          </title>
+          <line x1="22" y1="26" x2="22" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
+          <line x1="298" y1="26" x2="298" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
+
+          <rect x="30" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect x="30" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect x="178" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect x="178" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+
+          <rect x="142" y="26" width="36" height="188" fill="none" stroke="rgba(239,230,226,.2)" stroke-dasharray="3 4"></rect>
+
+          <g stroke="#307351" stroke-width="1.3">
+            <path d="M8 56h9m0 0-3-3m3 3-3 3"></path>
+            <path d="M8 120h9m0 0-3-3m3 3-3 3"></path>
+            <path d="M8 184h9m0 0-3-3m3 3-3 3"></path>
+            <path d="M312 56h-9m0 0 3-3m-3 3 3 3"></path>
+            <path d="M312 120h-9m0 0 3-3m-3 3 3 3"></path>
+            <path d="M312 184h-9m0 0 3-3m-3 3 3 3"></path>
+          </g>
+
+          <text x="22" y="15" class="ax" text-anchor="middle">LESTE</text>
+          <text x="298" y="15" class="ax" text-anchor="middle">OESTE</text>
+          <text x="160" y="124" class="ax2" text-anchor="middle" transform="rotate(-90 160 124)">corredor</text>
+          <text x="86" y="74" class="ax2" text-anchor="middle">unidade</text>
+          <text x="86" y="174" class="ax2" text-anchor="middle">unidade</text>
+          <text x="234" y="74" class="ax2" text-anchor="middle">unidade</text>
+          <text x="234" y="174" class="ax2" text-anchor="middle">unidade</text>
+        </svg>
+      </figure>
+
+      <div class="arch-txt" data-rv style="--d:110ms">
+        <h3 class="h3">Unidades paralelas à face de iluminação</h3>
+        <p class="body">
+          Cada unidade foi implantada com o lado mais longo encostado diretamente na fachada leste ou
+          oeste — o esquema não é perpendicular, é paralelo a ela. A janela acompanha toda a extensão
+          da unidade, e não apenas uma abertura no fim de um corredor interno. Isso garante luz
+          natural em todos os cômodos do estúdio, sem exceção, e ventilação em todos os ambientes.
+        </p>
+      </div>
+    </div>
+
+    <!-- Fecho: imagem desalinhada sangrando pela direita + frase em escala -->
+    <div class="claim-wrap">
+      <p class="claim" data-rv>
+        Ser compacto não deveria significar abrir mão de luz, ventilação e qualidade espacial. Foi a
+        partir dessa premissa que o WindyCity foi projetado.
+      </p>
+      <div class="claim-img bleed-r" data-px="60" data-rv-img>
+        <Picture
+          src={interna2}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[560, 860, 1200]}
+          sizes="(max-width: 900px) 100vw, 46vw"
+          alt="Closet iluminado e cozinha compacta integrada do studio decorado"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .dif {
+    padding-bottom: 0;
+  }
+
+  .dif-top {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    gap: clamp(40px, 7vw, 120px);
+    margin-bottom: clamp(70px, 9vw, 130px);
+  }
+  .dif-intro .h2-xl {
+    margin-bottom: 24px;
+  }
+  .dif-body {
+    max-width: 44ch;
+  }
+
+  /* Comparações: tipografia carrega o contraste, sem tabela nem caixa */
+  .cmp {
+    display: grid;
+  }
+  .cmp-row {
+    display: grid;
+    grid-template-columns: 3.2rem 1fr;
+    gap: 4px clamp(14px, 2vw, 28px);
+    padding-block: clamp(26px, 3.4vw, 46px);
+    border-top: 1px solid var(--rule);
+  }
+  .cmp-row:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+  .cmp-ix {
+    grid-row: span 2;
+    color: var(--verde);
+    letter-spacing: 0.18em;
+    padding-top: 6px;
+  }
+
+  .cmp-m-lbl,
+  .cmp-w-lbl {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .cmp-m {
+    font-size: clamp(0.875rem, 1.1vw, 0.9375rem);
+    line-height: 1.5;
+    color: var(--bege-40);
+    margin-bottom: 18px;
+    max-width: 46ch;
+  }
+  .cmp-m-lbl {
+    color: var(--bege-40);
+  }
+  .cmp-w {
+    font-size: clamp(1.15rem, 2.1vw, 1.7rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.022em;
+    color: var(--bege);
+    max-width: 30ch;
+  }
+  .cmp-w-lbl {
+    color: var(--bege);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .cmp-mk {
+    width: 9px;
+    height: 9px;
+    background: var(--verde);
+    flex: none;
+  }
+
+  /* Sangria total */
+  .dif-hero {
+    height: clamp(340px, 78vh, 780px);
+    overflow: hidden;
+  }
+  .dif-hero :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Diagrama */
+  .arch {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(34px, 6vw, 96px);
+    align-items: center;
+    padding-block: clamp(64px, 9vw, 130px);
+  }
+  .arch-fig svg {
+    width: 100%;
+    height: auto;
+  }
+  .arch-fig :global(.ax) {
+    font-family: 'Sora', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    fill: #efe6e2;
+  }
+  .arch-fig :global(.ax2) {
+    font-family: 'Sora', sans-serif;
+    font-size: 8.5px;
+    letter-spacing: 0.08em;
+    fill: rgba(239, 230, 226, 0.42);
+  }
+  .arch-txt .h3 {
+    margin-bottom: 16px;
+    max-width: 20ch;
+  }
+
+  /* Fecho com imagem desalinhada */
+  .claim-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: clamp(34px, 6vw, 80px);
+    align-items: center;
+    padding-bottom: clamp(70px, 9vw, 130px);
+  }
+  .claim {
+    font-size: clamp(1.35rem, 2.9vw, 2.5rem);
+    line-height: 1.22;
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    color: var(--bege);
+    max-width: 24ch;
+    text-wrap: balance;
+  }
+  .claim-img {
+    height: clamp(300px, 52vh, 560px);
+    overflow: hidden;
+  }
+  .claim-img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 980px) {
+    .dif-top,
+    .arch,
+    .claim-wrap {
+      grid-template-columns: 1fr;
+    }
+    .sticky-col {
+      position: static;
+    }
+    .claim-img {
+      height: clamp(240px, 46vh, 420px);
+      margin-right: calc(50% - 50vw);
+    }
+  }
+  @media (max-width: 620px) {
+    .cmp-row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .cmp-ix {
+      grid-row: auto;
+      margin-bottom: 14px;
+    }
+  }
+</style>

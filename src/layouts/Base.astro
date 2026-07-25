@@ -1,0 +1,342 @@
+---
+import { SITE, CONTATO, EMPREENDIMENTO } from '../config';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title = SITE.title, description = SITE.description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
+const ogImage = new URL('/og-windycity.jpg', Astro.site ?? SITE.url).href;
+
+/* ---------------------------------------------------------------------------
+   Dados estruturados (SEO + GEO).
+   Apenas fatos presentes no wireframe aprovado e no material da marca.
+   Preço, telefone, CNPJ e endereço NÃO entram enquanto forem placeholder —
+   schema com dado falso é pior que schema ausente.
+--------------------------------------------------------------------------- */
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE.url}/#organizacao`,
+      name: SITE.incorporadora,
+      url: SITE.url,
+      slogan: 'Voltados para o sol',
+      sameAs: [CONTATO.instagramUrl],
+      areaServed: { '@type': 'City', name: SITE.cidade },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE.url}/#site`,
+      url: SITE.url,
+      name: SITE.title,
+      inLanguage: 'pt-BR',
+      publisher: { '@id': `${SITE.url}/#organizacao` },
+    },
+    {
+      '@type': 'ApartmentComplex',
+      '@id': `${SITE.url}/#empreendimento`,
+      name: SITE.nome,
+      url: SITE.url,
+      description: SITE.description,
+      image: ogImage,
+      numberOfAccommodationUnits: EMPREENDIMENTO.unidades,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: SITE.cidade,
+        addressRegion: SITE.estado,
+        addressCountry: 'BR',
+      },
+      developer: { '@id': `${SITE.url}/#organizacao` },
+      amenityFeature: [
+        'Rooftop com espaço gourmet',
+        'Lavanderia',
+        'Sala de reunião',
+        'Bicicletário',
+      ].map((n) => ({ '@type': 'LocationFeatureSpecification', name: n, value: true })),
+      accommodationCategory: ['Studio', 'Garden'],
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Fontes críticas: preload evita FOIT no LCP (headline do hero) -->
+    <link rel="preload" href="/fonts/Sora-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Sora-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Times-Italic.woff2" as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#010811" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.nome} />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Render da fachada do WindyCity, empreendimento de Studios em Curitiba"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content={SITE.incorporadora} />
+    <meta name="geo.region" content="BR-PR" />
+    <meta name="geo.placename" content={SITE.cidade} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <slot />
+
+    <script>
+      /* --------------------------------------------------------------
+         Runtime completo da página. Sem dependências, ~1.4KB.
+         Tudo com transform/opacity para não sair do compositor.
+      -------------------------------------------------------------- */
+      const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* 1 · Revelação ao entrar na viewport */
+      const alvos = document.querySelectorAll<HTMLElement>(
+        '[data-rv], [data-rv-img], [data-rv-line]'
+      );
+      if (reduz) {
+        alvos.forEach((el) => el.classList.add('is-in'));
+      } else {
+        /* Uma imagem só é revelada depois de estar decodificada. Sem isso a
+           máscara abre sobre um espaço vazio e a foto "pipoca" depois — era
+           essa a sensação de travamento. Ao entrar no raio, o download também
+           é forçado (loading=eager) para não depender do gatilho do navegador. */
+        const revelar = (el: HTMLElement) => {
+          const img = el.querySelector('img');
+          if (!img) {
+            el.classList.add('is-in');
+            return;
+          }
+          if (img.complete && img.naturalWidth > 0) {
+            el.classList.add('is-in');
+            return;
+          }
+          img.loading = 'eager';
+          const pronto = () => el.classList.add('is-in');
+          img.addEventListener('load', pronto, { once: true });
+          img.addEventListener('error', pronto, { once: true });
+        };
+
+        const io = new IntersectionObserver(
+          (entradas) => {
+            for (const e of entradas) {
+              if (!e.isIntersecting) continue;
+              io.unobserve(e.target);
+              revelar(e.target as HTMLElement);
+            }
+          },
+          /* margem POSITIVA: dispara antes de entrar na tela, dando tempo de
+             carregar. threshold baixo porque imagens de sangria são altas. */
+          { rootMargin: '0px 0px 35% 0px', threshold: 0.01 }
+        );
+        alvos.forEach((el) => io.observe(el));
+      }
+
+      /* 2 · Header: some ao descer, volta ao subir, ganha fundo após o hero */
+      const header = document.querySelector<HTMLElement>('[data-header]');
+      if (header) {
+        let ultimo = window.scrollY;
+        let travado = false;
+        const aoRolar = () => {
+          const y = window.scrollY;
+          header.classList.toggle('is-solid', y > 80);
+          if (Math.abs(y - ultimo) > 6) {
+            header.classList.toggle('is-hidden', y > ultimo && y > 340);
+            ultimo = y;
+          }
+          travado = false;
+        };
+        addEventListener(
+          'scroll',
+          () => {
+            if (travado) return;
+            travado = true;
+            requestAnimationFrame(aoRolar);
+          },
+          { passive: true }
+        );
+      }
+
+      /* 3 · Contagem dos números-chave (só uma vez, ao aparecer) */
+      const contadores = document.querySelectorAll<HTMLElement>('[data-count]');
+      if (contadores.length) {
+        const ioNum = new IntersectionObserver(
+          (entradas) => {
+            for (const e of entradas) {
+              if (!e.isIntersecting) continue;
+              const el = e.target as HTMLElement;
+              ioNum.unobserve(el);
+              const alvo = Number(el.dataset.count || '0');
+              if (reduz) {
+                el.textContent = String(alvo);
+                continue;
+              }
+              const dur = 1100;
+              const t0 = performance.now();
+              const passo = (agora: number) => {
+                const p = Math.min((agora - t0) / dur, 1);
+                // easeOutExpo
+                const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+                el.textContent = String(Math.round(alvo * eased));
+                if (p < 1) requestAnimationFrame(passo);
+              };
+              requestAnimationFrame(passo);
+            }
+          },
+          { threshold: 0.5 }
+        );
+        contadores.forEach((el) => ioNum.observe(el));
+      }
+
+      /* 3 · Palco de abertura: progresso do scroll vira --p (0→1).
+         Só custom property → clip-path / opacity / transform. Sem layout. */
+      const palco = document.querySelector<HTMLElement>('[data-stage]');
+      const pino = document.querySelector<HTMLElement>('[data-pin]');
+      if (palco && pino && !reduz) {
+        let pedido = false;
+        const medir = () => {
+          const curso = palco.offsetHeight - window.innerHeight;
+          const andado = -palco.getBoundingClientRect().top;
+          const p = curso > 0 ? Math.min(Math.max(andado / curso, 0), 1) : 0;
+          palco.style.setProperty('--p', p.toFixed(4));
+          pedido = false;
+        };
+        addEventListener(
+          'scroll',
+          () => {
+            if (pedido) return;
+            pedido = true;
+            requestAnimationFrame(medir);
+          },
+          { passive: true }
+        );
+        addEventListener('resize', medir, { passive: true });
+        medir();
+      }
+
+      /* 3a · Parallax nas imagens de sangria.
+         Só desktop: no mobile o ganho visual não paga o custo de scroll. */
+      const camadas = [...document.querySelectorAll<HTMLElement>('[data-px]')];
+      if (camadas.length && !reduz && matchMedia('(min-width: 761px)').matches) {
+        let visiveis: HTMLElement[] = [];
+        const ioPx = new IntersectionObserver(
+          (es) => {
+            for (const e of es) {
+              const el = e.target as HTMLElement;
+              if (e.isIntersecting) {
+                if (!visiveis.includes(el)) visiveis.push(el);
+              } else {
+                visiveis = visiveis.filter((v) => v !== el);
+              }
+            }
+          },
+          { rootMargin: '15% 0px' }
+        );
+        camadas.forEach((el) => ioPx.observe(el));
+
+        let pendente = false;
+        const desenhar = () => {
+          const vh = window.innerHeight;
+          for (const el of visiveis) {
+            const r = el.getBoundingClientRect();
+            // -1 (abaixo da tela) → 1 (acima da tela)
+            const p = (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2);
+            const forca = Number(el.dataset.px) || 60;
+            el.style.setProperty('--py', `${(p * forca).toFixed(1)}px`);
+          }
+          pendente = false;
+        };
+        addEventListener(
+          'scroll',
+          () => {
+            if (pendente) return;
+            pendente = true;
+            requestAnimationFrame(desenhar);
+          },
+          { passive: true }
+        );
+        addEventListener('resize', desenhar, { passive: true });
+        desenhar();
+      }
+
+      /* 3b · CTA flutuante recolhe quando o formulário está em cena */
+      const flutuante = document.querySelector<HTMLElement>('[data-wa-float]');
+      const secContato = document.querySelector('#contato');
+      if (flutuante && secContato) {
+        const ioCta = new IntersectionObserver(
+          ([e]) => flutuante.classList.toggle('is-off', e.isIntersecting),
+          { threshold: 0.18 }
+        );
+        ioCta.observe(secContato);
+      }
+
+      /* 4 · Formulário → handoff para WhatsApp (ou aviso enquanto não há número) */
+      const form = document.querySelector<HTMLFormElement>('[data-lead]');
+      form?.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const dados = new FormData(form);
+        const nome = String(dados.get('nome') || '').trim();
+        const tel = String(dados.get('whatsapp') || '').trim();
+        const tipo = String(dados.get('tipologia') || '');
+        const base = form.dataset.wa; // vazio enquanto o número não for confirmado
+        const aviso = form.querySelector<HTMLElement>('[data-form-msg]');
+
+        if (!nome || !tel) {
+          if (aviso) aviso.textContent = 'Preencha nome e WhatsApp para continuar.';
+          return;
+        }
+        if (!base) {
+          if (aviso) {
+            aviso.textContent =
+              'Formulário pronto — falta apenas o número de WhatsApp da Girassol para ativar o envio.';
+          }
+          return;
+        }
+        const msg = `Olá! Sou ${nome} (${tel}) e tenho interesse em ${tipo} no WindyCity.`;
+        window.open(`${base}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+      });
+
+      /* 5 · Máscara simples de telefone brasileiro */
+      const tel = document.querySelector<HTMLInputElement>('[data-tel]');
+      tel?.addEventListener('input', () => {
+        const d = tel.value.replace(/\D/g, '').slice(0, 11);
+        tel.value =
+          d.length <= 2
+            ? d
+            : d.length <= 6
+              ? `(${d.slice(0, 2)}) ${d.slice(2)}`
+              : d.length <= 10
+                ? `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
+                : `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Localizacao from '../components/Localizacao.astro';
+import Diferenciais from '../components/Diferenciais.astro';
+import AreasComuns from '../components/AreasComuns.astro';
+import Tipologias from '../components/Tipologias.astro';
+import Credibilidade from '../components/Credibilidade.astro';
+import Condicoes from '../components/Condicoes.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import Footer from '../components/Footer.astro';
+import CtaFlutuante from '../components/CtaFlutuante.astro';
+import Marquee from '../components/Marquee.astro';
+---
+
+<Base>
+  <Header />
+
+  <main id="conteudo">
+    <!-- Ordem das dobras conforme wireframe aprovado -->
+    <Hero />
+    <Localizacao />
+    <Diferenciais />
+    <AreasComuns />
+    <Marquee tema="marrom" />
+    <Tipologias />
+    <Credibilidade />
+    <Condicoes />
+    <CtaFinal />
+  </main>
+
+  <Footer />
+  <CtaFlutuante />
+</Base>

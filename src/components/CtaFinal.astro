@@ -1,0 +1,258 @@
+---
+import { Picture } from 'astro:assets';
+import fundo from '../assets/images/interna-04.png';
+import { CONTATO } from '../config';
+
+/* Enquanto o número real não chega, o form avisa em vez de abrir link quebrado. */
+const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
+---
+
+<section class="cta" id="contato" aria-labelledby="ct-t">
+  <div class="cta-bg" aria-hidden="true">
+    <Picture
+      src={fundo}
+      formats={['avif', 'webp']}
+      fallbackFormat="webp"
+      widths={[760, 1100, 1500, 1920]}
+      sizes="100vw"
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <div class="cta-veil" aria-hidden="true"></div>
+
+  <div class="wrap cta-in">
+    <div class="cta-txt">
+      <p class="eyebrow" data-rv>Fale com a Girassol</p>
+      <h2 class="h2-xl" id="ct-t" data-rv style="--d:80ms">
+        Encontre a unidade <em class="ac">ideal</em> para o seu objetivo.
+      </h2>
+      <p class="lede cta-lede" data-rv style="--d:160ms">
+        Receba o material institucional completo, plantas, valores e disponibilidade atualizada do
+        WindyCity — antes de falar com o corretor.
+      </p>
+
+      <ul class="cta-ct" data-rv style="--d:240ms">
+        <li>
+          <span class="label">WhatsApp</span>
+          <span class="cta-v">{CONTATO.whatsappDisplay}</span>
+        </li>
+        <li>
+          <span class="label">Instagram</span>
+          <a class="cta-v cta-link" href={CONTATO.instagramUrl} target="_blank" rel="noopener">
+            {CONTATO.instagram}
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <form class="form" data-lead data-wa={waBase} novalidate data-rv style="--d:200ms">
+      <div class="f-row">
+        <label for="f-nome">Nome</label>
+        <input id="f-nome" name="nome" type="text" placeholder="Seu nome" autocomplete="name" required />
+      </div>
+      <div class="f-row">
+        <label for="f-wa">WhatsApp</label>
+        <input
+          id="f-wa"
+          name="whatsapp"
+          type="tel"
+          inputmode="tel"
+          placeholder="(XX) XXXXX-XXXX"
+          autocomplete="tel"
+          data-tel
+          required
+        />
+      </div>
+      <div class="f-row">
+        <label for="f-tipo">Tipologia de interesse</label>
+        <div class="f-sel">
+          <select id="f-tipo" name="tipologia">
+            <option>Studio</option>
+            <option>Garden</option>
+            <option>Ainda não sei</option>
+          </select>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6.5 8 10.5l4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+      </div>
+
+      <button class="btn btn--block form-btn" type="submit">
+        <span>Receber material e falar no WhatsApp</span>
+      </button>
+      <p class="form-msg" data-form-msg role="status" aria-live="polite"></p>
+      <p class="form-note">Você será direcionado ao WhatsApp de um corretor Girassol</p>
+    </form>
+  </div>
+</section>
+
+<style>
+  /* Seção sobre imagem: o verde vira véu, não chapa */
+  .cta {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(84px, 11vw, 168px);
+    color: var(--bege);
+    --fg: var(--bege);
+    --fg-soft: var(--bege-60);
+    --fg-faint: var(--bege-40);
+    --rule: var(--bege-14);
+  }
+  .cta-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+  .cta-bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cta-veil {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(115deg, rgba(48, 115, 81, 0.96) 0%, rgba(48, 115, 81, 0.82) 46%, rgba(1, 8, 17, 0.86) 100%);
+  }
+  .cta :global(.eyebrow) {
+    color: var(--bege);
+  }
+
+  .cta-in {
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+    gap: clamp(36px, 6vw, 92px);
+    align-items: center;
+  }
+  .cta-txt .h2-xl {
+    margin-bottom: 22px;
+    max-width: 15ch;
+  }
+  .cta-lede {
+    color: var(--bege-80);
+    margin-bottom: clamp(26px, 3.4vw, 40px);
+  }
+
+  .cta-ct {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 48px;
+  }
+  .cta-ct li {
+    display: grid;
+    gap: 6px;
+  }
+  .cta-ct .label {
+    color: var(--bege-60);
+  }
+  .cta-v {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--bege);
+  }
+  .cta-link {
+    position: relative;
+    width: fit-content;
+  }
+  .cta-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.45;
+    transition: opacity 0.3s ease;
+  }
+  .cta-link:hover::after {
+    opacity: 1;
+  }
+
+  /* --- Formulário --- */
+  .form {
+    background: var(--bege);
+    color: var(--marrom);
+    border-radius: var(--radius);
+    padding: clamp(24px, 3.4vw, 46px);
+    display: grid;
+    gap: 18px;
+    box-shadow: 0 30px 80px rgba(1, 8, 17, 0.3);
+  }
+  .f-row {
+    display: grid;
+    gap: 7px;
+  }
+  .form label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--marrom-50);
+  }
+  .form input,
+  .form select {
+    width: 100%;
+    min-height: 50px;
+    padding: 13px 15px;
+    background: var(--branco);
+    border: 1px solid var(--marrom-16);
+    border-radius: var(--radius);
+    font-size: 1rem; /* 16px evita zoom automático no iOS */
+    color: var(--marrom);
+    transition:
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
+    appearance: none;
+  }
+  .form input::placeholder {
+    color: var(--marrom-50);
+  }
+  .form input:focus-visible,
+  .form select:focus-visible {
+    outline: none;
+    border-color: var(--verde);
+    box-shadow: 0 0 0 3px rgba(48, 115, 81, 0.16);
+  }
+  .f-sel {
+    position: relative;
+    display: grid;
+  }
+  .f-sel svg {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--marrom-50);
+    pointer-events: none;
+  }
+  .form-btn {
+    margin-top: 4px;
+    min-height: 56px;
+  }
+  .form-msg:empty {
+    display: none;
+  }
+  .form-msg {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--verde);
+    font-weight: 600;
+    text-align: center;
+  }
+  .form-note {
+    font-size: 0.75rem;
+    color: var(--marrom-50);
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .cta-in {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

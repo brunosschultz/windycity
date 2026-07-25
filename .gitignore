@@ -1,0 +1,15 @@
+# build
+dist/
+.astro/
+
+# dependências
+node_modules/
+
+# ambiente — NUNCA commitar tokens
+.env
+.env.*
+!.env.example
+
+# sistema
+.DS_Store
+*.log

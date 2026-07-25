@@ -1,0 +1,166 @@
+---
+import { EMPREENDIMENTO } from '../config';
+
+const etapas = [
+  { pct: EMPREENDIMENTO.entrada, label: 'de entrada — menor desembolso inicial' },
+  {
+    pct: EMPREENDIMENTO.obra,
+    label: 'durante a obra — pagamento distribuído ao longo da construção',
+  },
+  {
+    pct: EMPREENDIMENTO.chaves,
+    label: 'na entrega das chaves — maior parcela concentrada na conclusão',
+    destaque: true,
+  },
+];
+---
+
+<section class="section theme-bege cd" id="condicoes" aria-labelledby="cd-t">
+  <div class="wrap">
+    <div class="cd-head">
+      <p class="eyebrow" data-rv>Condições comerciais</p>
+      <h2 class="h2-xl" id="cd-t" data-rv style="--d:80ms">
+        Mais <em class="ac">facilidade</em> no início. Mais planejamento até a entrega.
+      </h2>
+    </div>
+
+    <ol class="fluxo">
+      {
+        etapas.map((e, i) => (
+          <li class={`etapa ${e.destaque ? 'is-dest' : ''}`} data-rv style={`--d:${i * 130}ms`}>
+            <span class="etapa-n">
+              <span data-count={e.pct}>0</span>
+              <span class="etapa-pc">%</span>
+            </span>
+            <span class="etapa-l">{e.label}</span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="preco" data-rv>
+      <span class="preco-k label">Faixa de valores</span>
+      <p class="preco-v">
+        a partir de <strong>[R$ valor mínimo]</strong> até <strong>[R$ valor máximo]</strong> — varia
+        por andar e orientação da unidade.
+      </p>
+      <a class="btn btn--ghost preco-cta" href="#contato">
+        <span>Ver condições completas</span>
+        <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M2 8h11m0 0L9 4m4 4l-4 4"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cd-head {
+    max-width: 30ch;
+    margin-bottom: clamp(50px, 7vw, 100px);
+  }
+
+  /* Escada tipográfica: cada etapa recua um pouco mais e cresce em peso */
+  .fluxo {
+    display: grid;
+    gap: clamp(4px, 1vw, 18px);
+    margin-bottom: clamp(56px, 7vw, 100px);
+  }
+  .etapa {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(20px, 4vw, 64px);
+    padding-block: clamp(10px, 1.4vw, 20px);
+    border-top: 1px solid var(--rule);
+  }
+  .etapa:nth-child(2) {
+    padding-left: clamp(0px, 4vw, 90px);
+  }
+  .etapa:nth-child(3) {
+    padding-left: clamp(0px, 8vw, 180px);
+  }
+
+  .etapa-n {
+    font-family: 'TimesWC', 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-size: clamp(4rem, 14vw, 13rem);
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    color: var(--marrom);
+    font-variant-numeric: lining-nums tabular-nums;
+    display: inline-flex;
+    align-items: baseline;
+  }
+  .etapa-pc {
+    font-size: 0.44em;
+  }
+  .etapa-l {
+    font-size: clamp(0.875rem, 1.35vw, 1.0625rem);
+    line-height: 1.5;
+    color: var(--fg-soft);
+    max-width: 26ch;
+  }
+  .etapa.is-dest .etapa-n {
+    color: var(--verde);
+  }
+  .etapa.is-dest .etapa-l {
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  /* Faixa de valores: fio + tipografia, sem moldura tracejada */
+  .preco {
+    display: grid;
+    grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) auto;
+    gap: clamp(16px, 3vw, 44px);
+    align-items: center;
+    padding-top: clamp(26px, 3vw, 40px);
+    border-top: 1px solid var(--rule);
+  }
+  .preco-k {
+    color: var(--verde);
+  }
+  .preco-v {
+    font-size: clamp(0.9375rem, 1.4vw, 1.125rem);
+    line-height: 1.55;
+    color: var(--fg-soft);
+    max-width: 44ch;
+  }
+  .preco-v strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .preco-cta {
+    justify-self: end;
+  }
+
+  @media (max-width: 860px) {
+    .etapa {
+      grid-template-columns: 1fr;
+      gap: 4px;
+      padding-block: 18px;
+    }
+    .etapa:nth-child(2),
+    .etapa:nth-child(3) {
+      padding-left: 0;
+    }
+    .etapa-l {
+      max-width: none;
+    }
+    .preco {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .preco-cta {
+      justify-self: stretch;
+      width: 100%;
+      margin-top: 8px;
+    }
+  }
+</style>

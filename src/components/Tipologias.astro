@@ -1,0 +1,213 @@
+---
+import { Picture } from 'astro:assets';
+import plantaStudio from '../assets/images/planta-24-45.png';
+import plantaGarden from '../assets/images/planta-47-08.png';
+import { waHref } from '../config';
+
+const tipos = [
+  {
+    img: plantaStudio,
+    alt: 'Planta humanizada de studio do WindyCity, com dormitório, estar, cozinha compacta e banheiro integrados',
+    titulo: 'Studio — praticidade para quem vive em movimento',
+    texto:
+      'Opção versátil para estudantes, profissionais e investidores que buscam mobilidade, funcionalidade e potencial para locações de curta permanência.',
+    itens: [
+      'Planta flexível — pode configurar um layout de 1 dormitório',
+      'Investimento e short stay',
+      'Estudantes e profissionais',
+      'Moradia individual',
+      'Quem prioriza localização e praticidade',
+    ],
+    cta: 'Conhecer Studios',
+  },
+  {
+    img: plantaGarden,
+    alt: 'Planta humanizada de garden do WindyCity, com área externa privativa gramada e deck de madeira',
+    titulo: 'Garden — mais espaço para viver por mais tempo',
+    texto:
+      'Com área externa privativa, oferece uma experiência mais residencial — indicada para quem busca conforto, privacidade e permanência prolongada.',
+    itens: [
+      'Moradia e locação de longa permanência',
+      'Público maduro',
+      'Quem valoriza área externa',
+      'Quem busca mais privacidade e amplitude',
+    ],
+    cta: 'Conhecer Gardens',
+  },
+];
+---
+
+<section class="section theme-bege tp" id="tipologias" aria-labelledby="tp-t">
+  <div class="wrap">
+    <div class="tp-head">
+      <p class="eyebrow" data-rv>Tipologias</p>
+      <h2 class="h2-xl" id="tp-t" data-rv style="--d:80ms">
+        Duas formas de <em class="ac">viver</em> o WindyCity
+      </h2>
+      <p class="body tp-body" data-rv style="--d:160ms">
+        Studios e Gardens compartilham a mesma arquitetura bem resolvida — iluminação natural,
+        ventilação e melhor aproveitamento dos espaços. O que muda é a forma de viver ou investir.
+      </p>
+    </div>
+
+    {
+      tipos.map((t, i) => (
+        <article class={`tp-row ${i % 2 ? 'is-alt' : ''}`}>
+          <figure class="tp-fig" data-rv-img>
+            <Picture
+              src={t.img}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[620, 900, 1240]}
+              sizes="(max-width: 940px) 100vw, 54vw"
+              alt={t.alt}
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption class="tp-il label">Imagens meramente ilustrativas</figcaption>
+          </figure>
+
+          <div class="tp-txt" data-rv style="--d:120ms">
+            <h3 class="tp-h3">{t.titulo}</h3>
+            <p class="tp-p">{t.texto}</p>
+            <ul class="tp-list">
+              {t.itens.map((it) => (
+                <li>
+                  <span class="tp-mk" aria-hidden="true" />
+                  <span>{it}</span>
+                </li>
+              ))}
+            </ul>
+            <a class="btn tp-cta" href={waHref()}>
+              <span>{t.cta}</span>
+              <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M2 8h11m0 0L9 4m4 4l-4 4"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </a>
+          </div>
+        </article>
+      ))
+    }
+
+    <p class="tp-claim" data-rv>Diferentes formas de ocupar. A mesma qualidade de projeto.</p>
+  </div>
+</section>
+
+<style>
+  .tp-head {
+    max-width: 30ch;
+    margin-bottom: clamp(50px, 7vw, 96px);
+  }
+  .tp-head .h2-xl {
+    margin-bottom: 24px;
+  }
+  .tp-body {
+    max-width: 52ch;
+  }
+
+  .tp-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    gap: clamp(30px, 6vw, 96px);
+    align-items: center;
+    padding-block: clamp(40px, 6vw, 86px);
+    border-top: 1px solid var(--rule);
+  }
+  .tp-row.is-alt {
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  }
+  .tp-row.is-alt .tp-fig {
+    order: 2;
+  }
+
+  /* A planta tem fundo branco no arquivo. `multiply` faz o branco virar
+     exatamente a cor da seção — a planta flutua sem nenhuma moldura. */
+  .tp-fig {
+    position: relative;
+    mix-blend-mode: multiply;
+  }
+  .tp-fig :global(img) {
+    width: 100%;
+    height: auto;
+  }
+  .tp-il {
+    position: absolute;
+    right: 0;
+    bottom: -4px;
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    color: var(--marrom-50);
+  }
+
+  .tp-h3 {
+    font-size: clamp(1.3rem, 2.4vw, 2.05rem);
+    font-weight: 700;
+    line-height: 1.14;
+    letter-spacing: -0.026em;
+    margin-bottom: 16px;
+    max-width: 18ch;
+  }
+  .tp-p {
+    font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
+    line-height: 1.62;
+    color: var(--fg-soft);
+    margin-bottom: 30px;
+    max-width: 46ch;
+  }
+  .tp-list {
+    display: grid;
+    margin-bottom: 34px;
+  }
+  .tp-list li {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    padding: 11px 0;
+    border-top: 1px solid var(--rule);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--fg-soft);
+  }
+  .tp-mk {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    background: var(--verde);
+    margin-top: 7px;
+  }
+  .tp-cta {
+    align-self: flex-start;
+  }
+
+  .tp-claim {
+    margin-top: clamp(46px, 6vw, 78px);
+    padding-top: clamp(34px, 4vw, 54px);
+    border-top: 1px solid var(--rule);
+    font-size: clamp(1.25rem, 2.8vw, 2.35rem);
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    line-height: 1.2;
+    max-width: 24ch;
+    text-wrap: balance;
+  }
+
+  @media (max-width: 940px) {
+    .tp-row,
+    .tp-row.is-alt {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .tp-row.is-alt .tp-fig {
+      order: 0;
+    }
+    .tp-cta {
+      width: 100%;
+    }
+  }
+</style>

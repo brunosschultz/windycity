@@ -1,0 +1,36 @@
+---
+/**
+ * Faixa deslizante com o slogan oficial da marca (brand book).
+ * Serve de respiro entre dois blocos densos e reforça o conceito de "ritmo".
+ */
+interface Props {
+  tema?: 'preto' | 'bege' | 'marrom';
+}
+const { tema = 'preto' } = Astro.props;
+const repeticoes = 4;
+---
+
+<div class={`marquee theme-${tema} mq`} aria-hidden="true">
+  {
+    [0, 1].map(() => (
+      <div class="marquee-track">
+        {Array.from({ length: repeticoes }).map(() => (
+          <span class="marquee-item">
+            Viva o novo <em class="ac">ritmo</em> urbano
+          </span>
+        ))}
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .mq {
+    background: var(--bg);
+    color: var(--fg);
+    border-block-color: var(--rule);
+  }
+  .mq :global(.ac) {
+    margin-inline: 0.12em;
+  }
+</style>

@@ -1,0 +1,380 @@
+---
+import { Picture } from 'astro:assets';
+import poster from '../assets/images/fachada-02.png';
+import fachadaDia from '../assets/images/fachada-03.png';
+import elevacao from '../assets/images/fachada-05-alpha.png';
+import { EMPREENDIMENTO } from '../config';
+
+/* `pendente` = dado que o próprio wireframe marca como a confirmar. */
+const stats = [
+  { valor: String(EMPREENDIMENTO.unidades), count: EMPREENDIMENTO.unidades, label: 'unidades no empreendimento' },
+  { valor: String(EMPREENDIMENTO.walkScore), count: EMPREENDIMENTO.walkScore, label: 'Walk Score da região' },
+  { valor: EMPREENDIMENTO.comercializado, label: 'das unidades já comercializadas' },
+  {
+    valor: '[X anos]',
+    label: 'de experiência combinada da equipe técnica',
+    nota: '(confirmar número exato)',
+    pendente: true,
+  },
+];
+
+const depoimentos = [
+  'Cliente que já comprou com a Girassol conta a experiência de compra e atendimento.',
+  'Segundo relato de cliente, reforçando confiança e transparência.',
+];
+---
+
+<section class="section theme-preto cr" id="girassol" aria-labelledby="gi-t">
+  <div class="wrap">
+    <div class="cr-head">
+      <p class="eyebrow" data-rv>Conheça a Girassol</p>
+      <h2 class="h2-xl" id="gi-t" data-rv style="--d:80ms">
+        Por que <em class="ac">confiar</em> na Girassol?
+      </h2>
+      <p class="body cr-body" data-rv style="--d:160ms">
+        A Girassol é formada por profissionais com experiência em planejamento, construção e gestão
+        de empreendimentos. A marca é recente — a experiência, não. Aqui, o contato com quem decide é
+        direto: sem coordenador do coordenador.
+      </p>
+    </div>
+
+    <!-- Números em escala de pôster, sem caixas -->
+    <ul class="stats">
+      {
+        stats.map((s, i) => (
+          <li class="stat" data-rv style={`--d:${i * 70}ms`}>
+            <span class={`stat-n ${s.pendente ? 'is-pend' : ''}`}>
+              {s.count ? <span data-count={s.count}>0</span> : s.valor}
+            </span>
+            <span class="stat-l">{s.label}</span>
+            {s.nota && <span class="stat-nota">{s.nota}</span>}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <!-- Vídeo institucional: sangria total com poster -->
+  <figure class="bleed cr-video" data-px="80" data-rv-img>
+    <Picture
+      src={poster}
+      formats={['avif', 'webp']}
+      fallbackFormat="webp"
+      widths={[760, 1100, 1500, 1920]}
+      sizes="100vw"
+      alt="Fachada do WindyCity vista da calçada, com pessoas circulando na rua"
+      loading="lazy"
+      decoding="async"
+    />
+    <span class="cr-play" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1">
+        <path d="M9 7.5 17 12l-8 4.5v-9Z" stroke-linejoin="round"></path>
+      </svg>
+    </span>
+    <figcaption class="cr-vcap">
+      <span class="label">Vídeo institucional</span>
+      <span class="cr-vsub">Fundadores apresentando a Girassol e o WindyCity</span>
+    </figcaption>
+  </figure>
+
+  <div class="wrap">
+    <!-- Pilares: só tipografia e fio -->
+    <div class="pilares">
+      <div class="pilar" data-rv>
+        <h3 class="h3">Histórico</h3>
+        <p>
+          Experiência construída ao longo de décadas em planejamento, construção e gestão de
+          empreendimentos.
+        </p>
+      </div>
+      <div class="pilar" data-rv style="--d:110ms">
+        <h3 class="h3">Atendimento próximo</h3>
+        <p>Contato direto com quem decide — inclusive no pós-obra, sem intermediários.</p>
+      </div>
+    </div>
+
+    <!-- Galeria desalinhada -->
+    <div class="cr-gal">
+      <figure class="cr-g cr-g--a" data-px="50" data-rv-img>
+        <Picture
+          src={fachadaDia}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[520, 780, 1100]}
+          sizes="(max-width: 860px) 100vw, 54vw"
+          alt="Fachada completa do WindyCity em vista diurna, com jardineiras nas varandas"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+      <figure class="cr-g cr-g--b" data-rv-img style="--d:120ms">
+        <Picture
+          src={elevacao}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[420, 640, 900]}
+          sizes="(max-width: 860px) 100vw, 40vw"
+          alt="Elevação frontal do WindyCity com as unidades iluminadas"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+
+    <!-- Depoimentos: linhas editoriais, sem card -->
+    <ul class="depo">
+      {
+        depoimentos.map((d, i) => (
+          <li class="depo-it" data-rv style={`--d:${i * 90}ms`}>
+            <span class="depo-ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <circle cx="12" cy="12" r="9.2" />
+                <path d="M10 8.5 16 12l-6 3.5v-7Z" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span class="depo-t">Depoimento em vídeo</span>
+            <span class="depo-d">{d}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="cr-cta" data-rv>
+      <a class="btn btn--light" href="#contato">
+        <span>Saiba mais</span>
+        <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M2 8h11m0 0L9 4m4 4l-4 4"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cr {
+    padding-bottom: clamp(70px, 9vw, 130px);
+  }
+  .cr-head {
+    max-width: 22ch;
+    margin-bottom: clamp(48px, 6vw, 88px);
+  }
+  .cr-head .h2-xl {
+    margin-bottom: 24px;
+  }
+  .cr-body {
+    max-width: 54ch;
+  }
+
+  /* Números */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(20px, 3vw, 44px);
+    margin-bottom: clamp(56px, 8vw, 110px);
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+  .stat-n {
+    font-family: 'TimesWC', 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-size: clamp(3rem, 7vw, 6.4rem);
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    color: var(--bege);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .stat-n.is-pend {
+    font-size: clamp(1.5rem, 3vw, 2.6rem);
+    color: var(--bege-40);
+  }
+  .stat-l {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--bege-60);
+    max-width: 18ch;
+  }
+  .stat-nota {
+    font-size: 0.6875rem;
+    font-style: italic;
+    color: var(--verde);
+  }
+
+  /* Vídeo */
+  .cr-video {
+    position: relative;
+    height: clamp(340px, 80vh, 800px);
+    overflow: hidden;
+  }
+  .cr-video :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 42%;
+  }
+  .cr-video::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(1, 8, 17, 0.72), rgba(1, 8, 17, 0.08) 62%);
+    pointer-events: none;
+  }
+  .cr-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    width: clamp(64px, 8vw, 104px);
+    aspect-ratio: 1;
+    border: 1px solid var(--bege-40);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--bege);
+    backdrop-filter: blur(3px);
+    transition:
+      transform 0.5s var(--ease),
+      background-color 0.4s ease;
+  }
+  .cr-play svg {
+    width: 42%;
+    height: 42%;
+  }
+  .cr-video:hover .cr-play {
+    transform: translate(-50%, -50%) scale(1.07);
+    background: rgba(239, 230, 226, 0.12);
+  }
+  .cr-vcap {
+    position: absolute;
+    z-index: 2;
+    left: var(--gutter);
+    bottom: clamp(20px, 3vw, 40px);
+    display: grid;
+    gap: 6px;
+    color: var(--bege);
+  }
+  .cr-vcap .label {
+    color: var(--bege);
+  }
+  .cr-vsub {
+    font-size: 0.875rem;
+    color: var(--bege-60);
+  }
+
+  /* Pilares */
+  .pilares {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(26px, 5vw, 80px);
+    padding-block: clamp(56px, 8vw, 108px);
+  }
+  .pilar .h3 {
+    margin-bottom: 12px;
+  }
+  .pilar p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--bege-60);
+    max-width: 40ch;
+  }
+
+  /* Galeria */
+  .cr-gal {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: clamp(16px, 3vw, 48px);
+    align-items: start;
+  }
+  .cr-g {
+    overflow: hidden;
+  }
+  .cr-g :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cr-g--a {
+    height: clamp(280px, 54vh, 560px);
+  }
+  .cr-g--b {
+    margin-top: clamp(36px, 8vw, 130px);
+    height: clamp(300px, 60vh, 640px);
+  }
+
+  /* Depoimentos */
+  .depo {
+    margin-top: clamp(56px, 8vw, 108px);
+    border-top: 1px solid var(--rule);
+  }
+  .depo-it {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 16rem) minmax(0, 1fr);
+    gap: clamp(14px, 3vw, 44px);
+    align-items: center;
+    padding-block: clamp(20px, 2.6vw, 32px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .depo-ic {
+    width: 34px;
+    height: 34px;
+    color: var(--verde);
+  }
+  .depo-ic svg {
+    width: 100%;
+    height: 100%;
+  }
+  .depo-t {
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    font-weight: 700;
+    letter-spacing: -0.018em;
+  }
+  .depo-d {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--bege-60);
+  }
+
+  .cr-cta {
+    display: flex;
+    margin-top: clamp(40px, 5vw, 64px);
+  }
+
+  @media (max-width: 900px) {
+    .stats {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 26px 20px;
+    }
+    .pilares,
+    .cr-gal {
+      grid-template-columns: 1fr;
+    }
+    .cr-g--b {
+      margin-top: 0;
+    }
+    .cr-g--a,
+    .cr-g--b {
+      height: clamp(250px, 50vh, 400px);
+    }
+    .depo-it {
+      grid-template-columns: 34px 1fr;
+      gap: 6px 14px;
+      align-items: start;
+    }
+    .depo-d {
+      grid-column: 2;
+    }
+    .cr-cta .btn {
+      width: 100%;
+    }
+  }
+</style>

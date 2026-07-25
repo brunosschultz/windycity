@@ -1,0 +1,126 @@
+---
+import Logo from './Logo.astro';
+import { CONTATO, SITE } from '../config';
+
+const ano = new Date().getFullYear();
+---
+
+<footer class="ft theme-preto">
+  <div class="wrap ft-in">
+    <div class="ft-brand">
+      <Logo class="ft-logo" title="WindyCity" />
+      <p class="ft-slogan">Viva o novo <em class="ac">ritmo</em> urbano</p>
+    </div>
+
+    <div class="ft-cols">
+      <div class="ft-col">
+        <p class="label">Incorporadora</p>
+        <p class="ft-v ft-v--strong">{SITE.incorporadora}</p>
+        <p class="ft-v">CNPJ: {CONTATO.cnpj}</p>
+      </div>
+
+      <div class="ft-col">
+        <p class="label">Contato</p>
+        <p class="ft-v">WhatsApp: {CONTATO.whatsappDisplay}</p>
+        <p class="ft-v">E-mail: {CONTATO.email}</p>
+        <a class="ft-v ft-link" href={CONTATO.instagramUrl} target="_blank" rel="noopener">
+          Instagram: {CONTATO.instagram}
+        </a>
+      </div>
+
+      <div class="ft-col">
+        <p class="label">Endereço</p>
+        <p class="ft-v">{CONTATO.endereco}</p>
+        <p class="ft-v">{SITE.cidade}, {SITE.estado}</p>
+      </div>
+    </div>
+
+    <div class="ft-base">
+      <p class="ft-legal">
+        © {ano} {SITE.incorporadora}. Imagens meramente ilustrativas.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    background: var(--preto);
+    color: var(--bege);
+    padding-block: clamp(56px, 7vw, 92px) clamp(28px, 3vw, 40px);
+  }
+  .ft-in {
+    display: grid;
+    gap: clamp(36px, 5vw, 60px);
+  }
+
+  .ft-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .ft-logo {
+    width: clamp(150px, 20vw, 220px);
+    height: auto;
+    color: var(--bege);
+  }
+  .ft-slogan {
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    color: var(--bege-60);
+    font-weight: 400;
+  }
+
+  .ft-cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(26px, 4vw, 56px);
+    padding-top: clamp(30px, 4vw, 48px);
+    border-top: 1px solid var(--rule);
+  }
+  .ft-col {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+  .ft-col .label {
+    color: var(--verde);
+    margin-bottom: 6px;
+  }
+  .ft-v {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--bege-60);
+  }
+  .ft-v--strong {
+    color: var(--bege);
+    font-weight: 600;
+  }
+  .ft-link {
+    width: fit-content;
+    transition: color 0.25s ease;
+  }
+  .ft-link:hover {
+    color: var(--bege);
+  }
+
+  .ft-base {
+    padding-top: clamp(22px, 3vw, 32px);
+    border-top: 1px solid var(--rule);
+  }
+  .ft-legal {
+    font-size: 0.75rem;
+    color: var(--bege-40);
+  }
+
+  @media (max-width: 760px) {
+    .ft-cols {
+      grid-template-columns: 1fr;
+      gap: 26px;
+    }
+    /* espaço para a barra fixa de conversão no mobile */
+    .ft {
+      padding-bottom: 104px;
+    }
+  }
+</style>

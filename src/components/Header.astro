@@ -1,0 +1,133 @@
+---
+import Logo from './Logo.astro';
+import { waHref } from '../config';
+
+const links = [
+  { href: '#localizacao', label: 'Localização' },
+  { href: '#diferenciais', label: 'Diferenciais' },
+  { href: '#areas-comuns', label: 'Áreas comuns' },
+  { href: '#tipologias', label: 'Tipologias' },
+  { href: '#girassol', label: 'Girassol' },
+];
+---
+
+<header class="hd" data-header>
+  <div class="hd-in">
+    <a class="hd-logo" href="#hero" aria-label="WindyCity — início">
+      <Logo />
+    </a>
+
+    <nav class="hd-nav" aria-label="Navegação principal">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <a class="btn hd-cta" href={waHref()}>
+      <span>Falar no WhatsApp</span>
+    </a>
+  </div>
+</header>
+
+<style>
+  .hd {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    padding: 14px 0;
+    transition:
+      transform 0.5s var(--ease),
+      background-color 0.4s ease,
+      backdrop-filter 0.4s ease,
+      padding 0.4s ease,
+      border-color 0.4s ease;
+    border-bottom: 1px solid transparent;
+    color: var(--bege);
+  }
+  .hd.is-solid {
+    background: rgba(1, 8, 17, 0.82);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom-color: var(--bege-14);
+    padding: 9px 0;
+  }
+  .hd.is-hidden {
+    transform: translate3d(0, -100%, 0);
+  }
+
+  .hd-in {
+    width: 100%;
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .hd-logo {
+    flex: none;
+    display: block;
+    width: clamp(112px, 12vw, 148px);
+    transition: opacity 0.3s ease;
+  }
+  .hd-logo:hover {
+    opacity: 0.75;
+  }
+  .hd-logo :global(svg) {
+    width: 100%;
+    height: auto;
+  }
+
+  .hd-nav {
+    display: flex;
+    gap: clamp(18px, 2.4vw, 34px);
+    margin-inline: auto;
+  }
+  .hd-nav a {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.72;
+    position: relative;
+    padding-block: 6px;
+    transition: opacity 0.3s ease;
+  }
+  .hd-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease);
+  }
+  .hd-nav a:hover {
+    opacity: 1;
+  }
+  .hd-nav a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .hd-cta {
+    flex: none;
+    min-height: 42px;
+    padding: 11px 20px;
+    font-size: 0.6875rem;
+  }
+
+  /* Mobile: nav e CTA saem do topo — a conversão fica na barra fixa inferior,
+     que é mais alcançável com o polegar e não compete com o hero. */
+  @media (max-width: 1000px) {
+    .hd-nav,
+    .hd-cta {
+      display: none;
+    }
+    .hd-in {
+      justify-content: flex-start;
+    }
+  }
+</style>

@@ -1,0 +1,187 @@
+---
+import { EMPREENDIMENTO } from '../config';
+
+/* Conteúdo exato do wireframe aprovado. O travessão separa título e
+   descrição — a quebra é só hierarquia tipográfica, o texto é o mesmo.
+   O título "Viva a cidade com mais autonomia" (id="loc-t") fica no palco
+   de abertura, sobre a imagem noturna — daí o aria-labelledby apontar pra lá. */
+const pontos = [
+  { t: 'Arena da Baixada', d: 'proximidade com jogos, shows e grandes eventos' },
+  { t: 'Mobilidade', d: 'fácil acesso ao transporte público e eixos urbanos' },
+  { t: 'Universidades', d: 'próximo à PUCPR e outros centros de ensino' },
+  { t: 'Cotidiano', d: 'mercados, farmácias, restaurantes e serviços essenciais' },
+  {
+    t: 'Sem vaga de garagem obrigatória',
+    d: 'mais autonomia, menos dependência do carro',
+  },
+];
+---
+
+<section class="section theme-bege loc" id="localizacao" aria-labelledby="loc-t">
+  <div class="wrap">
+    <p class="eyebrow" data-rv>Localização</p>
+    <p class="body loc-body" data-rv style="--d:70ms">
+      O WindyCity está em uma região conectada a transporte, universidades, serviços, lazer e aos
+      principais movimentos de Curitiba — com ponto de ônibus em frente e menor dependência do
+      carro.
+    </p>
+
+    <!-- Pontos de interesse vêm antes do Walk Score -->
+    <ul class="pontos">
+      {
+        pontos.map((p, i) => (
+          <li class="ponto" data-rv style={`--d:${i * 55}ms`}>
+            <span class="ponto-i label">{String(i + 1).padStart(2, '0')}</span>
+            <span class="ponto-t">{p.t}</span>
+            <span class="ponto-d">{p.d}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- Walk Score fecha a seção -->
+    <div class="score theme-preto" data-rv>
+      <div class="score-n">
+        <span class="num-xl" data-count={EMPREENDIMENTO.walkScore}>0</span>
+        <span class="label score-esc">de 0 a 100</span>
+      </div>
+      <div class="score-t">
+        <h3 class="h3">Walk Score {EMPREENDIMENTO.walkScore}</h3>
+        <p>
+          Walk Score é um índice internacional que avalia, de 0 a 100, o quanto uma região permite
+          viver o dia a dia a pé.
+        </p>
+        <p>
+          Alto potencial para realizar atividades do cotidiano a pé — serviços, comércio,
+          universidades e lazer próximos, com pouca ou nenhuma dependência de carro.
+        </p>
+      </div>
+    </div>
+
+    <div class="loc-cta" data-rv>
+      <a class="btn btn--ghost" href="#contato">
+        <span>Ver o entorno</span>
+        <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M2 8h11m0 0L9 4m4 4l-4 4"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .loc-body {
+    max-width: 54ch;
+    margin-bottom: clamp(46px, 6vw, 82px);
+  }
+
+  /* Lista editorial: sem cards, só ritmo tipográfico e fio */
+  .pontos {
+    border-top: 1px solid var(--rule);
+    margin-bottom: clamp(56px, 7vw, 100px);
+  }
+  .ponto {
+    display: grid;
+    grid-template-columns: 3.6rem minmax(0, 15rem) minmax(0, 1fr);
+    gap: clamp(16px, 3vw, 48px);
+    align-items: baseline;
+    padding-block: clamp(20px, 2.4vw, 30px);
+    border-bottom: 1px solid var(--rule);
+    transition: opacity 0.35s var(--ease);
+  }
+  .ponto-i {
+    color: var(--verde);
+    letter-spacing: 0.18em;
+  }
+  .ponto-t {
+    font-size: clamp(1.05rem, 1.9vw, 1.5rem);
+    font-weight: 700;
+    letter-spacing: -0.018em;
+    line-height: 1.2;
+  }
+  .ponto-d {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--fg-soft);
+  }
+  /* Foco por atenuação: destaca o item sob o cursor sem caixa nem borda */
+  .pontos:hover .ponto {
+    opacity: 0.42;
+  }
+  .pontos:hover .ponto:hover {
+    opacity: 1;
+  }
+
+  /* Walk Score */
+  .score {
+    background: var(--preto);
+    color: var(--bege);
+    padding: clamp(30px, 4.4vw, 68px);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(30px, 6vw, 90px);
+    align-items: center;
+    margin-bottom: clamp(38px, 5vw, 60px);
+  }
+  .score-n {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .score-n .num-xl {
+    color: var(--bege);
+    font-size: clamp(5.5rem, 13vw, 12rem);
+  }
+  .score-esc {
+    color: var(--bege-40);
+    letter-spacing: 0.24em;
+  }
+  .score-t {
+    max-width: 46ch;
+    display: grid;
+    gap: 18px;
+  }
+  .score-t .h3 {
+    color: var(--bege);
+  }
+  .score-t p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--bege-60);
+  }
+
+  .loc-cta {
+    display: flex;
+  }
+
+  @media (max-width: 900px) {
+    .ponto {
+      grid-template-columns: 2.4rem 1fr;
+      gap: 6px 14px;
+      align-items: start;
+    }
+    .ponto-d {
+      grid-column: 2;
+    }
+    .pontos:hover .ponto {
+      opacity: 1;
+    }
+    .score {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+    .score-n {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 18px;
+    }
+    .loc-cta .btn {
+      width: 100%;
+    }
+  }
+</style>
