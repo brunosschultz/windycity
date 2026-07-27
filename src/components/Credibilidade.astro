@@ -160,10 +160,13 @@ const depoimentos = [
     padding-bottom: clamp(70px, 9vw, 130px);
   }
   .cr-head {
-    max-width: 22ch;
+    /* largura livre — quem limita é o h2 abaixo, com ch no tamanho certo */
     margin-bottom: clamp(48px, 6vw, 88px);
   }
   .cr-head .h2-xl {
+    /* "ch" precisa ir no próprio h2: em .cr-head (16px) o "ch" saía ~4x
+       mais estreito do que no h2 (78px), quebrando o título cedo demais. */
+    max-width: 18ch;
     margin-bottom: 24px;
   }
   .cr-body {

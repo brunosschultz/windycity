@@ -217,16 +217,62 @@ const schema = {
       }
 
       /* 3 · Palco de abertura: progresso do scroll vira --p (0→1).
-         Só custom property → clip-path / opacity / transform. Sem layout. */
+         Só custom property → clip-path / opacity / transform. Sem layout.
+         O vídeo do hero (sem autoplay) tem o currentTime "puxado" pelo mesmo
+         progresso — é o scrubbing: o scroll troca de página vira o vídeo. */
       const palco = document.querySelector<HTMLElement>('[data-stage]');
       const pino = document.querySelector<HTMLElement>('[data-pin]');
+      const video = document.querySelector<HTMLVideoElement>('[data-stage-video]');
+      /* Sem animação de palco (movimento reduzido), o header precisa nascer
+         visível — senão ficaria oculto para sempre, já que --hp começa em 1. */
+      if (reduz) document.documentElement.style.setProperty('--hp', '0');
       if (palco && pino && !reduz) {
+        let duracao = 0;
+        const lerDuracao = () => {
+          if (video && isFinite(video.duration) && video.duration > 0) {
+            duracao = video.duration;
+            medir();
+          }
+        };
+        video?.addEventListener('loadedmetadata', lerDuracao);
+
+        /* Recorta um trecho de --p e devolve 0→1 dentro dele, com suavização
+           (smoothstep) — é o que dá a sensação de "sair/entrar fluido" em vez
+           de linear e mecânico. */
+        const faixa = (v: number, a: number, b: number) => {
+          const t = Math.min(Math.max((v - a) / (b - a), 0), 1);
+          return t * t * (3 - 2 * t);
+        };
+
+        const raiz = document.documentElement;
         let pedido = false;
         const medir = () => {
           const curso = palco.offsetHeight - window.innerHeight;
           const andado = -palco.getBoundingClientRect().top;
           const p = curso > 0 ? Math.min(Math.max(andado / curso, 0), 1) : 0;
+
           palco.style.setProperty('--p', p.toFixed(4));
+          // saída do título e do degradê lateral
+          palco.style.setProperty('--po', faixa(p, 0, 0.3).toFixed(4));
+          // migração de logo, lede e botão para as posições finais
+          palco.style.setProperty('--pm', faixa(p, 0.12, 0.72).toFixed(4));
+          /* Entrada de "luz natural": começa em 0.33, logo depois de o H1
+             terminar de sair (--po fecha em 0.3), para não ficar um vazio
+             no meio do percurso. */
+          palco.style.setProperty('--pi', faixa(p, 0.33, 0.66).toFixed(4));
+          /* Header fixo: fica OCULTO durante toda a abertura (o Figma não tem
+             menu no topo da hero) e só entra ao fim do palco, para a navegação
+             ficar disponível nas seções seguintes. */
+          const fim = faixa(p, 0.94, 1);
+          raiz.style.setProperty('--hp', (1 - fim).toFixed(4));
+          raiz.style.setProperty('--hdl', fim.toFixed(4));
+
+          if (video && duracao > 0) {
+            // -0.02 evita travar 1 frame antes do fim em navegadores que
+            // arredondam currentTime pra cima do duration e ignoram o seek
+            const alvo = Math.min(p * duracao, duracao - 0.02);
+            if (Math.abs(video.currentTime - alvo) > 0.01) video.currentTime = alvo;
+          }
           pedido = false;
         };
         addEventListener(
@@ -240,6 +286,11 @@ const schema = {
         );
         addEventListener('resize', medir, { passive: true });
         medir();
+        /* Com o vídeo em cache, `loadedmetadata` dispara ANTES deste script
+           rodar e o listener acima nunca chega a ser chamado — a duração
+           ficaria em 0 e o scrubbing nunca aconteceria. Por isso lê também
+           de imediato, agora que `medir` já existe. */
+        if (video && video.readyState >= 1) lerDuracao();
       }
 
       /* 3a · Parallax nas imagens de sangria.

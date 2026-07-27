@@ -61,8 +61,13 @@ const etapas = [
 
 <style>
   .cd-head {
-    max-width: 30ch;
+    /* largura livre — quem limita é o h2 abaixo, com ch no tamanho certo */
     margin-bottom: clamp(50px, 7vw, 100px);
+  }
+  .cd-head .h2-xl {
+    /* "ch" precisa ir no próprio h2: em .cd-head (16px) o "ch" saía ~4x
+       mais estreito do que no h2 (78px), quebrando o título cedo demais. */
+    max-width: 20ch;
   }
 
   /* Escada tipográfica: cada etapa recua um pouco mais e cresce em peso */

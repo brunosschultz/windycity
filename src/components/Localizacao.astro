@@ -2,9 +2,7 @@
 import { EMPREENDIMENTO } from '../config';
 
 /* Conteúdo exato do wireframe aprovado. O travessão separa título e
-   descrição — a quebra é só hierarquia tipográfica, o texto é o mesmo.
-   O título "Viva a cidade com mais autonomia" (id="loc-t") fica no palco
-   de abertura, sobre a imagem noturna — daí o aria-labelledby apontar pra lá. */
+   descrição — a quebra é só hierarquia tipográfica, o texto é o mesmo. */
 const pontos = [
   { t: 'Arena da Baixada', d: 'proximidade com jogos, shows e grandes eventos' },
   { t: 'Mobilidade', d: 'fácil acesso ao transporte público e eixos urbanos' },
@@ -20,6 +18,9 @@ const pontos = [
 <section class="section theme-bege loc" id="localizacao" aria-labelledby="loc-t">
   <div class="wrap">
     <p class="eyebrow" data-rv>Localização</p>
+    <h2 class="h2-xl" id="loc-t" data-rv style="--d:40ms">
+      Viva a cidade com mais <em class="ac">autonomia</em>
+    </h2>
     <p class="body loc-body" data-rv style="--d:70ms">
       O WindyCity está em uma região conectada a transporte, universidades, serviços, lazer e aos
       principais movimentos de Curitiba — com ponto de ônibus em frente e menor dependência do
@@ -75,6 +76,10 @@ const pontos = [
 </section>
 
 <style>
+  #loc-t {
+    max-width: 16ch;
+    margin-bottom: 24px;
+  }
   .loc-body {
     max-width: 54ch;
     margin-bottom: clamp(46px, 6vw, 82px);

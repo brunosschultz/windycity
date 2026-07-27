@@ -101,10 +101,13 @@ const tipos = [
 
 <style>
   .tp-head {
-    max-width: 30ch;
+    /* largura livre — quem limita é o h2 abaixo, com ch no tamanho certo */
     margin-bottom: clamp(50px, 7vw, 96px);
   }
   .tp-head .h2-xl {
+    /* "ch" precisa ir no próprio h2: em .tp-head (16px) o "ch" saía ~4x
+       mais estreito do que no h2 (78px), quebrando o título cedo demais. */
+    max-width: 20ch;
     margin-bottom: 24px;
   }
   .tp-body {

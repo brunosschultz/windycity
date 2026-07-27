@@ -41,6 +41,11 @@ const links = [
       border-color 0.4s ease;
     border-bottom: 1px solid transparent;
     color: var(--bege);
+    /* --hp = 1 significa oculto. Começa oculto (o Figma não tem menu no topo
+       da hero) e o driver só o traz de volta ao fim do palco. O padrão 1 evita
+       o menu piscar antes do JS rodar. */
+    opacity: calc(1 - var(--hp, 1));
+    translate: 0 calc(var(--hp, 1) * -100%);
   }
   .hd.is-solid {
     background: rgba(1, 8, 17, 0.82);
@@ -67,6 +72,9 @@ const links = [
     flex: none;
     display: block;
     width: clamp(112px, 12vw, 148px);
+    /* --hdl: só entra depois da abertura; durante o hero quem carrega a
+       marca é o logo grande, e dois logos no mesmo canto duplicariam. */
+    opacity: var(--hdl, 1);
     transition: opacity 0.3s ease;
   }
   .hd-logo:hover {
