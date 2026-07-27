@@ -441,13 +441,9 @@ import { waHref } from '../config';
       top: 8svh;
       width: 46vw;
     }
-    /* No mobile o bloco NÃO centraliza: a tela é estreita e alta, e o
-       conjunto centralizado encavalaria o texto de apoio logo abaixo.
-       Aqui ele fica ancorado abaixo do logo. */
+    /* Centralizado na altura da tela, igual ao desktop. */
     .hero-bloco {
       left: var(--gutter);
-      top: 21svh;
-      translate: calc(var(--po) * -2vw) 0;
       width: calc(100vw - var(--gutter) * 2);
     }
     .hero-eyebrow {
@@ -459,7 +455,7 @@ import { waHref } from '../config';
       font-size: clamp(1.35rem, 5.6vw, 2rem);
     }
     .hero-accent {
-      margin-top: calc(1.2svh + 16px);
+      margin-top: calc(0.9svh + 8px);
       width: 100%;
     }
     .hero-accent .ac {
@@ -472,18 +468,14 @@ import { waHref } from '../config';
     }
     .hero-lede {
       left: var(--gutter);
-      /* ancorado pela base junto com o botão: com o bloco de texto agora
-         centralizado, um topo fixo em svh acabava encavalando nele */
       top: auto;
-      bottom: 186px;
+      bottom: 140px;
       width: calc(100vw - var(--gutter) * 2);
       font-size: 0.875rem;
     }
     .hero-cta {
       left: var(--gutter);
-      /* mais folga que no desktop: precisa passar por cima da barra fixa
-         de WhatsApp, que ocupa ~68px a partir da base */
-      bottom: 108px;
+      bottom: 68px;
       min-height: 56px;
       padding-inline: 18px 14px;
       gap: 12px;
@@ -496,11 +488,21 @@ import { waHref } from '../config';
     .hero-girassol {
       left: auto;
       right: var(--gutter);
-      bottom: 108px;
+      bottom: 68px;
       width: 22vw;
     }
     .stage-payoff .ac {
-      font-size: 30vw;
+      font-size: 25.48vw;
+    }
+  }
+
+  /* Telas baixas (ex.: iPhone SE): o bloco centralizado encavalaria o
+     texto de apoio logo abaixo — aqui ele volta a ficar ancorado no topo,
+     como antes. */
+  @media (max-width: 860px) and (max-height: 700px) {
+    .hero-bloco {
+      top: 18svh;
+      translate: calc(var(--po) * -2vw) 0;
     }
   }
 
