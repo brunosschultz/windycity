@@ -236,6 +236,28 @@ const schema = {
         };
         video?.addEventListener('loadedmetadata', lerDuracao);
 
+        /* No mobile (Safari/iOS em especial), um vídeo que nunca entrou em
+           "playing" não repinta a tela quando o currentTime é alterado por
+           script — o primeiro frame aparece (poster) e depois some ao rolar,
+           porque nenhum frame novo é decodificado. Dar play/pause uma vez
+           (mudo, então permitido sem gesto do usuário) "liga" o decodificador
+           e destrava o scrubbing programático. */
+        let ligado = false;
+        const ligarVideo = () => {
+          if (ligado || !video) return;
+          ligado = true;
+          const p = video.play();
+          if (p && typeof p.then === 'function') {
+            p.then(() => video.pause()).catch(() => {
+              ligado = false;
+            });
+          } else {
+            video.pause();
+          }
+        };
+        video?.addEventListener('loadedmetadata', ligarVideo);
+        if (video && video.readyState >= 1) ligarVideo();
+
         /* Recorta um trecho de --p e devolve 0→1 dentro dele, com suavização
            (smoothstep) — é o que dá a sensação de "sair/entrar fluido" em vez
            de linear e mecânico. */
@@ -338,15 +360,26 @@ const schema = {
         desenhar();
       }
 
-      /* 3b · CTA flutuante recolhe quando o formulário está em cena */
+      /* 3b · CTA flutuante recolhe na hero (já tem botão próprio na primeira
+         dobra) e também ao chegar no formulário — volta normalmente entre
+         as duas. */
       const flutuante = document.querySelector<HTMLElement>('[data-wa-float]');
       const secContato = document.querySelector('#contato');
-      if (flutuante && secContato) {
+      const secHero = document.querySelector('#hero');
+      if (flutuante && (secContato || secHero)) {
+        const escondendo = new Set<Element>();
         const ioCta = new IntersectionObserver(
-          ([e]) => flutuante.classList.toggle('is-off', e.isIntersecting),
+          (entradas) => {
+            for (const e of entradas) {
+              if (e.isIntersecting) escondendo.add(e.target);
+              else escondendo.delete(e.target);
+            }
+            flutuante.classList.toggle('is-off', escondendo.size > 0);
+          },
           { threshold: 0.18 }
         );
-        ioCta.observe(secContato);
+        if (secContato) ioCta.observe(secContato);
+        if (secHero) ioCta.observe(secHero);
       }
 
       /* 4 · Formulário → handoff para WhatsApp (ou aviso enquanto não há número) */

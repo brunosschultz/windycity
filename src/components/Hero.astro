@@ -22,7 +22,7 @@ import { waHref } from '../config';
 -->
 <section class="stage" id="hero" data-stage>
   <div class="pin" data-pin>
-    <!-- Vídeo (26:42): 1920x1080 centralizado, deslocado 40px para baixo -->
+    <!-- Vídeo (26:42): 1920x1080, sempre cobrindo 100% da altura -->
     <div class="stage-media">
       <video
         class="stage-video"
@@ -90,11 +90,16 @@ import { waHref } from '../config';
         <span>Um empreendimento Girassol</span>
       </p>
 
-      <!-- H1 (33:130): Sora Bold 47.846px -->
-      <h1 class="hero-h1">O diferencial que nenhum outro Studio de Curitiba entrega:</h1>
+      <!-- H1 (33:130): Sora Bold 47.846px. Quebra manual (.hbrk) só conta no
+           mobile — no desktop ela some e o texto volta a quebrar sozinho
+           pela largura da caixa (27.188vw), como no Figma. -->
+      <h1 class="hero-h1">O diferencial que<br class="hbrk" />
+        nenhum outro Studio<br class="hbrk" />
+        de Curitiba entrega:</h1>
 
       <!-- Destaque (29:97): Times Italic 74px · #45b37c -->
-      <p class="hero-accent"><em class="ac">Luz natural em cada cômodo</em></p>
+      <p class="hero-accent"><em class="ac">Luz natural<br class="hbrk" />
+        em cada cômodo</em></p>
     </div>
   </div>
 </section>
@@ -128,7 +133,12 @@ import { waHref } from '../config';
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center calc(50% + 3.7svh);
+    /* Centralizado puro: um deslocamento em svh aqui só é seguro quando
+       sobra folga vertical no cover (janelas bem mais largas que o vídeo).
+       Em telas mais altas (mobile, ou desktop com muita altura) essa folga
+       zera e o deslocamento expõe uma faixa preta no topo — por isso fica
+       sempre centralizado, garantindo 100% de altura coberta. */
+    object-position: center;
     background: var(--preto);
     animation: mediaIn 1.5s var(--ease-out) both;
   }
@@ -339,6 +349,12 @@ import { waHref } from '../config';
     color: #45b37c;
   }
 
+  /* Quebra manual: por padrão some (desktop quebra sozinho pela largura) */
+  .hero-h1 .hbrk,
+  .hero-accent .hbrk {
+    display: none;
+  }
+
   /* ---------- entrada no load (CSS puro: acima da dobra não espera JS) ---------- */
   /*
     `backwards` (e não `both`): com `both` o estado final da animação fica
@@ -436,6 +452,11 @@ import { waHref } from '../config';
     }
     .hero-accent .ac {
       font-size: clamp(2.2rem, 10vw, 3.4rem);
+    }
+    /* título branco em 3 linhas, destaque verde em 2 */
+    .hero-h1 .hbrk,
+    .hero-accent .hbrk {
+      display: block;
     }
     .hero-lede {
       left: var(--gutter);
