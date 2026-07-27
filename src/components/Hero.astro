@@ -27,7 +27,6 @@ import { waHref } from '../config';
       <video
         class="stage-video"
         data-stage-video
-        poster="/hero-poster.webp"
         muted
         playsinline
         preload="auto"
@@ -37,6 +36,19 @@ import { waHref } from '../config';
         <source src="/video/hero-1920.mp4" type="video/mp4" />
       </video>
     </div>
+
+    <script>
+      /* `poster` não aceita media query — setar direto no HTML faria o
+         mobile sempre baixar o poster de desktop (bem mais pesado) antes
+         do vídeo estar pronto. Aqui a escolha do arquivo certo acontece
+         antes do navegador buscar a imagem. */
+      const video = document.querySelector<HTMLVideoElement>('[data-stage-video]');
+      if (video) {
+        video.poster = matchMedia('(max-width: 860px)').matches
+          ? '/hero-poster-900.webp'
+          : '/hero-poster.webp';
+      }
+    </script>
 
     <!-- Camada preta 20% (33:138) — constante -->
     <span class="stage-dim" aria-hidden="true"></span>
