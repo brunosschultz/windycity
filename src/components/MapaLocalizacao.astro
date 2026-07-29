@@ -1,0 +1,422 @@
+---
+import Logo from './Logo.astro';
+import 'leaflet/dist/leaflet.css';
+
+/* Coordenadas obtidas via geocodificação (Nominatim/OpenStreetMap) a
+   partir do endereço e da lista de destaques informados pelo Bruno.
+   `foto` ainda não tem imagem real — aguardando fotos autorizadas de
+   cada local (ver conversa). Enquanto isso, o cartão cai no fallback
+   (inicial sobre a cor da marca). */
+const empreendimento = { nome: 'WindyCity', lat: -25.4539596, lng: -49.2698424 };
+
+const destaques = [
+  { nome: 'UNICURITIBA', lat: -25.4497214, lng: -49.2656236, foto: null },
+  { nome: 'PUCPR', lat: -25.4526531, lng: -49.2510942, foto: null },
+  { nome: 'Arena da Baixada', lat: -25.4483457, lng: -49.2768771, foto: null },
+];
+
+/* Rua Brigadeiro Franco: em vez de um pin, evidencia a via inteira —
+   geometria extraída do OpenStreetMap/Overpass (todos os trechos com esse
+   nome, não só o pedaço ao lado do empreendimento). Cada item é um trecho
+   (way) separado. */
+const ruaBrigadeiroFranco = {
+  nome: 'Rua Brigadeiro Franco',
+  trechos: [
+    [[-25.457003,-49.269308],[-25.456945,-49.269334],[-25.456854,-49.269376],[-25.456111,-49.26972],[-25.455385,-49.270055],[-25.454134,-49.270633],[-25.452992,-49.271161],[-25.452488,-49.271394],[-25.451178,-49.271999],[-25.450032,-49.272528],[-25.449241,-49.272894],[-25.448667,-49.273159]],
+    [[-25.457868,-49.26864],[-25.457179,-49.269177],[-25.457099,-49.26924]],
+    [[-25.466373,-49.26427],[-25.466286,-49.264298],[-25.46621,-49.26433]],
+    [[-25.464645,-49.265141],[-25.46363,-49.265665],[-25.462685,-49.266153],[-25.461679,-49.266672],[-25.460753,-49.267151],[-25.460015,-49.267531],[-25.459272,-49.267915],[-25.45863,-49.268247],[-25.457868,-49.26864]],
+    [[-25.440163,-49.277042],[-25.440071,-49.277144]],
+    [[-25.4414,-49.276477],[-25.441331,-49.276509],[-25.441304,-49.276521],[-25.441028,-49.276647],[-25.440991,-49.276664],[-25.440706,-49.276794],[-25.440253,-49.277001],[-25.440163,-49.277042]],
+    [[-25.44294,-49.275774],[-25.442835,-49.275822],[-25.4415,-49.276431],[-25.441469,-49.276445]],
+    [[-25.448667,-49.273159],[-25.448476,-49.273246],[-25.448279,-49.273336],[-25.448175,-49.273384],[-25.448058,-49.273437],[-25.448017,-49.273456],[-25.447643,-49.273627],[-25.447349,-49.273761],[-25.447221,-49.273819],[-25.446021,-49.274367],[-25.445922,-49.274413],[-25.444468,-49.275076],[-25.44437,-49.275121],[-25.443524,-49.275507],[-25.443003,-49.275745],[-25.44294,-49.275774]],
+    [[-25.466524,-49.264239],[-25.466453,-49.264252],[-25.466373,-49.26427]],
+    [[-25.426165,-49.285757],[-25.424602,-49.286493],[-25.423211,-49.287148]],
+    [[-25.429493,-49.284189],[-25.428507,-49.284653],[-25.428402,-49.284703]],
+    [[-25.429647,-49.284115],[-25.429493,-49.284189]],
+    [[-25.438491,-49.277877],[-25.438419,-49.277955]],
+    [[-25.438419,-49.277955],[-25.437942,-49.278473],[-25.437341,-49.279126],[-25.437014,-49.27948],[-25.436677,-49.279846],[-25.435952,-49.280633],[-25.435117,-49.28154],[-25.433909,-49.282109],[-25.432733,-49.282663],[-25.432108,-49.282957],[-25.431554,-49.283218],[-25.431038,-49.283461],[-25.430579,-49.283678],[-25.430354,-49.283783],[-25.429647,-49.284115]],
+    [[-25.440071,-49.277144],[-25.438491,-49.277877]],
+    [[-25.464645,-49.265141],[-25.464989,-49.265006],[-25.465591,-49.26469],[-25.465819,-49.264568],[-25.466004,-49.264435]],
+    [[-25.428402,-49.284703],[-25.428319,-49.284742],[-25.428246,-49.284776],[-25.427467,-49.285143],[-25.427404,-49.285173],[-25.426165,-49.285757]],
+    [[-25.46621,-49.26433],[-25.466086,-49.264394],[-25.466004,-49.264435]],
+    [[-25.466004,-49.264435],[-25.465797,-49.264515],[-25.465553,-49.264643],[-25.464979,-49.264945],[-25.464645,-49.265141]],
+    [[-25.457052,-49.269273],[-25.457003,-49.269308]],
+    [[-25.457099,-49.26924],[-25.457052,-49.269273]],
+    [[-25.441469,-49.276445],[-25.4414,-49.276477]],
+    [[-25.423211,-49.287148],[-25.422198,-49.287625]],
+  ],
+};
+---
+
+<div
+  class="mapa bleed"
+  data-mapa
+  data-emp={JSON.stringify(empreendimento)}
+  data-dest={JSON.stringify(destaques)}
+  data-rua={JSON.stringify(ruaBrigadeiroFranco)}
+>
+  <div class="mapa-el" data-mapa-el></div>
+
+  <!-- Cartão dos destaques: vive FORA do container Leaflet (aqui, irmão do
+       mapa) para poder extrapolar a borda superior sem ficar preso pelo
+       recorte do mapa. Posicionado por JS sobre o pin. -->
+  <div class="mapa-card" data-mapa-card aria-hidden="true">
+    <div class="mapa-card-in" data-mapa-card-in></div>
+  </div>
+
+  <!-- Fonte real da wordmark pro pin do mapa — evita duplicar o SVG à mão -->
+  <div class="mapa-logo-tpl" data-logo-tpl aria-hidden="true"><Logo /></div>
+</div>
+
+<style>
+  .mapa {
+    position: relative;
+    height: 55vh;
+    min-height: 320px;
+    margin-bottom: clamp(40px, 6vw, 72px);
+    background: var(--branco);
+    /* deixa o cartão de hover sair pra cima da borda do mapa (sobre a
+       área branca da seção) em vez de ficar cortado dentro dele */
+    overflow: visible;
+  }
+  .mapa-el {
+    width: 100%;
+    height: 100%;
+  }
+  .mapa-logo-tpl {
+    display: none;
+  }
+
+  /* ---------- recolore os tiles (Positron) pra paleta da marca ----------
+     Sem isso o mapa fica no azul/cinza padrão do Carto — o filtro puxa
+     pro verde/marrom sem perder a leitura de ruas/quadras. */
+  .mapa-el :global(.leaflet-tile-pane) {
+    filter: grayscale(0.35) sepia(0.25) hue-rotate(50deg) saturate(0.9) brightness(1.02) contrast(0.97);
+  }
+
+  .mapa-el :global(.leaflet-container) {
+    font-family: 'Sora', system-ui, sans-serif;
+    background: var(--bege);
+  }
+
+  /* Controles de zoom: discretos, na paleta do site */
+  .mapa-el :global(.leaflet-control-zoom) {
+    border: none !important;
+    box-shadow: 0 4px 16px rgba(1, 8, 17, 0.16) !important;
+  }
+  .mapa-el :global(.leaflet-control-zoom a) {
+    background: var(--bege) !important;
+    color: var(--marrom) !important;
+    border: none !important;
+  }
+  .mapa-el :global(.leaflet-control-zoom a:hover) {
+    background: var(--verde) !important;
+    color: #fff !important;
+  }
+  .mapa-el :global(.leaflet-control-attribution) {
+    background: var(--bege-80) !important;
+    color: var(--fg-soft) !important;
+    font-size: 0.625rem !important;
+  }
+
+  /* ---------- pin do empreendimento (SVG — sempre de pé, sem rotação) ---------- */
+  .mapa-el :global(.pin-emp) {
+    filter: drop-shadow(0 6px 10px rgba(1, 8, 17, 0.35));
+  }
+  .mapa-el :global(.tt-emp) {
+    background: var(--preto) !important;
+    color: var(--bege) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    box-shadow: 0 6px 18px rgba(1, 8, 17, 0.28) !important;
+  }
+  .mapa-el :global(.tt-emp)::before {
+    border-top-color: var(--preto) !important;
+  }
+  .mapa-el :global(.tt-emp svg) {
+    /* O reset global (svg{max-width:100%}) entra em loop com o tooltip do
+       Leaflet, que se dimensiona pelo próprio conteúdo — sem max-width:none
+       aqui os dois ficam se esperando e o SVG colapsa pra 0x0. */
+    display: block;
+    width: 84px;
+    max-width: none;
+    height: auto;
+    color: var(--bege);
+  }
+
+  /* ---------- pins dos destaques: mesma gota do empreendimento, 50% menor, marrom ---------- */
+  .mapa-el :global(.pin-dest) {
+    filter: drop-shadow(0 4px 8px rgba(1, 8, 17, 0.3));
+    cursor: pointer;
+  }
+
+  /* ---------- rótulo hover da rua evidenciada ---------- */
+  .mapa-el :global(.tt-rua) {
+    background: var(--verde) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 4px 9px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em;
+    box-shadow: 0 4px 12px rgba(1, 8, 17, 0.22) !important;
+    white-space: nowrap;
+  }
+  .mapa-el :global(.tt-rua)::before {
+    border-top-color: var(--verde) !important;
+  }
+
+  /* ---------- cartão do destaque (foto + nome + distância) ----------
+     Elemento próprio, posicionado por JS sobre o pin; some/aparece com
+     .is-on. Fica acima de tudo e pode extrapolar o mapa. */
+  .mapa-card {
+    position: absolute;
+    z-index: 1000;
+    width: 200px;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s ease;
+    filter: drop-shadow(0 12px 30px rgba(1, 8, 17, 0.3));
+  }
+  .mapa-card.is-on {
+    opacity: 1;
+    visibility: visible;
+  }
+  /* seta apontando pro pin */
+  .mapa-card::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-top-color: var(--bege);
+  }
+  .mapa-card-in {
+    background: var(--bege);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .mapa-card :global(.mc-foto) {
+    width: 100%;
+    height: 110px;
+    background-color: var(--marrom);
+    background-size: cover;
+    background-position: center;
+    display: grid;
+    place-items: center;
+    color: var(--bege);
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+  .mapa-card :global(.mc-info) {
+    padding: 10px 12px 12px;
+  }
+  .mapa-card :global(.mc-nome) {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--marrom);
+    line-height: 1.25;
+    margin-bottom: 2px;
+  }
+  .mapa-card :global(.mc-dist) {
+    font-size: 0.75rem;
+    color: var(--verde);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+</style>
+
+<script>
+  type Ponto = { nome: string; lat: number; lng: number; foto?: string | null };
+  type Rua = { nome: string; trechos: [number, number][][] };
+
+  const raiz = document.querySelector<HTMLElement>('[data-mapa]');
+  if (raiz) {
+    let montado = false;
+
+    /* Haversine — distância em linha reta até o empreendimento */
+    const distanciaKm = (a: Ponto, b: Ponto) => {
+      const R = 6371;
+      const rad = (v: number) => (v * Math.PI) / 180;
+      const dLat = rad(b.lat - a.lat);
+      const dLng = rad(b.lng - a.lng);
+      const s =
+        Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+    };
+    const formatarDistancia = (km: number) =>
+      km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1).replace('.', ',')} km`;
+
+    // Em touch não há hover: o cartão abre/fecha no toque; no desktop, no hover.
+    const isTouch = matchMedia('(pointer: coarse)').matches;
+
+    const pinSvg = (cor: string, escala: number) => {
+      const w = Math.round(34 * escala);
+      const h = Math.round(44 * escala);
+      return `<svg width="${w}" height="${h}" viewBox="0 0 34 44" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 0C7.61 0 0 7.61 0 17c0 12.75 17 27 17 27s17-14.25 17-27C34 7.61 26.39 0 17 0z" style="fill:${cor}"></path>
+        <circle cx="17" cy="17" r="7" style="fill:#fff"></circle>
+      </svg>`;
+    };
+
+    const montar = async () => {
+      if (montado) return;
+      montado = true;
+
+      const L = await import('leaflet');
+      const el = raiz.querySelector<HTMLElement>('[data-mapa-el]');
+      const card = raiz.querySelector<HTMLElement>('[data-mapa-card]');
+      const cardIn = raiz.querySelector<HTMLElement>('[data-mapa-card-in]');
+      const emp: Ponto = JSON.parse(raiz.dataset.emp || '{}');
+      const destaques: Ponto[] = JSON.parse(raiz.dataset.dest || '[]');
+      const rua: Rua = JSON.parse(raiz.dataset.rua || '{"nome":"","trechos":[]}');
+      const logoHtml = raiz.querySelector('[data-logo-tpl]')?.innerHTML ?? '';
+      if (!el || !card || !cardIn) return;
+
+      const mapa = L.map(el, {
+        zoomControl: false,
+        scrollWheelZoom: false,
+        attributionControl: true,
+      }).setView([emp.lat, emp.lng], 15);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+      }).addTo(mapa);
+
+      L.control.zoom({ position: 'bottomright' }).addTo(mapa);
+
+      // Pin do empreendimento: SVG (sempre de pé, sem truque de rotação)
+      const iconeEmp = L.divIcon({
+        className: 'pin-emp',
+        html: pinSvg('var(--verde)', 1),
+        iconSize: [34, 44],
+        iconAnchor: [17, 44],
+      });
+      L.marker([emp.lat, emp.lng], { icon: iconeEmp })
+        .addTo(mapa)
+        .bindTooltip(`<span class="tt-emp-mark">${logoHtml}</span>`, {
+          permanent: true,
+          direction: 'top',
+          offset: [0, -40],
+          className: 'tt-emp',
+        });
+
+      // ---- cartão de destaque (posicionado por JS, extrapola o mapa) ----
+      let aberto: Ponto | null = null;
+      const conteudo = (d: Ponto) => {
+        const inicial = d.nome.trim().charAt(0).toUpperCase();
+        const bg = d.foto ? `background-image:url('${d.foto}')` : '';
+        return `<div class="mc-foto" style="${bg}">${d.foto ? '' : inicial}</div>
+          <div class="mc-info">
+            <div class="mc-nome">${d.nome}</div>
+            <div class="mc-dist">${formatarDistancia(distanciaKm(emp, d))} do WindyCity</div>
+          </div>`;
+      };
+      const posicionar = (d: Ponto) => {
+        const p = mapa.latLngToContainerPoint([d.lat, d.lng]);
+        // 26px acima da âncora (base do pin) — passa da ponta do pin
+        card.style.left = `${p.x}px`;
+        card.style.top = `${p.y - 26}px`;
+      };
+      const abrir = (d: Ponto) => {
+        cardIn.innerHTML = conteudo(d);
+        posicionar(d);
+        card.classList.add('is-on');
+        aberto = d;
+      };
+      const fechar = () => {
+        card.classList.remove('is-on');
+        aberto = null;
+      };
+      // ao mover/dar zoom, o cartão perderia o alinhamento: fecha
+      mapa.on('movestart zoomstart', fechar);
+
+      // Destaques: pin igual ao do empreendimento, 50% menor e em marrom.
+      const grupo = L.featureGroup();
+      const iconeDest = L.divIcon({
+        className: 'pin-dest',
+        html: pinSvg('var(--marrom)', 0.5),
+        iconSize: [17, 22],
+        iconAnchor: [8.5, 22],
+      });
+      destaques.forEach((d) => {
+        const marcador = L.marker([d.lat, d.lng], { icon: iconeDest }).addTo(grupo);
+        if (isTouch) {
+          marcador.on('click', (e) => {
+            L.DomEvent.stop(e);
+            aberto === d ? fechar() : abrir(d);
+          });
+        } else {
+          marcador.on('mouseover', () => abrir(d));
+          marcador.on('mouseout', fechar);
+        }
+      });
+      grupo.addTo(mapa);
+      // toque fora dos pins fecha o cartão (mobile)
+      if (isTouch) mapa.on('click', fechar);
+
+      // Rua Brigadeiro Franco inteira: evidenciada como traçado (não como
+      // pin) — uma faixa bege por baixo dá contraste, o verde por cima
+      // (50% opacidade) é o destaque.
+      if (rua.trechos.length) {
+        L.polyline(rua.trechos, {
+          color: 'var(--bege)',
+          weight: 9,
+          opacity: 0.9,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(mapa);
+        L.polyline(rua.trechos, {
+          color: 'var(--verde)',
+          weight: 5,
+          opacity: 0.5,
+          lineCap: 'round',
+          lineJoin: 'round',
+        })
+          .addTo(mapa)
+          .bindTooltip(rua.nome, { sticky: true, className: 'tt-rua' });
+      }
+
+      // O empreendimento sempre no centro exato do mapa: primeiro calcula
+      // o zoom que enquadraria os destaques, depois centraliza no
+      // empreendimento nesse mesmo zoom (em vez de centralizar no meio
+      // de todos os pontos, que raramente cai sobre o pin principal).
+      // A rua fica de fora dessa conta de propósito — ela é bem mais
+      // comprida que os destaques e forçaria um zoom bem mais aberto do
+      // que o ideal; o traçado continua completo, só aparece mais quando
+      // o usuário afasta o zoom.
+      const pontosParaEnquadrar: [number, number][] = [
+        [emp.lat, emp.lng],
+        ...destaques.map((d) => [d.lat, d.lng] as [number, number]),
+      ];
+      const limites = L.latLngBounds(pontosParaEnquadrar);
+      // -1: um passo de zoom-out a mais que o enquadramento justo, dando
+      // respiro em volta dos destaques (como se já tivesse clicado no "−").
+      const zoomAlvo = mapa.getBoundsZoom(limites, false, [40, 40]) - 1;
+      mapa.setView([emp.lat, emp.lng], zoomAlvo);
+    };
+
+    // Só carrega o Leaflet (+ tiles) quando o mapa está perto da tela —
+    // evita puxar essa lib no carregamento inicial da página.
+    const io = new IntersectionObserver(
+      (entradas) => {
+        for (const e of entradas) {
+          if (e.isIntersecting) {
+            io.disconnect();
+            montar();
+          }
+        }
+      },
+      { rootMargin: '400px 0px' }
+    );
+    io.observe(raiz);
+  }
+</script>

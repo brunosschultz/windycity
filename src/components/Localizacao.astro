@@ -1,5 +1,6 @@
 ---
 import { EMPREENDIMENTO } from '../config';
+import MapaLocalizacao from './MapaLocalizacao.astro';
 
 /* Conteúdo exato do wireframe aprovado. O travessão separa título e
    descrição — a quebra é só hierarquia tipográfica, o texto é o mesmo. */
@@ -15,7 +16,7 @@ const pontos = [
 ];
 ---
 
-<section class="section theme-bege loc" id="localizacao" aria-labelledby="loc-t">
+<section class="section theme-branco loc" id="localizacao" aria-labelledby="loc-t">
   <div class="wrap">
     <p class="eyebrow" data-rv>Localização</p>
     <h2 class="h2-xl" id="loc-t" data-rv style="--d:40ms">
@@ -26,7 +27,11 @@ const pontos = [
       principais movimentos de Curitiba — com ponto de ônibus em frente e menor dependência do
       carro.
     </p>
+  </div>
 
+  <MapaLocalizacao />
+
+  <div class="wrap">
     <!-- Pontos de interesse vêm antes do Walk Score -->
     <ul class="pontos">
       {

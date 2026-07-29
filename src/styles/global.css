@@ -112,6 +112,14 @@
   --rule: var(--bege-14);
   --surface: var(--bege-08);
 }
+.theme-branco {
+  --bg: var(--branco);
+  --fg: var(--marrom);
+  --fg-soft: var(--marrom-70);
+  --fg-faint: var(--marrom-50);
+  --rule: var(--marrom-16);
+  --surface: var(--bege);
+}
 
 /* ---------- Reset ---------- */
 *,
