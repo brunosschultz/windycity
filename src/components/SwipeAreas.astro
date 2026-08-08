@@ -1,0 +1,467 @@
+---
+import { Picture } from 'astro:assets';
+import terraco01 from '../assets/images/comum-terraco-01.jpg';
+import lavanderia01 from '../assets/images/comum-lavanderia-01.jpg';
+import bicicletario from '../assets/images/comum-bike.jpg';
+import salaReuniao from '../assets/images/comum-reuniao.jpg';
+
+/* Pontos focais auditados por foto — object-position individual via --pos,
+   nada de cover+center cego. */
+const paineis = [
+  {
+    img: terraco01,
+    num: '01',
+    nome: 'Rooftop',
+    pos: 'center 60%', // fogueira centro-baixo, sol à direita
+    alt: 'Rooftop do WindyCity com espaço gourmet, lareira central sobre deck de madeira e vista para a cidade',
+  },
+  {
+    img: lavanderia01,
+    num: '02',
+    nome: 'Lavanderia',
+    pos: 'center', // noturna 4:3, luminárias ao centro
+    alt: 'Lavanderia coletiva do WindyCity com máquinas, bancada e painel ripado de madeira',
+  },
+  {
+    img: bicicletario,
+    num: '03',
+    nome: 'Bicicletário',
+    pos: '40% center', // bikes na parede, centro-esquerda
+    alt: 'Bicicletário do WindyCity com bicicletas em suportes de parede sob cobertura',
+  },
+  {
+    img: salaReuniao,
+    num: '04',
+    nome: 'Sala de reunião',
+    pos: 'center 62%', // mesa de madeira centro-baixo
+    alt: 'Sala de reunião do WindyCity com mesa de madeira, televisão e painel ripado com plantas',
+  },
+];
+---
+
+<!-- Swipe slider vertical das áreas comuns.
+     BASE (mobile / sem JS / reduced-motion): quatro seções normais empilhadas,
+     cada uma 100svh, com entradas via data-rv/data-rv-img — nada nasce
+     escondido, nada de scroll-snap ou trava no scroller raiz.
+     MODO SWIPE (só desktop fino, via JS): a classe .is-swipe — adicionada
+     exclusivamente pelo script — colapsa a lista num palco único de 100svh
+     e o GSAP Observer assume os gestos. -->
+<div class="sw" data-sw>
+  <ol class="sw-lista">
+    {
+      paineis.map((p) => (
+        <li class="sw-painel" data-painel>
+          <div class="sw-media" data-media data-rv-img style={`--pos:${p.pos}`}>
+            <Picture
+              src={p.img}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[780, 1080, 1440, 1920, 2560]}
+              sizes="100vw"
+              alt={p.alt}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="sw-veu" aria-hidden="true" />
+          <div class="sw-rotulo">
+            <span class="sw-ix" data-rv>{p.num}</span>
+            <h3 class="sw-nome" data-rv style="--d:90ms">
+              <span data-titulo>{p.nome}</span>
+            </h3>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  <!-- Indicador de progresso: só existe visualmente no modo swipe (a classe
+       .is-swipe é criada por JS — sem JS ele nunca aparece, e não há conteúdo
+       nele, só marcação decorativa). -->
+  <div class="sw-hud" aria-hidden="true">
+    {paineis.map(() => <span class="sw-ponto" data-ponto />)}
+  </div>
+</div>
+
+<style>
+  /* Prefixo "sw-" de propósito — ".ac" é a classe global de acento em Times
+     itálico e "ac-" como prefixo de layout já causou herança de fonte errada
+     neste arquivo no passado. */
+  .sw {
+    position: relative;
+    background: var(--preto);
+  }
+  .sw-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .sw-painel {
+    position: relative;
+    height: 100svh;
+    overflow: hidden;
+    background: var(--preto);
+  }
+  .sw-media {
+    position: absolute;
+    inset: 0;
+  }
+  .sw-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--pos, center);
+    display: block;
+  }
+
+  /* Véu de contraste sob o rótulo — estático, tokens derivados do --preto
+     (mesma prática das legendas sobre foto do restante da seção). */
+  .sw-veu {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      78deg,
+      rgba(1, 8, 17, 0.55) 0%,
+      rgba(1, 8, 17, 0.26) 36%,
+      rgba(1, 8, 17, 0) 64%
+    );
+  }
+
+  /* Rótulo centrado sem transform (translateY brigaria com o transform do
+     contrato [data-rv] nos filhos): o contêiner cobre o painel e centra
+     por flex. */
+  .sw-rotulo {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: var(--sangria);
+    padding-right: var(--gutter);
+    pointer-events: none;
+    color: var(--bege);
+    text-shadow: 0 1px 18px rgba(1, 8, 17, 0.5);
+  }
+  .sw-ix {
+    font-family: 'TimesWC', 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-size: clamp(1.5rem, 2.4vw, 2.4rem);
+    line-height: 1;
+    margin-bottom: clamp(10px, 1.6vh, 20px);
+  }
+  .sw-nome {
+    margin: 0;
+    font-size: clamp(2.5rem, 7vw, 6.4rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    max-width: 12ch;
+  }
+
+  /* ---------- HUD de progresso (aparece só com .is-swipe, classe de JS) ---------- */
+  .sw-hud {
+    display: none;
+  }
+  .is-swipe .sw-hud {
+    position: absolute;
+    inset: 0 auto 0 auto;
+    right: clamp(18px, 2.2vw, 36px);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    pointer-events: none;
+  }
+  .sw-ponto {
+    width: 2px;
+    height: 26px;
+    background: var(--bege);
+    opacity: 0.35;
+    transition: opacity 0.4s var(--ease);
+  }
+  .sw-ponto.is-atual {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sw-ponto {
+      transition: none;
+    }
+  }
+
+  /* ---------- Palco único (classe adicionada só via JS) ---------- */
+  .sw.is-swipe {
+    height: 100svh;
+    overflow: hidden;
+  }
+  .is-swipe .sw-lista {
+    position: relative;
+    height: 100%;
+  }
+  .is-swipe .sw-painel {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+  /* Mídia sobra 22% pra cima e pra baixo: o contra-movimento de yPercent 15
+     (15% da PRÓPRIA altura ≈ 21.5% do painel) nunca abre fresta. */
+  .is-swipe .sw-media {
+    top: -22%;
+    bottom: -22%;
+  }
+
+  /* ---------- Mobile: rótulo desce pro pé, véu vira de baixo pra cima ---------- */
+  @media (max-width: 860px) {
+    .sw-rotulo {
+      justify-content: flex-end;
+      padding-left: var(--gutter);
+      padding-bottom: clamp(32px, 10vw, 64px);
+    }
+    .sw-veu {
+      background: linear-gradient(
+        to top,
+        rgba(1, 8, 17, 0.62) 0%,
+        rgba(1, 8, 17, 0.2) 40%,
+        rgba(1, 8, 17, 0) 66%
+      );
+    }
+    .sw-nome {
+      font-size: clamp(2.1rem, 9vw, 3.2rem);
+    }
+  }
+</style>
+
+<script>
+  import { aoAproximar, reduzMovimento, dividirLetras } from '../scripts/ilha';
+
+  const raiz = document.querySelector<HTMLElement>('[data-sw]');
+
+  if (raiz) {
+    const paineis = [...raiz.querySelectorAll<HTMLElement>('[data-painel]')];
+    const midias = paineis.map((p) => p.querySelector<HTMLElement>('[data-media]')!);
+    const pontos = [...raiz.querySelectorAll<HTMLElement>('[data-ponto]')];
+    const mqDesk = matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
+    const mqReduz = matchMedia('(prefers-reduced-motion: reduce)');
+
+    let desmontar: (() => void) | null = null;
+    let montando = false;
+
+    const montar = async () => {
+      if (montando || desmontar) return;
+      montando = true;
+      const [{ gsap }, { Observer }] = await Promise.all([
+        import('gsap'),
+        import('gsap/Observer'),
+      ]);
+      gsap.registerPlugin(Observer);
+      montando = false;
+      // condições podem ter mudado enquanto o bundle baixava
+      if (desmontar || !mqDesk.matches || mqReduz.matches) return;
+
+      let indice = 0;
+      let animando = false;
+      let armado = false;
+      let esfriar = 0;
+      let recente = 0;
+      let tlAtual: ReturnType<typeof gsap.timeline> | null = null;
+
+      // Splitter local: só aqui dentro — sem JS o título fica intacto.
+      const letras = paineis.map((p) =>
+        dividirLetras(p.querySelector<HTMLElement>('[data-titulo]')!)
+      );
+
+      // O contrato global de revelação não deve competir com o palco.
+      raiz
+        .querySelectorAll('[data-rv], [data-rv-img]')
+        .forEach((el) => el.classList.add('is-in'));
+
+      // Colapsar 4x100svh em 1x100svh muda a altura da página; se a seção
+      // está acima da viewport (aproximação vinda de baixo), compensa o
+      // scroll pra página não pular sob o usuário.
+      const antes = raiz.getBoundingClientRect();
+      raiz.classList.add('is-swipe');
+      if (antes.bottom < 0) {
+        const delta = antes.height - raiz.getBoundingClientRect().height;
+        if (delta > 0) window.scrollBy(0, -delta);
+      }
+
+      const marcarHud = () =>
+        pontos.forEach((el, k) => el.classList.toggle('is-atual', k === indice));
+
+      const mostrar = (k: number, ligado: boolean) => {
+        gsap.set(paineis[k], { autoAlpha: ligado ? 1 : 0 });
+        if (ligado) {
+          paineis[k].removeAttribute('aria-hidden');
+          paineis[k].removeAttribute('inert');
+        } else {
+          paineis[k].setAttribute('aria-hidden', 'true');
+          paineis[k].setAttribute('inert', '');
+        }
+      };
+      paineis.forEach((_, k) => mostrar(k, k === indice));
+      marcarHud();
+
+      const precarregar = (n: number) => {
+        const im = paineis[n]?.querySelector('img');
+        if (im) {
+          im.loading = 'eager';
+          im.decode?.().catch(() => {});
+        }
+      };
+
+      function transicao(n: number, dir: number) {
+        animando = true;
+        const velho = indice;
+        indice = n;
+        marcarHud();
+        mostrar(n, true);
+        gsap.set(paineis[n], { zIndex: 2, yPercent: dir * 100 });
+        gsap.set(paineis[velho], { zIndex: 1 });
+        gsap.set(midias[n], { yPercent: -dir * 15 });
+        gsap.set(letras[n], { yPercent: 110 });
+        tlAtual = gsap
+          .timeline({
+            defaults: { duration: 1.05, ease: 'power1.inOut' },
+            onComplete: () => {
+              mostrar(velho, false);
+              gsap.set(paineis[velho], { yPercent: 0, zIndex: 1 });
+              gsap.set(midias[velho], { yPercent: 0 });
+              animando = false;
+              recente = Date.now(); // amortece inércia residual do trackpad
+              tlAtual = null;
+              precarregar(n + dir);
+            },
+          })
+          .to(paineis[n], { yPercent: 0 }, 0)
+          .to(midias[n], { yPercent: 0 }, 0)
+          .to(paineis[velho], { yPercent: -dir * 100 }, 0)
+          .to(midias[velho], { yPercent: dir * 15 }, 0)
+          .to(
+            letras[n],
+            { yPercent: 0, duration: 0.85, ease: 'power3.out', stagger: 0.02 },
+            0.3
+          );
+      }
+
+      function liberar(dir: number) {
+        obs.disable();
+        armado = false;
+        esfriar = Date.now() + 700;
+        // devolve o gesto pro scroll nativo — nunca prende o usuário
+        window.scrollBy({ top: dir * window.innerHeight * 0.12, behavior: 'smooth' });
+      }
+
+      function avancar(dir: number) {
+        if (animando || Date.now() - recente < 160) return;
+        const destino = indice + dir;
+        if (destino < 0 || destino >= paineis.length) liberar(dir);
+        else transicao(destino, dir);
+      }
+
+      const obs = Observer.create({
+        target: raiz,
+        type: 'wheel,touch,pointer',
+        preventDefault: true,
+        tolerance: 12,
+        onDown: () => avancar(1), // gesto para BAIXO na página
+        onUp: () => avancar(-1),
+      });
+      obs.disable();
+
+      // Armar: quando o palco cobre >=98% da viewport, alinha e liga o Observer.
+      const checar = () => {
+        if (armado || Date.now() < esfriar) return;
+        const r = raiz.getBoundingClientRect();
+        const vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+        if (r.height <= 0 || vis / r.height < 0.98) return;
+        if (Math.abs(r.top) > 2) {
+          window.scrollTo({ top: window.scrollY + r.top, behavior: 'smooth' });
+        }
+        armado = true;
+        obs.enable();
+        precarregar(indice + 1);
+      };
+
+      const io = new IntersectionObserver(
+        (entradas) => {
+          for (const e of entradas) if (e.isIntersecting) checar();
+        },
+        { threshold: [0.98] }
+      );
+      io.observe(raiz);
+
+      // Rearme leve: o IO pode não redisparar com ratio inalterado
+      // (ex.: volta após liberar) — um scroll passivo refaz a checagem.
+      let quadro = false;
+      const aoRolar = () => {
+        if (armado || quadro) return;
+        quadro = true;
+        requestAnimationFrame(() => {
+          quadro = false;
+          checar();
+        });
+      };
+      addEventListener('scroll', aoRolar, { passive: true });
+
+      const aoTeclar = (e: KeyboardEvent) => {
+        if (!armado) return;
+        const alvo = e.target as HTMLElement | null;
+        if (alvo && alvo.closest('input, textarea, select, button, a, [contenteditable]')) return;
+        let dir = 0;
+        if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') dir = 1;
+        else if (e.key === 'ArrowUp' || e.key === 'PageUp') dir = -1;
+        else return;
+        const destino = indice + dir;
+        if (destino >= 0 && destino < paineis.length) {
+          e.preventDefault(); // só quando NÃO vai liberar
+          avancar(dir);
+        } else {
+          avancar(dir);
+        }
+      };
+      addEventListener('keydown', aoTeclar);
+
+      desmontar = () => {
+        tlAtual?.kill();
+        obs.kill();
+        io.disconnect();
+        removeEventListener('scroll', aoRolar);
+        removeEventListener('keydown', aoTeclar);
+        const antesFora = raiz.getBoundingClientRect();
+        raiz.classList.remove('is-swipe');
+        paineis.forEach((p) => {
+          p.removeAttribute('aria-hidden');
+          p.removeAttribute('inert');
+        });
+        pontos.forEach((el) => el.classList.remove('is-atual'));
+        gsap.set([...paineis, ...midias, ...letras.flat()], { clearProps: 'all' });
+        // expansão simétrica à do mount: não deixar a página pular
+        if (antesFora.bottom < 0) {
+          const delta = raiz.getBoundingClientRect().height - antesFora.height;
+          if (delta > 0) window.scrollBy(0, delta);
+        }
+        armado = false;
+        animando = false;
+      };
+    };
+
+    const decidir = () => {
+      if (mqDesk.matches && !mqReduz.matches) {
+        montar();
+      } else if (desmontar) {
+        desmontar();
+        desmontar = null;
+      }
+    };
+
+    aoAproximar(raiz, () => {
+      decidir();
+      mqDesk.addEventListener('change', decidir);
+      mqReduz.addEventListener('change', decidir);
+    });
+  }
+</script>

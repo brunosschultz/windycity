@@ -1,0 +1,205 @@
+---
+/* VÍDEO DA CENA: quando o arquivo definitivo chegar, aponte aqui
+   (ex. '/video/luz-interna.mp4'). null = usa o fallback fotográfico animado. */
+const VIDEO_SRC: string | null = null;
+
+import { Picture, getImage } from 'astro:assets';
+import fotoLuz from '../assets/images/unid-sacada-02.jpg';
+
+/* Poster derivado da própria foto interna — só entra quando houver vídeo,
+   para o primeiro frame não ser um retângulo preto. */
+const poster = VIDEO_SRC ? (await getImage({ src: fotoLuz, format: 'webp', width: 1600 })).src : null;
+---
+
+<!--
+  CENA DA LUZ — fecho da seção de diferenciais.
+  Container com fundo --preto (sem viewport vazia enquanto a mídia carrega);
+  a mídia entra por cima. Com VIDEO_SRC nulo, o fallback fotográfico ganha
+  uma "varredura de luz": véu de gradiente (tokens bege transparentes) que
+  desliza lentamente via GSAP + drift de escala — movimento intencional,
+  não vídeo quebrado. Texto entra por palavras no primeiro enter.
+-->
+<div class="cenac" data-cena-compacto>
+  {
+    VIDEO_SRC ? (
+      <video
+        class="cenac-midia cenac-video"
+        src={VIDEO_SRC}
+        poster={poster}
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="none"
+      />
+    ) : (
+      <>
+        <div class="cenac-midia cenac-foto">
+          <Picture
+            src={fotoLuz}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[640, 1000, 1400, 1920]}
+            sizes="100vw"
+            alt="Kitchenette em madeira clara e cama no mesmo ambiente, com janela de piso a teto ao lado da cama, cortina leve e vista da cidade"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="cenac-luz" aria-hidden="true"></div>
+      </>
+    )
+  }
+
+  <!-- Véu escuro fixo na área do texto: contraste garantido com ou sem vídeo -->
+  <div class="cenac-sombra" aria-hidden="true"></div>
+
+  <div class="wrap cenac-conteudo">
+    <p class="cenac-frase" data-frase>
+      Ser compacto não deveria significar abrir mão de luz, ventilação e qualidade espacial. Foi a
+      partir dessa premissa que o WindyCity foi projetado.
+    </p>
+  </div>
+</div>
+
+<style>
+  .cenac {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    /* fundo sólido do token: nada de viewport "vazia" enquanto a foto lazy chega */
+    background: var(--preto);
+  }
+
+  .cenac-midia {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .cenac-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 62% 50%;
+  }
+  .cenac-foto :global(picture) {
+    display: block;
+    height: 100%;
+  }
+  .cenac-foto :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* janela ampla fica à direita do enquadramento: em cortes verticais
+       (mobile) preservamos cama + janela, não a kitchenette */
+    object-position: 62% 50%;
+  }
+
+  /* Faixa diagonal de luz — maior que a cena; o deslocamento é 100% GSAP
+     (transform), então sem JS ou com reduced-motion ela fica parada, como
+     um facho estático — nunca conteúdo escondido. */
+  .cenac-luz {
+    position: absolute;
+    left: -12%;
+    right: -12%;
+    top: -42%;
+    height: 132%;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      112deg,
+      transparent 32%,
+      var(--bege-08) 44%,
+      var(--bege-14) 50%,
+      var(--bege-08) 56%,
+      transparent 70%
+    );
+  }
+
+  .cenac-sombra {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      var(--preto) 0%,
+      color-mix(in srgb, var(--preto) 55%, transparent) 36%,
+      transparent 70%
+    );
+  }
+
+  .cenac-conteudo {
+    position: relative;
+    z-index: 3;
+    padding-block: clamp(96px, 18vh, 200px) clamp(56px, 11vh, 140px);
+  }
+  .cenac-frase {
+    font-size: clamp(1.5rem, 3.3vw, 3rem);
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--bege);
+    max-width: 24ch;
+  }
+
+  /* Nenhuma animação CSS própria aqui: todo movimento é GSAP e já fica
+     atrás de reduzMovimento(). O bloco existe para deixar o contrato
+     explícito caso alguém adicione keyframes no futuro. */
+  @media (prefers-reduced-motion: reduce) {
+    .cenac-luz {
+      transform: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { aoAproximar, reduzMovimento, dividirPalavras } from '../scripts/ilha';
+
+  const cena = document.querySelector<HTMLElement>('[data-cena-compacto]');
+  if (cena) {
+    aoAproximar(cena, async () => {
+      if (reduzMovimento()) return; // foto + véu parados, frase visível
+
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger'),
+      ]);
+      gsap.registerPlugin(ScrollTrigger);
+
+      /* Varredura de luz — só existe no fallback fotográfico (com vídeo, a
+         luz vem do próprio vídeo). Transform apenas, em loop lento yoyo. */
+      const luz = cena.querySelector('.cenac-luz');
+      const foto = cena.querySelector('.cenac-foto img');
+      if (luz && foto) {
+        gsap.to(luz, { yPercent: 24, duration: 14, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+        gsap.to(foto, {
+          scale: 1.05,
+          duration: 14,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+          transformOrigin: '62% 50%',
+        });
+      }
+
+      /* Frase por palavras, uma vez, no primeiro enter da cena. O split e o
+         estado escondido só acontecem aqui dentro — sem JS o texto está
+         inteiro no HTML. */
+      const frase = cena.querySelector<HTMLElement>('[data-frase]');
+      if (frase) {
+        const palavras = dividirPalavras(frase);
+        gsap.set(palavras, { yPercent: 112 });
+        gsap.to(palavras, {
+          yPercent: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          stagger: 0.035,
+          scrollTrigger: { trigger: cena, start: 'top 62%', once: true },
+        });
+      }
+    });
+  }
+</script>

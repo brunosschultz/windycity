@@ -2,30 +2,35 @@
 import { Picture } from 'astro:assets';
 import plantaStudio from '../assets/images/planta-24-45.png';
 import plantaGarden from '../assets/images/planta-47-08.png';
-/* As três fotos de apoio são as únicas do acervo interno ainda NÃO usadas em
-   Diferenciais (que já leva unid-sacada-01, unid-sacada-02 e unid-meio-02) —
-   a dobra anterior é vizinha desta, repetir a mesma foto seria evidente. */
-import ambA from '../assets/images/unid-meio-01.jpg';
-import ambB from '../assets/images/unid-sacada-03.jpg';
-import ambC from '../assets/images/unid-sacada-04.jpg';
+/* Fotos de apoio: só as NÃO usadas por Diferenciais (que ocupa unid-sacada-01,
+   unid-sacada-02 e unid-meio-02). Duas bastam para a faixa — paleta branca
+   (meio-01) contra madeira clara (sacada-04), o contraste faz a dupla. */
+import ambClaro from '../assets/images/unid-meio-01.jpg';
+import ambMadeira from '../assets/images/unid-sacada-04.jpg';
 import { waHref } from '../config';
 
 /*
-  `esc` / `sizes` / `widths` NÃO são decoração: as duas plantas têm proporções
-  muito diferentes (24-45 é 1536x763, quase 2:1; 47-08 é 1088x929, quase
-  quadrada). Renderizar as duas na mesma largura achatava a leitura. Dando
-  ao Studio uma caixa um pouco menor, a diferença de porte entre as duas
-  tipologias — que é exatamente o que o texto afirma — passa a ser visível
-  antes de ser lida. Não é escala métrica e não está rotulada como tal.
+  Arquitetura da dobra: duas CENAS editoriais de ~100svh, uma por tipologia,
+  espelhadas. Em cada cena a PLANTA é a protagonista gráfica — sangrada até a
+  borda da tela, em `multiply` sobre o bege (o branco do arquivo vira o fundo
+  da seção, a planta "flutua"), crescendo sutilmente conduzida pelo scroll
+  (data-prog na cena; a custom property herda). Atrás dela, um número-fantasma
+  em serifada de pôster deriva na direção contrária. O título quebra em dois
+  pesos: o NOME em escala display invadindo a planta, o restante como linha de
+  apoio na coluna de leitura.
 
-  `dir` guia a máscara de revelação para o lado em que a planta está na
-  composição do desktop: o recorte abre a partir da margem, não do miolo.
+  `nome`/`sub` são o MESMO título aprovado, quebrado em spans — texto intacto,
+  só hierarquia. `dir` guia a máscara de revelação para a borda em que a planta
+  sangra. Studio (1536x763, ~2:1) deita; Garden (1088x929, quase quadrada)
+  impõe massa — o porte diferente das duas é a própria mensagem.
 */
 const tipos = [
   {
+    num: '01',
     img: plantaStudio,
     alt: 'Planta humanizada de studio do WindyCity, com dormitório, estar, cozinha compacta e banheiro integrados',
-    titulo: 'Studio — praticidade para quem vive em movimento',
+    nome: 'Studio',
+    sub: '— praticidade para quem vive em movimento',
     texto:
       'Opção versátil para estudantes, profissionais e investidores que buscam mobilidade, funcionalidade e potencial para locações de curta permanência.',
     itens: [
@@ -36,15 +41,16 @@ const tipos = [
       'Quem prioriza localização e praticidade',
     ],
     cta: 'Conhecer Studios',
-    esc: '90%',
     dir: 'esq',
-    widths: [560, 820, 1120],
-    sizes: '(max-width: 940px) 90vw, 47vw',
+    widths: [640, 960, 1280, 1536],
+    sizes: '(max-width: 980px) 92vw, 54vw',
   },
   {
+    num: '02',
     img: plantaGarden,
     alt: 'Planta humanizada de garden do WindyCity, com área externa privativa gramada e deck de madeira',
-    titulo: 'Garden — mais espaço para viver por mais tempo',
+    nome: 'Garden',
+    sub: '— mais espaço para viver por mais tempo',
     texto:
       'Com área externa privativa, oferece uma experiência mais residencial — indicada para quem busca conforto, privacidade e permanência prolongada.',
     itens: [
@@ -54,169 +60,199 @@ const tipos = [
       'Quem busca mais privacidade e amplitude',
     ],
     cta: 'Conhecer Gardens',
-    esc: '100%',
     dir: 'dir',
-    widths: [620, 900, 1240],
-    sizes: '(max-width: 940px) 100vw, 52vw',
+    widths: [560, 800, 1088],
+    sizes: '(max-width: 980px) 92vw, 46vw',
   },
 ];
 ---
 
 <section class="section theme-bege tp" id="tipologias" aria-labelledby="tp-t">
   <div class="wrap">
-    <div class="tp-head">
+    <header class="tp-head">
       <div class="tp-head-a">
         <p class="eyebrow" data-rv>Tipologias</p>
         <h2 class="h2-xl" id="tp-t" data-rv style="--d:80ms">
           Duas formas de <em class="ac">viver</em> o WindyCity
         </h2>
       </div>
-      <div class="tp-head-b">
-        <p class="body tp-body" data-rv style="--d:160ms">
-          Studios e Gardens compartilham a mesma arquitetura bem resolvida — iluminação natural,
-          ventilação e melhor aproveitamento dos espaços. O que muda é a forma de viver ou investir.
-        </p>
-      </div>
-    </div>
+      <p class="body tp-lead" data-rv style="--d:160ms">
+        Studios e Gardens compartilham a mesma arquitetura bem resolvida — iluminação natural,
+        ventilação e melhor aproveitamento dos espaços. O que muda é a forma de viver ou investir.
+      </p>
+    </header>
   </div>
 
-  <!--
-    Faixa fotográfica COMUM à seção — é a evidência da frase logo acima
-    ("compartilham a mesma arquitetura bem resolvida"). Fica de propósito
-    FORA dos dois blocos de tipologia e sem legenda: os arquivos dizem
-    "unidade meio" e "unidade sacada", que é POSIÇÃO no pavimento, não a
-    tipologia comercial. Associar qualquer uma dessas fotos a Studio ou a
-    Garden seria inventar informação. Aqui elas só mostram o padrão de
-    acabamento — que é comum às duas.
+  {
+    tipos.map((t, i) => (
+      <>
+        <article class={`tp-cena ${i === 0 ? 'tp-cena--a' : 'tp-cena--b'}`} data-prog>
+          <div class="wrap tp-grid">
+            {/* Número-fantasma: pintado ANTES da planta; o multiply dela deixa
+                o número atravessar as áreas brancas do arquivo — camadas de
+                impresso, não "imagem em cima de fundo". aria-hidden: é
+                ornamento de cena, não conteúdo. */}
+            <span class="tp-num num-xl" aria-hidden="true">
+              {t.num}
+            </span>
 
-    Contexto isolado do `multiply`: estas fotos não passam perto de .tp-fig.
-  -->
-  <div class="tp-faixa">
-    <div class="tp-ft tp-ft--a" data-px="40" data-rv-img="esq">
-      <Picture
-        src={ambA}
-        formats={['avif', 'webp']}
-        fallbackFormat="webp"
-        widths={[420, 640, 900, 1200]}
-        sizes="(max-width: 860px) 100vw, 45vw"
-        alt="Ambiente interno do WindyCity com cozinha compacta branca, sofá-cama, closet envidraçado e piso de madeira em espinha"
-        loading="lazy"
-        decoding="async"
-      />
-    </div>
-    <div class="tp-ft tp-ft--b" data-px="66" data-rv-img style="--d:110ms">
-      <Picture
-        src={ambB}
-        formats={['avif', 'webp']}
-        fallbackFormat="webp"
-        widths={[340, 540, 780, 1040]}
-        sizes="(max-width: 860px) 50vw, 33vw"
-        alt="Ambiente interno do WindyCity revestido em madeira clara, com bancada de trabalho, cozinha ao fundo e cama junto à parede"
-        loading="lazy"
-        decoding="async"
-      />
-    </div>
-    <div class="tp-ft tp-ft--c" data-px="28" data-rv-img="dir" style="--d:200ms">
-      <Picture
-        src={ambC}
-        formats={['avif', 'webp']}
-        fallbackFormat="webp"
-        widths={[340, 540, 780, 1040]}
-        sizes="(max-width: 860px) 50vw, 35vw"
-        alt="Detalhe interno do WindyCity com nicho de trabalho, bancada, banco embutido e cozinha em pedra clara ao lado"
-        loading="lazy"
-        decoding="async"
-      />
-    </div>
-  </div>
+            <figure class="tp-fig">
+              {/* O blend + a escala guiada por --prog ficam num wrapper que
+                  contém SÓ a imagem; a legenda fica fora — texto de 9px
+                  dentro de transform sairia borrado. */}
+              <div class="tp-fig-bl" data-rv-img={t.dir}>
+                <Picture
+                  src={t.img}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="webp"
+                  widths={t.widths}
+                  sizes={t.sizes}
+                  alt={t.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <figcaption class="tp-il label">Imagens meramente ilustrativas</figcaption>
+            </figure>
 
-  <div class="wrap">
-    {
-      tipos.map((t, i) => (
-        <article class={`tp-row ${i % 2 ? 'is-alt' : ''}`}>
-          <figure class="tp-fig" style={`--esc:${t.esc}`}>
-            {/* A escala guiada pelo scroll vai num wrapper que contém SÓ a
-                imagem — a legenda fica fora dela, senão o texto de 9px
-                entraria em transform e sairia borrado. */}
-            <div class="tp-fig-in" data-prog data-rv-img={t.dir}>
+            <div class="tp-txt">
+              <h3 class="tp-h3" data-rv>
+                {/* Título aprovado intacto, quebrado em spans: nome em escala
+                    display (invade a planta no desktop), restante como linha
+                    de apoio. O nome acessível continua a frase inteira. */}
+                <span class="tp-nome">{t.nome}</span>
+                <span class="tp-sub">{t.sub}</span>
+              </h3>
+              <p class="tp-p" data-rv style="--d:90ms">
+                {t.texto}
+              </p>
+              <ul class="tp-list" data-rv="fade" style="--d:170ms">
+                {t.itens.map((it) => (
+                  <li>
+                    <span class="tp-mk" aria-hidden="true" />
+                    <span>{it}</span>
+                  </li>
+                ))}
+              </ul>
+              {/* O data-rv fica no invólucro, não no <a>: [data-rv].is-in
+                  escreve em transform e venceria o levantar do .btn:hover. */}
+              <div class="tp-cta-hold" data-rv style="--d:260ms">
+                <a class="btn tp-cta" href={waHref()}>
+                  <span>{t.cta}</span>
+                  <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2 8h11m0 0L9 4m4 4l-4 4"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        {i === 0 && (
+          /* Faixa fotográfica COMUM entre as duas cenas — evidência da frase
+             de abertura ("compartilham a mesma arquitetura bem resolvida").
+             Sem legenda e sem vínculo com nenhum dos blocos: os arquivos dizem
+             posição no pavimento ("meio"/"sacada"), não tipologia comercial —
+             associá-los a Studio ou Garden seria inventar informação. Dupla
+             assimétrica em sangria total; contexto isolado do multiply. */
+          <div class="tp-faixa bleed">
+            <div class="tp-ft tp-ft--a" data-px="46" data-rv-img="esq">
               <Picture
-                src={t.img}
+                src={ambClaro}
                 formats={['avif', 'webp']}
                 fallbackFormat="webp"
-                widths={t.widths}
-                sizes={t.sizes}
-                alt={t.alt}
+                widths={[480, 760, 1080, 1400, 1672]}
+                sizes="(max-width: 860px) 100vw, 58vw"
+                alt="Ambiente interno do WindyCity com cozinha compacta branca, sofá-cama, closet envidraçado e piso de madeira em espinha"
                 loading="lazy"
                 decoding="async"
               />
             </div>
-            <figcaption class="tp-il label">Imagens meramente ilustrativas</figcaption>
-          </figure>
-
-          <div class="tp-txt">
-            <h3 class="tp-h3" data-rv>
-              {t.titulo}
-            </h3>
-            <p class="tp-p" data-rv style="--d:90ms">
-              {t.texto}
-            </p>
-            <ul class="tp-list" data-rv="fade" style="--d:170ms">
-              {t.itens.map((it) => (
-                <li>
-                  <span class="tp-mk" aria-hidden="true" />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-            {/* O data-rv fica no invólucro, não no <a>: [data-rv].is-in escreve
-                em transform e, por ordem de fonte, venceria o .btn:hover —
-                o botão perderia o levantar de 2px no hover. */}
-            <div class="tp-cta-hold" data-rv style="--d:260ms">
-              <a class="btn tp-cta" href={waHref()}>
-                <span>{t.cta}</span>
-                <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path
-                    d="M2 8h11m0 0L9 4m4 4l-4 4"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </a>
+            <div class="tp-ft tp-ft--b" data-px="24" data-rv-img="dir" style="--d:120ms">
+              <Picture
+                src={ambMadeira}
+                formats={['avif', 'webp']}
+                fallbackFormat="webp"
+                widths={[420, 640, 900, 1200]}
+                sizes="(max-width: 860px) 78vw, 36vw"
+                alt="Detalhe interno do WindyCity com nicho de trabalho, bancada, banco embutido e cozinha em pedra clara ao lado"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
-        </article>
-      ))
-    }
+        )}
+      </>
+    ))
+  }
 
+  <div class="wrap">
+    <!-- Fecho tipográfico em escala. Revelação palavra a palavra via GSAP
+         (script abaixo): SEM estado oculto em CSS estático — sem JS ou com
+         movimento reduzido a frase está simplesmente lá. -->
     <div class="tp-fecho">
-      <div class="tp-fecho-rule" data-rv="fade" aria-hidden="true"></div>
       <p class="tp-claim">
-        <span data-rv>Diferentes formas de ocupar.</span>
-        <span data-rv style="--d:130ms">A mesma qualidade de projeto.</span>
+        <span class="tp-claim-l">Diferentes formas de ocupar.</span>
+        <span class="tp-claim-l tp-claim-l--b ac">A mesma qualidade de projeto.</span>
       </p>
     </div>
   </div>
 </section>
 
+<script>
+  import { aoAproximar, reduzMovimento, dividirPalavras } from '../scripts/ilha';
+
+  const secao = document.querySelector('#tipologias');
+  if (secao) {
+    aoAproximar(secao, async () => {
+      if (reduzMovimento()) return;
+      const linhas = [...secao.querySelectorAll<HTMLElement>('.tp-claim-l')];
+      if (!linhas.length) return;
+
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger'),
+      ]);
+      gsap.registerPlugin(ScrollTrigger);
+
+      /* Split local (spans com overflow hidden). Só as palavras ficam ocultas,
+         e só a partir daqui — se o import falhar, nada foi escondido. */
+      const palavras = linhas.flatMap((l) => dividirPalavras(l));
+      gsap.set(palavras, { yPercent: 112 });
+      gsap.to(palavras, {
+        yPercent: 0,
+        duration: 0.9,
+        ease: 'power4.out',
+        stagger: 0.055,
+        scrollTrigger: {
+          trigger: secao.querySelector('.tp-claim'),
+          start: 'top 86%',
+          once: true, // dispara uma vez e se desregistra — nada fica escutando
+        },
+      });
+    });
+  }
+</script>
+
 <style>
   /* ---------- Abertura ---------- */
   .tp-head {
-    margin-bottom: clamp(10px, 1.5vw, 20px);
+    margin-bottom: clamp(36px, 6vw, 84px);
   }
   .tp-head .h2-xl {
-    /* "ch" precisa ir no próprio h2: em .tp-head (16px) o "ch" saía ~4x
-       mais estreito do que no h2 (78px), quebrando o título cedo demais. */
+    /* "ch" no próprio h2: no pai (16px) o "ch" sairia ~4x mais estreito. */
     max-width: 20ch;
-    margin-bottom: 24px;
   }
-  .tp-body {
+  .tp-lead {
     max-width: 52ch;
+    margin-top: 24px;
   }
-
-  /* Em telas largas o parágrafo sai de baixo do título e passa a apoiá-lo
-     pela direita, alinhado pela base — a abertura vira uma linha só. */
   @media (min-width: 1000px) {
     .tp-head {
       display: grid;
@@ -224,122 +260,102 @@ const tipos = [
       gap: clamp(40px, 5vw, 96px);
       align-items: end;
     }
-    .tp-head .h2-xl {
-      margin-bottom: 0;
-    }
-    .tp-body {
+    .tp-lead {
       max-width: 44ch;
-      padding-bottom: 0.4em;
+      margin-top: 0;
+      /* Fio editorial: o parágrafo apoia o título pela direita, pautado. */
+      border-top: 1px solid var(--rule);
+      padding-top: 18px;
     }
   }
 
-  /* ---------- Faixa fotográfica comum ---------- */
-  .tp-faixa {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(8px, 1.4vw, 20px);
-    margin-top: clamp(40px, 6vw, 84px);
-    margin-bottom: clamp(6px, 1.5vw, 24px);
-  }
-  .tp-ft {
+  /* ---------- Cena por tipologia ---------- */
+  /* `clip` (não hidden): corta o número-fantasma que sangra além da borda sem
+     criar contexto de rolagem. Nada de sticky aqui dentro. */
+  .tp-cena {
     position: relative;
-    overflow: hidden;
-    background: var(--marrom-08);
+    overflow: clip;
   }
-  .tp-ft :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .tp-ft--a {
-    grid-column: 1 / -1;
-    height: clamp(200px, 50vw, 330px);
-  }
-  .tp-ft--b,
-  .tp-ft--c {
-    height: clamp(148px, 36vw, 250px);
-  }
-
-  @media (min-width: 861px) {
-    /* Três peças numa linha, com alturas e alturas de partida diferentes:
-       a base fica irregular de propósito, pra faixa não ler como "três
-       thumbs iguais". O parallax (--py, só desktop) reforça o desencontro. */
-    .tp-faixa {
-      grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.94fr) minmax(0, 1.02fr);
-      align-items: start;
-    }
-    .tp-ft--a {
-      grid-column: auto;
-      height: clamp(290px, 38vh, 470px);
-    }
-    .tp-ft--b {
-      height: clamp(320px, 44vh, 520px);
-      margin-top: clamp(24px, 4vw, 70px);
-    }
-    .tp-ft--c {
-      height: clamp(240px, 31vh, 390px);
-      margin-top: clamp(50px, 7vw, 120px);
-    }
-  }
-
-  /* ---------- Os dois blocos ---------- */
-  .tp-row {
+  .tp-grid {
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
-    gap: clamp(30px, 6vw, 96px);
-    align-items: center;
-    padding-block: clamp(46px, 7vw, 100px);
-    border-top: 1px solid var(--rule);
-  }
-  .tp-row:first-of-type {
-    margin-top: clamp(34px, 5vw, 70px);
-  }
-  .tp-row.is-alt {
-    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
-  }
-  .tp-row.is-alt .tp-fig {
-    order: 2;
-    margin-left: auto;
+    gap: 30px;
+    padding-block: clamp(40px, 7vw, 90px);
   }
 
-  /* A planta tem fundo branco no arquivo. `multiply` faz o branco virar
-     exatamente a cor da seção — a planta flutua sem nenhuma moldura. */
+  /* Número-fantasma. Deriva contra o scroll via --prog (herdada da cena,
+     publicada pelo driver global) — compositor-only, custo zero de JS local. */
+  .tp-num {
+    position: absolute;
+    z-index: 0;
+    top: -0.06em;
+    color: var(--marrom-16);
+    pointer-events: none;
+    user-select: none;
+    font-size: clamp(5rem, 24vw, 20rem);
+  }
+  .tp-cena--a .tp-num {
+    right: -0.05em;
+  }
+  .tp-cena--b .tp-num {
+    left: -0.05em;
+  }
+
   .tp-fig {
     position: relative;
-    width: var(--esc, 100%);
-    mix-blend-mode: multiply;
+    z-index: 1;
+    margin: 0;
   }
-  .tp-fig :global(img) {
+  /* O branco do arquivo da planta vira exatamente o bege da seção — a planta
+     flutua sem moldura e deixa o número-fantasma atravessar por baixo. */
+  .tp-fig-bl {
+    mix-blend-mode: multiply;
+    /* Aproximação guiada pelo scroll: chega 6% menor e atinge o tamanho
+       natural antes do meio da cena. O clamp trava em 1 — nunca estoura a
+       própria caixa. Com prefers-reduced-motion o driver publica --prog:1,
+       o que já resolve em scale(1); ainda assim há o corte explícito abaixo. */
+    transform: scale(clamp(0.94, calc(0.94 + var(--prog, 0) * 0.16), 1));
+    transform-origin: center center;
+  }
+  .tp-fig-bl :global(img) {
     width: 100%;
     height: auto;
   }
-
-  /* Aproximação guiada pelo scroll: a planta chega 7% menor e alcança o
-     tamanho natural quando está no meio da tela — o clamp trava em 1, então
-     ela NUNCA passa da própria caixa (nenhum risco de estouro lateral).
-     Com prefers-reduced-motion o driver publica --prog:1 e isso já resolve
-     em scale(1), sem precisar de regra extra. */
-  .tp-fig-in {
-    transform: scale(clamp(0.93, calc(0.93 + var(--prog, 0) * 0.14), 1));
-    transform-origin: center center;
-  }
-
   .tp-il {
-    position: absolute;
-    right: 0;
-    bottom: -4px;
+    display: block;
+    text-align: right;
+    margin-top: 10px;
     font-size: 0.5625rem;
     letter-spacing: 0.12em;
     color: var(--marrom-50);
   }
 
+  .tp-txt {
+    position: relative;
+    z-index: 2;
+  }
   .tp-h3 {
-    font-size: clamp(1.3rem, 2.4vw, 2.05rem);
-    font-weight: 700;
-    line-height: 1.14;
-    letter-spacing: -0.026em;
-    margin-bottom: 16px;
-    max-width: 18ch;
+    margin-bottom: 18px;
+  }
+  /* O nome em escala display; o restante do título como linha de apoio.
+     (Mesmo h3, mesma frase — só pesos.) */
+  .tp-nome {
+    display: block;
+    font-size: clamp(2.7rem, 13vw, 6.6rem);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: var(--fg);
+  }
+  .tp-sub {
+    display: block;
+    margin-top: 16px;
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    max-width: 30ch;
   }
   .tp-p {
     font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
@@ -349,9 +365,8 @@ const tipos = [
     max-width: 46ch;
   }
 
-  /* Lista como pauta: fio em cima de cada item E embaixo do último, pra
-     fechar o bloco. É o que torna Studio e Garden comparáveis linha a
-     linha, mesmo com quantidades diferentes de itens. */
+  /* Lista como pauta: fio sobre cada item e sob o último — é o que torna
+     Studio e Garden comparáveis linha a linha. */
   .tp-list {
     display: grid;
     margin-bottom: 34px;
@@ -372,28 +387,17 @@ const tipos = [
       opacity 0.55s var(--ease-out),
       transform 0.55s var(--ease-out);
   }
-  /* A <ul> carrega o data-rv="fade" (só opacidade, sem transform próprio);
-     o movimento fica por conta dos itens, um atrás do outro. */
+  /* A <ul> carrega o data-rv="fade" (só opacidade); o movimento fica por
+     conta dos itens, escalonados. */
   .tp-list.is-in li {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
-  .tp-list.is-in li:nth-child(1) {
-    transition-delay: 180ms;
-  }
-  .tp-list.is-in li:nth-child(2) {
-    transition-delay: 250ms;
-  }
-  .tp-list.is-in li:nth-child(3) {
-    transition-delay: 320ms;
-  }
-  .tp-list.is-in li:nth-child(4) {
-    transition-delay: 390ms;
-  }
-  .tp-list.is-in li:nth-child(5) {
-    transition-delay: 460ms;
-  }
-
+  .tp-list.is-in li:nth-child(1) { transition-delay: 180ms; }
+  .tp-list.is-in li:nth-child(2) { transition-delay: 250ms; }
+  .tp-list.is-in li:nth-child(3) { transition-delay: 320ms; }
+  .tp-list.is-in li:nth-child(4) { transition-delay: 390ms; }
+  .tp-list.is-in li:nth-child(5) { transition-delay: 460ms; }
   .tp-mk {
     flex: none;
     width: 8px;
@@ -408,78 +412,157 @@ const tipos = [
     align-self: flex-start;
   }
 
-  /* ---------- Fecho ---------- */
-  .tp-fecho {
-    margin-top: clamp(46px, 6vw, 78px);
-  }
-  /* O fio é desenhado da esquerda para a direita quando o fecho aparece.
-     A escala vai no ::after porque o próprio elemento já é alvo do
-     [data-rv], que escreve em transform. */
-  .tp-fecho-rule {
-    position: relative;
-    height: 1px;
-  }
-  .tp-fecho-rule::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--rule);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 1.1s var(--ease-out);
-  }
-  .tp-fecho-rule.is-in::after {
-    transform: scaleX(1);
+  /* ---------- Desktop: cena de viewport inteira, espelhada ---------- */
+  @media (min-width: 981px) {
+    .tp-grid {
+      min-height: 100svh;
+      align-items: center;
+      gap: clamp(36px, 5vw, 110px);
+      padding-block: clamp(48px, 6vh, 90px);
+    }
+    .tp-cena--a .tp-grid {
+      grid-template-columns: minmax(0, 1.22fr) minmax(0, 0.9fr);
+    }
+    .tp-cena--b .tp-grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.22fr);
+    }
+    .tp-cena--b .tp-fig {
+      order: 2;
+    }
+    .tp-cena--b .tp-txt {
+      order: 1;
+    }
+
+    /* A planta sangra até a borda da tela do seu lado — protagonista, não
+       ilustração dentro de coluna. */
+    .tp-cena--a .tp-fig {
+      margin-left: calc(var(--sangria) * -1);
+    }
+    .tp-cena--b .tp-fig {
+      margin-right: calc(var(--sangria) * -1);
+    }
+    /* Garden é quase quadrada: sem esta trava ela sairia mais alta que a
+       viewport. 1.171 é a proporção do arquivo (1088/929). */
+    .tp-cena--b .tp-fig-bl {
+      width: min(100%, calc(80svh * 1.171));
+      margin-left: auto;
+    }
+    .tp-cena--b .tp-il {
+      text-align: left;
+    }
+
+    /* Número no canto da PLANTA (não do texto), meio para fora da tela. */
+    .tp-cena--a .tp-num {
+      right: auto;
+      left: -0.06em;
+    }
+    .tp-cena--b .tp-num {
+      left: auto;
+      right: -0.06em;
+    }
+    /* Deriva vertical contra o scroll — profundidade sem JS por seção. */
+    .tp-num {
+      top: 0;
+      transform: translate3d(0, calc((0.55 - var(--prog, 0.5)) * 120px), 0);
+    }
+
+    /* O nome invade a planta: tensão texto-sobre-imagem. O deslocamento vai
+       no span (estático), nunca no h3 — o h3 é alvo de [data-rv], que
+       escreve em transform. */
+    .tp-cena--a .tp-nome {
+      transform: translateX(calc(clamp(24px, 5vw, 110px) * -1));
+    }
+    .tp-cena--b .tp-nome {
+      transform: translateX(clamp(24px, 5vw, 110px));
+    }
   }
 
-  .tp-claim {
-    padding-top: clamp(34px, 4vw, 54px);
-    font-size: clamp(1.3rem, 3vw, 2.5rem);
-    font-weight: 700;
-    letter-spacing: -0.028em;
-    line-height: 1.16;
-    text-wrap: balance;
-    color: var(--fg-soft);
+  /* ---------- Faixa fotográfica comum ---------- */
+  .tp-faixa {
+    display: grid;
+    gap: clamp(10px, 1.6vw, 22px);
+    margin-block: clamp(24px, 6vh, 90px);
   }
-  .tp-claim span {
-    display: block;
-    max-width: 22ch;
+  .tp-ft {
+    position: relative;
+    overflow: hidden;
+    background: var(--marrom-08);
   }
-  /* A segunda frase é a tese da seção — ela fica em contraste cheio e
-     deslocada, pra não empatar com a primeira. */
-  .tp-claim span + span {
-    color: var(--fg);
+  .tp-ft :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .tp-ft--a {
+    height: clamp(230px, 60vw, 420px);
+  }
+  /* Assimetria também no mobile: a segunda peça é menor e desencostada. */
+  .tp-ft--b {
+    width: 78%;
+    justify-self: end;
+    height: clamp(160px, 42vw, 300px);
   }
   @media (min-width: 861px) {
-    .tp-claim span + span {
-      margin-left: clamp(40px, 7vw, 150px);
+    .tp-faixa {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      align-items: end;
     }
-  }
-
-  @media (max-width: 940px) {
-    .tp-row,
-    .tp-row.is-alt {
-      grid-template-columns: 1fr;
-      gap: 28px;
+    .tp-ft--a {
+      height: clamp(380px, 72vh, 760px);
     }
-    .tp-row.is-alt .tp-fig {
-      order: 0;
-      margin-left: 0;
-    }
-    .tp-cta {
+    .tp-ft--b {
       width: 100%;
+      height: clamp(240px, 44vh, 460px);
+      /* Levantada da linha de base — a dupla não vira "duas thumbs". */
+      margin-bottom: clamp(48px, 9vh, 130px);
     }
   }
 
+  /* ---------- Fecho tipográfico ---------- */
+  .tp-fecho {
+    margin-top: clamp(56px, 9vw, 130px);
+    border-top: 1px solid var(--rule);
+    padding-top: clamp(36px, 5vw, 70px);
+  }
+  .tp-claim {
+    font-size: clamp(1.9rem, 5.6vw, 4.8rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.06;
+    color: var(--fg-soft);
+  }
+  .tp-claim-l {
+    display: block;
+  }
+  /* A segunda frase é a tese da seção: contraste cheio, serifada itálica
+     (.ac) e degrau — o mesmo gesto do <em> do h2, fechando o arco. */
+  .tp-claim-l--b {
+    color: var(--fg);
+    letter-spacing: -0.015em;
+  }
+  @media (min-width: 861px) {
+    .tp-claim-l--b {
+      margin-left: clamp(48px, 9vw, 190px);
+    }
+  }
+  /* Respiro no recorte das palavras do split (spans overflow:hidden do
+     ilha.ts): padding estende a caixa de corte para descendentes e para o
+     avanço da itálica; as margens devolvem o espaçamento. */
+  .tp-claim :global(.palavra) {
+    padding: 0 0.06em 0.14em 0;
+    margin: 0 -0.06em -0.14em 0;
+  }
+
+  /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
+    .tp-fig-bl,
+    .tp-num {
+      transform: none !important;
+    }
     .tp-list li {
       opacity: 1 !important;
       transform: none !important;
       transition-delay: 0ms !important;
-    }
-    .tp-fig-in,
-    .tp-fecho-rule::after {
-      transform: none;
     }
   }
 </style>

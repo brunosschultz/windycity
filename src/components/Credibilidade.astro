@@ -26,64 +26,58 @@ const depoimentos = [
 ---
 
 <section class="section theme-preto cr" id="girassol" aria-labelledby="gi-t">
+  <!-- ============ 1 · ABERTURA ============
+       O título não fica AO LADO da foto: ele atravessa a foto. A torre em
+       contra-plongée sangra até a borda direita em ~92svh; um véu lateral
+       (preto → transparente) funde a foto ao fundo da seção e garante a
+       leitura das palavras que pousam sobre o céu. As linhas do h2 sobem
+       uma a uma via GSAP (estado inicial escondido SÓ via JS). -->
   <div class="wrap">
-    <!-- Abertura assimétrica: a coluna de texto termina na mesma linha em que
-         a foto termina; a foto sangra até a borda direita da tela. -->
-    <div class="cr-top">
-      <div class="cr-head">
-        <p class="eyebrow" data-rv>Conheça a Girassol</p>
-        <h2 class="h2-xl" id="gi-t" data-rv style="--d:80ms">
-          Por que <em class="ac">confiar</em> na Girassol?
-        </h2>
-        <p class="body cr-body" data-rv style="--d:160ms">
-          A Girassol é formada por profissionais com experiência em planejamento, construção e gestão
-          de empreendimentos. A marca é recente — a experiência, não. Aqui, o contato com quem decide é
-          direto: sem coordenador do coordenador.
-        </p>
-      </div>
+    <div class="cr-abre">
+      <p class="eyebrow" data-rv>Conheça a Girassol</p>
 
-      <figure class="cr-torre bleed-r" data-px="60" data-rv-img style="--d:120ms">
+      <h2 class="h2-xl cr-titulo" id="gi-t">
+        <span class="cr-tl"><span>Por que</span></span>
+        <span class="cr-tl cr-tl--rec"><span><em class="ac">confiar</em></span></span>
+        <span class="cr-tl"><span>na Girassol?</span></span>
+      </h2>
+
+      <p class="body cr-body" data-rv style="--d:140ms">
+        A Girassol é formada por profissionais com experiência em planejamento, construção e gestão
+        de empreendimentos. A marca é recente — a experiência, não. Aqui, o contato com quem decide é
+        direto: sem coordenador do coordenador.
+      </p>
+
+      <figure class="cr-abre-fig bleed-r" data-px="60" data-rv-img="cima">
         <Picture
           src={torre}
           formats={['avif', 'webp']}
           fallbackFormat="webp"
-          widths={[520, 780, 1100, 1400]}
-          sizes="(max-width: 900px) 95vw, 56vw"
+          widths={[640, 960, 1400, 2000]}
+          sizes="(max-width: 900px) 100vw, 62vw"
           alt="Fachada do WindyCity vista de baixo para cima, com o letreiro windycity na base e as varandas recortadas contra o céu"
           loading="lazy"
           decoding="async"
         />
       </figure>
     </div>
-
-    <!-- Números em escala de pôster, sem caixas. O fio de cada coluna é
-         desenhado da esquerda para a direita quando o dado entra. -->
-    <ul class="stats">
-      {
-        stats.map((s, i) => (
-          <li class="stat" data-rv style={`--d:${i * 70}ms`}>
-            <span class={`stat-n ${s.pendente ? 'is-pend' : ''}`}>
-              {s.count ? <span data-count={s.count}>0</span> : s.valor}
-            </span>
-            <span class="stat-l">{s.label}</span>
-            {s.nota && <span class="stat-nota">{s.nota}</span>}
-          </li>
-        ))
-      }
-    </ul>
   </div>
 
-  <!-- Cena: a mesma fachada, mesmo enquadramento, do dia para a noite.
-       A foto fica presa em tela cheia enquanto os dois pilares avançam;
-       o cruzamento das duas imagens é conduzido por --prog (0 → 1). -->
+  <!-- ============ 2 · CENA DA PROVA ============
+       Sticky storytelling: a fachada fica presa em tela cheia passando do
+       dia para a noite (crossfade guiado por --prog), enquanto os 4 números
+       avançam por cima em etapas — fotografia fixa, dados progredindo.
+       O véu inferior (tokens de preto) garante a leitura dos stats.
+       As etapas são GSAP+ScrollTrigger só no desktop; no mobile os stats
+       ficam visíveis desde o início, por cima do véu. -->
   <div class="cr-cena cena-alta" data-prog="pin">
     <div class="cena-fixa cr-palco">
-      <figure class="cr-ciclo cena-zoom" data-rv-img>
+      <figure class="cr-ciclo cena-zoom">
         <Picture
           src={fachadaDia}
           formats={['avif', 'webp']}
           fallbackFormat="webp"
-          widths={[760, 1100, 1500, 1920]}
+          widths={[760, 1100, 1500, 1920, 2560]}
           sizes="100vw"
           alt="Fachada completa do WindyCity em vista diurna, com jardineiras nas varandas"
           loading="lazy"
@@ -94,7 +88,7 @@ const depoimentos = [
             src={fachadaNoite}
             formats={['avif', 'webp']}
             fallbackFormat="webp"
-            widths={[760, 1100, 1500, 1920]}
+            widths={[760, 1100, 1500, 1920, 2560]}
             sizes="100vw"
             alt=""
             loading="lazy"
@@ -103,52 +97,71 @@ const depoimentos = [
         </span>
       </figure>
 
-      <!-- Pilares: só tipografia e fio, agora sobre a fachada -->
-      <div class="cr-palco-txt">
-        <div class="wrap">
-          <div class="pilares">
-            <div class="pilar cr-p" style="--in:0.14">
-              <h3 class="h3">Histórico</h3>
-              <p>
-                Experiência construída ao longo de décadas em planejamento, construção e gestão de
-                empreendimentos.
-              </p>
-            </div>
-            <div class="pilar cr-p" style="--in:0.34">
-              <h3 class="h3">Atendimento próximo</h3>
-              <p>Contato direto com quem decide — inclusive no pós-obra, sem intermediários.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ul class="stats">
+        {
+          stats.map((s) => (
+            <li class="stat">
+              <i class="stat-fio" aria-hidden="true" />
+              <span class={`stat-n ${s.pendente ? 'is-pend' : ''}`}>
+                {s.count ? <span data-count={s.count}>0</span> : s.valor}
+              </span>
+              <span class="stat-l">{s.label}</span>
+              {s.nota && <span class="stat-nota">{s.nota}</span>}
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </div>
 
-  <!-- Vídeo institucional: placeholder do vídeo futuro, em sangria total -->
-  <figure class="cr-video" data-px="80" data-rv-img>
-    <Picture
-      src={poster}
-      formats={['avif', 'webp']}
-      fallbackFormat="webp"
-      widths={[760, 1100, 1500, 1920]}
-      sizes="100vw"
-      alt="Fachada do WindyCity vista da calçada, com pessoas circulando na rua"
-      loading="lazy"
-      decoding="async"
-    />
-    <span class="cr-play" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1">
-        <path d="M9 7.5 17 12l-8 4.5v-9Z" stroke-linejoin="round"></path>
-      </svg>
-    </span>
-    <figcaption class="cr-vcap">
-      <span class="label">Vídeo institucional</span>
-      <span class="cr-vsub">Fundadores apresentando a Girassol e o WindyCity</span>
-    </figcaption>
-  </figure>
-
+  <!-- ============ 3 · PILARES ============
+       Composição editorial em diagonal: dois blocos de tipografia e fio,
+       desencontrados no grid — sem card, sem caixa. -->
   <div class="wrap">
-    <!-- Depoimentos: linhas editoriais, sem card -->
+    <div class="cr-pilares">
+      <div class="pilar pilar-1" data-rv>
+        <h3 class="h3 pilar-t">Histórico</h3>
+        <p class="pilar-p">
+          Experiência construída ao longo de décadas em planejamento, construção e gestão de
+          empreendimentos.
+        </p>
+      </div>
+      <div class="pilar pilar-2" data-rv style="--d:120ms">
+        <h3 class="h3 pilar-t">Atendimento próximo</h3>
+        <p class="pilar-p">Contato direto com quem decide — inclusive no pós-obra, sem intermediários.</p>
+      </div>
+    </div>
+
+    <!-- ============ 4 · VÍDEO INSTITUCIONAL ============
+         Enquadramento recomposto: a imagem sangra só à esquerda e a legenda
+         sai de cima da foto para uma coluna própria, ancorada na base. -->
+    <figure class="cr-vrow">
+      <div class="cr-vmedia" data-px="80" data-rv-img="esq">
+        <Picture
+          src={poster}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[760, 1100, 1500, 1920]}
+          sizes="(max-width: 900px) 100vw, 76vw"
+          alt="Fachada do WindyCity vista da calçada, com pessoas circulando na rua"
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="cr-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1">
+            <path d="M9 7.5 17 12l-8 4.5v-9Z" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+      </div>
+      <figcaption class="cr-vcap" data-rv>
+        <span class="label">Vídeo institucional</span>
+        <span class="cr-vsub">Fundadores apresentando a Girassol e o WindyCity</span>
+      </figcaption>
+    </figure>
+
+    <!-- ============ 5 · DEPOIMENTOS ============
+         Dois blocos desencontrados (esquerda / direita), com a descrição em
+         escala de citação — linhas editoriais, sem card. -->
     <ul class="depo">
       {
         depoimentos.map((d, i) => (
@@ -160,7 +173,7 @@ const depoimentos = [
               </svg>
             </span>
             <span class="depo-t">Depoimento em vídeo</span>
-            <span class="depo-d">{d}</span>
+            <span class="depo-d ac">{d}</span>
           </li>
         ))
       }
@@ -182,95 +195,150 @@ const depoimentos = [
   </div>
 </section>
 
+<script>
+  import { aoAproximar, reduzMovimento } from '../scripts/ilha';
+
+  const secao = document.querySelector<HTMLElement>('#girassol');
+  if (secao) {
+    aoAproximar(secao, async () => {
+      if (reduzMovimento()) return; // sem movimento: tudo já está visível
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger'),
+      ]);
+      gsap.registerPlugin(ScrollTrigger);
+
+      /* 1 · Título: as linhas sobem de dentro das máscaras (overflow no
+         wrapper estático; o esconder é feito AQUI, nunca no CSS). */
+      const linhas = secao.querySelectorAll<HTMLElement>('.cr-tl > span');
+      if (linhas.length) {
+        gsap.set(linhas, { yPercent: 112 });
+        gsap.to(linhas, {
+          yPercent: 0,
+          duration: 1.15,
+          ease: 'power4.out',
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: secao.querySelector('.cr-abre'),
+            start: 'top 74%',
+            once: true,
+          },
+        });
+      }
+
+      /* 2 · Cena da prova (só desktop): os 4 números entram em etapas
+         enquanto a fachada cruza do dia para a noite. gsap.matchMedia
+         cuida de criar/reverter tudo ao cruzar o breakpoint. */
+      const mm = gsap.matchMedia();
+      mm.add('(min-width: 901px)', () => {
+        const cena = secao.querySelector<HTMLElement>('.cr-cena');
+        const itens = gsap.utils.toArray<HTMLElement>('.cr-cena .stat');
+        if (!cena || !itens.length) return;
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: cena,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.35,
+          },
+        });
+
+        itens.forEach((el, i) => {
+          const fio = el.querySelector('.stat-fio');
+          const conteudo = el.querySelectorAll('.stat-n, .stat-l, .stat-nota');
+          const t = 0.06 + i * 0.2;
+          if (fio) {
+            tl.fromTo(
+              fio,
+              { scaleX: 0, transformOrigin: 'left center' },
+              { scaleX: 1, duration: 0.1, ease: 'none' },
+              t
+            );
+          }
+          tl.fromTo(
+            conteudo,
+            { autoAlpha: 0, y: 34 },
+            { autoAlpha: 1, y: 0, duration: 0.14, ease: 'none' },
+            t + 0.02
+          );
+        });
+        /* respiro final: o último número assenta antes da cena soltar */
+        tl.to({}, { duration: 0.16 });
+      });
+    });
+  }
+</script>
+
 <style>
   .cr {
     padding-bottom: clamp(70px, 9vw, 130px);
   }
 
-  /* ---------- Abertura ---------- */
-  .cr-top {
+  /* ---------- 1 · Abertura: título atravessando a foto ---------- */
+  .cr-abre {
     display: grid;
-    gap: clamp(30px, 5vw, 48px);
-    margin-bottom: clamp(48px, 7vw, 92px);
+    grid-template-columns: 1fr;
+    row-gap: 0;
   }
-  .cr-head .h2-xl {
-    /* "ch" precisa ir no próprio h2: em .cr-head (16px) o "ch" saía ~4x
-       mais estreito do que no h2 (78px), quebrando o título cedo demais. */
-    max-width: 18ch;
-    margin-bottom: 24px;
+  .cr-abre .eyebrow {
+    grid-column: 1;
+  }
+  .cr-titulo {
+    position: relative;
+    z-index: 2; /* por cima da foto no desktop */
+    font-size: clamp(2.7rem, 8vw, 8rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: clamp(22px, 3vw, 40px);
+  }
+  .cr-tl {
+    display: block;
+    overflow: hidden;
+  }
+  .cr-tl > span {
+    display: block;
+    /* respiro para descendentes da itálica não serem decapitados pela máscara */
+    padding-bottom: 0.09em;
+    margin-bottom: -0.09em;
+  }
+  /* linha recuada: escadinha editorial */
+  .cr-tl--rec {
+    padding-left: clamp(20px, 6vw, 130px);
   }
   .cr-body {
-    max-width: 54ch;
+    max-width: 46ch;
   }
-  .cr-torre {
+  .cr-abre-fig {
     position: relative;
     overflow: hidden;
-    height: clamp(300px, 56vh, 460px);
+    height: clamp(320px, 58svh, 560px);
+    margin-top: clamp(26px, 4vw, 48px);
   }
-  .cr-torre :global(img) {
+  .cr-abre-fig :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 46%;
+    object-position: 50% 68%; /* letreiro na metade inferior: nunca cortar */
   }
-
-  /* ---------- Números ---------- */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: clamp(20px, 3vw, 44px);
-  }
-  .stat {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding-top: 22px;
-  }
-  /* fio que se desenha com o dado, em vez de border-top já pronta */
-  .stat::before {
+  /* véu lateral: funde a foto ao fundo preto e segura a leitura do título */
+  .cr-abre-fig::after {
     content: '';
     position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    background: var(--bege-40);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.9s var(--ease-out);
-    transition-delay: var(--d, 0ms);
-  }
-  .stat.is-in::before {
-    transform: scaleX(1);
-  }
-  .stat-n {
-    font-family: 'TimesWC', 'Times New Roman', Times, serif;
-    font-style: italic;
-    font-size: clamp(3rem, 7vw, 6.4rem);
-    line-height: 0.82;
-    letter-spacing: -0.04em;
-    color: var(--bege);
-    font-variant-numeric: lining-nums tabular-nums;
-  }
-  .stat-n.is-pend {
-    font-size: clamp(1.5rem, 3vw, 2.6rem);
-    color: var(--bege-40);
-  }
-  .stat-l {
-    font-size: 0.8125rem;
-    line-height: 1.45;
-    color: var(--bege-60);
-    max-width: 18ch;
-  }
-  .stat-nota {
-    font-size: 0.6875rem;
-    font-style: italic;
-    color: var(--verde);
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      rgba(1, 8, 17, 0.86),
+      rgba(1, 8, 17, 0.4) 34%,
+      rgba(1, 8, 17, 0) 64%
+    );
   }
 
-  /* ---------- Cena dia → noite ---------- */
+  /* ---------- 2 · Cena da prova ---------- */
   .cr-cena {
-    height: 175svh;
-    margin-top: clamp(56px, 8vw, 110px);
+    height: 165svh;
+    margin-top: clamp(56px, 9vw, 140px);
   }
   .cr-palco {
     background: var(--preto);
@@ -285,17 +353,17 @@ const depoimentos = [
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 50%;
+    object-position: 50% 38%;
   }
-  /* a noite entra por cima, cruzando a opacidade com o avanço da cena */
+  /* a noite cruza por cima conforme a cena avança (termina antes do fim) */
   .cr-noite {
     position: absolute;
     inset: 0;
     display: block;
-    opacity: var(--prog, 0);
+    opacity: min(1, calc(var(--prog, 0) * 1.18));
     will-change: opacity;
   }
-  /* véu de leitura: constante, não animado */
+  /* véu de leitura dos números: constante, tokens de preto */
   .cr-palco::after {
     content: '';
     position: absolute;
@@ -305,64 +373,121 @@ const depoimentos = [
     background:
       linear-gradient(
         to top,
-        rgba(1, 8, 17, 0.9) 0%,
-        rgba(1, 8, 17, 0.5) 24%,
-        rgba(1, 8, 17, 0) 56%
+        rgba(1, 8, 17, 0.92) 0%,
+        rgba(1, 8, 17, 0.55) 26%,
+        rgba(1, 8, 17, 0) 58%
       ),
-      linear-gradient(to bottom, rgba(1, 8, 17, 0.4), rgba(1, 8, 17, 0) 26%);
+      linear-gradient(to bottom, rgba(1, 8, 17, 0.38), rgba(1, 8, 17, 0) 22%);
   }
-  .cr-palco-txt {
+  .stats {
     position: absolute;
     z-index: 2;
-    left: 0;
-    right: 0;
-    bottom: clamp(28px, 5vw, 68px);
-  }
-
-  /* ---------- Pilares ---------- */
-  .pilares {
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: clamp(24px, 6vh, 64px);
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: clamp(22px, 4vw, 80px);
+    gap: clamp(18px, 3vw, 44px) 20px;
   }
-  .pilar {
-    border-top: 1px solid var(--bege-40);
-    padding-top: clamp(14px, 1.6vw, 20px);
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
-  .pilar .h3 {
-    margin-bottom: 10px;
+  .stat-fio {
+    display: block;
+    height: 1px;
+    background: var(--bege-40);
+    margin-bottom: 6px;
   }
-  .pilar p {
-    font-size: 0.9375rem;
-    line-height: 1.6;
+  .stat-n {
+    font-family: 'TimesWC', 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-size: clamp(2.4rem, 5.4vw, 5.8rem);
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    color: var(--bege);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .stat-n.is-pend {
+    font-size: clamp(1.3rem, 2.6vw, 2.4rem);
+    color: var(--bege-60);
+  }
+  .stat-l {
+    font-size: 0.8125rem;
+    line-height: 1.45;
     color: var(--bege-80);
-    max-width: 40ch;
+    max-width: 18ch;
   }
-  /* entrada escalonada guiada pelo avanço da cena — sem JS próprio */
-  .cr-p {
-    --p: min(1, max(0, calc((var(--prog, 0) - var(--in, 0)) * 5)));
-    opacity: var(--p);
-    transform: translate3d(0, calc(18px * (1 - var(--p))), 0);
+  .stat-nota {
+    font-size: 0.6875rem;
+    font-style: italic;
+    color: var(--verde);
   }
 
-  /* ---------- Vídeo ---------- */
-  .cr-video {
-    position: relative;
-    height: clamp(320px, 74vh, 700px);
-    overflow: hidden;
-    margin-top: clamp(56px, 8vw, 110px);
+  /* ---------- 3 · Pilares em diagonal ---------- */
+  .cr-pilares {
+    margin-top: clamp(64px, 9vw, 140px);
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    row-gap: clamp(36px, 6vw, 72px);
   }
-  .cr-video :global(img) {
+  .pilar {
+    position: relative;
+    grid-column: 1 / -1;
+    padding-top: clamp(16px, 2vw, 26px);
+  }
+  /* fio que se desenha quando o bloco entra (via .is-in do contrato data-rv) */
+  .pilar::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: var(--bege-40);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.9s var(--ease-out);
+    transition-delay: var(--d, 0ms);
+  }
+  .pilar.is-in::before {
+    transform: scaleX(1);
+  }
+  .pilar-t {
+    font-size: clamp(1.5rem, 2.8vw, 2.4rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .pilar-p {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--bege-60);
+    max-width: 38ch;
+  }
+
+  /* ---------- 4 · Vídeo institucional ---------- */
+  .cr-vrow {
+    margin-top: clamp(72px, 10vw, 150px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 2vw, 28px);
+  }
+  .cr-vmedia {
+    position: relative;
+    overflow: hidden;
+    height: clamp(300px, 54svh, 520px);
+    margin-inline: calc(var(--gutter) * -1);
+  }
+  .cr-vmedia :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center 42%;
   }
-  .cr-video::after {
+  .cr-vmedia::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(1, 8, 17, 0.78), rgba(1, 8, 17, 0.06) 62%);
+    background: linear-gradient(to top, rgba(1, 8, 17, 0.5), rgba(1, 8, 17, 0) 40%);
     pointer-events: none;
   }
   .cr-play {
@@ -389,11 +514,6 @@ const depoimentos = [
     height: 42%;
   }
   .cr-vcap {
-    position: absolute;
-    z-index: 2;
-    left: var(--gutter);
-    right: var(--gutter);
-    bottom: clamp(20px, 3vw, 40px);
     display: grid;
     gap: 6px;
     padding-top: clamp(14px, 2vw, 20px);
@@ -408,29 +528,33 @@ const depoimentos = [
     color: var(--bege-60);
   }
   @media (hover: hover) {
-    .cr-video:hover .cr-play {
+    .cr-vmedia:hover .cr-play {
       transform: translate(-50%, -50%) scale(1.07);
       background: rgba(239, 230, 226, 0.14);
       border-color: var(--bege);
     }
   }
 
-  /* ---------- Depoimentos ---------- */
+  /* ---------- 5 · Depoimentos desencontrados ---------- */
   .depo {
-    margin-top: clamp(56px, 8vw, 108px);
-    border-top: 1px solid var(--rule);
+    margin-top: clamp(72px, 10vw, 150px);
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
   }
   .depo-it {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--rule);
+    padding-top: clamp(18px, 2.4vw, 30px);
     display: grid;
-    grid-template-columns: 46px minmax(0, 16rem) minmax(0, 1fr);
-    gap: clamp(14px, 3vw, 44px);
-    align-items: center;
-    padding-block: clamp(20px, 2.6vw, 32px);
-    border-bottom: 1px solid var(--rule);
+    grid-template-columns: auto 1fr;
+    column-gap: clamp(14px, 2vw, 26px);
+    row-gap: 10px;
+    align-items: start;
   }
   .depo-ic {
-    width: 34px;
-    height: 34px;
+    grid-row: 1 / span 2;
+    width: clamp(34px, 3vw, 44px);
+    height: clamp(34px, 3vw, 44px);
     color: var(--verde);
     transition: transform 0.5s var(--ease);
   }
@@ -439,14 +563,18 @@ const depoimentos = [
     height: 100%;
   }
   .depo-t {
-    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    font-size: 0.6875rem;
     font-weight: 700;
-    letter-spacing: -0.018em;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--bege-60);
   }
   .depo-d {
-    font-size: 0.9375rem;
-    line-height: 1.55;
-    color: var(--bege-60);
+    font-size: clamp(1.2rem, 2vw, 1.75rem);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--bege-80);
+    max-width: 32ch;
     transition: color 0.4s ease;
   }
   @media (hover: hover) {
@@ -454,55 +582,92 @@ const depoimentos = [
       transform: translateX(4px);
     }
     .depo-it:hover .depo-d {
-      color: var(--bege-80);
+      color: var(--bege);
     }
   }
 
   .cr-cta {
     display: flex;
-    margin-top: clamp(40px, 5vw, 64px);
+    margin-top: clamp(56px, 8vw, 110px);
   }
 
-  /* ---------- Desktop: assimetria e zoom de cena ---------- */
-  @media (min-width: 761px) {
+  /* ---------- Desktop ---------- */
+  @media (min-width: 901px) {
+    .cr-abre {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-content: center;
+      column-gap: clamp(24px, 3vw, 56px);
+      min-height: 92svh;
+    }
+    .cr-abre .eyebrow {
+      grid-row: 1;
+      align-self: end;
+    }
+    .cr-titulo {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .cr-body {
+      grid-column: 1;
+      grid-row: 3;
+      align-self: start;
+      margin-top: clamp(18px, 2.6vw, 36px);
+    }
+    .cr-abre-fig {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      height: clamp(520px, 92svh, 1000px);
+      margin-top: 0;
+      align-self: center;
+    }
+
+    .cr-cena {
+      height: 280svh;
+    }
     .cr-ciclo {
       --zoom: 0.055;
     }
-  }
-  @media (min-width: 901px) {
-    .cr-top {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
-      gap: clamp(40px, 5vw, 88px);
+    .stats {
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(20px, 3vw, 44px);
+      bottom: clamp(36px, 8vh, 88px);
+    }
+
+    .pilar-1 {
+      grid-column: 1 / span 5;
+    }
+    .pilar-2 {
+      grid-column: 8 / span 5;
+      margin-top: clamp(56px, 9vw, 160px);
+    }
+
+    .cr-vrow {
+      grid-template-columns: minmax(0, 1fr) clamp(190px, 20vw, 300px);
+      column-gap: clamp(24px, 3.4vw, 64px);
       align-items: end;
     }
-    .cr-head {
-      padding-bottom: clamp(8px, 2.5vw, 36px);
+    .cr-vmedia {
+      margin-inline: 0;
+      margin-left: calc(var(--sangria) * -1); /* sangra só à esquerda */
+      height: clamp(420px, 80vh, 820px);
     }
-    .cr-torre {
-      height: clamp(420px, 72vh, 740px);
-      margin-top: clamp(20px, 4vw, 64px);
+    .cr-vcap {
+      padding-bottom: clamp(8px, 1vw, 18px);
     }
-    .cr-cena {
-      height: 215svh;
+
+    .depo-it:nth-child(1) {
+      grid-column: 1 / span 7;
+    }
+    .depo-it:nth-child(2) {
+      grid-column: 6 / span 7;
+      margin-top: clamp(40px, 6vw, 88px);
     }
   }
 
   @media (max-width: 900px) {
-    .stats {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 26px 20px;
-    }
-    .pilares {
-      grid-template-columns: 1fr;
-      gap: 18px;
-    }
-    .depo-it {
-      grid-template-columns: 34px 1fr;
-      gap: 6px 14px;
-      align-items: start;
-    }
-    .depo-d {
-      grid-column: 2;
+    .cr-abre-fig {
+      margin-inline: calc(var(--gutter) * -1); /* foto de borda a borda */
     }
     .cr-cta .btn {
       width: 100%;
@@ -510,9 +675,9 @@ const depoimentos = [
   }
 
   /* ---------- Sem movimento ----------
-     A cena deixa de ser alta e de prender: vira uma foto normal seguida do
-     texto. A NOITE é escondida por completo (e não em meio-caminho), então
-     quem lê o alt da imagem diurna vê exatamente a imagem diurna. */
+     A cena deixa de ser alta e de prender: vira uma foto normal (só o DIA,
+     nunca meio-transparente — quem lê o alt vê exatamente essa imagem)
+     seguida dos números estáticos sobre o fundo preto. Fios visíveis. */
   @media (prefers-reduced-motion: reduce) {
     .cr-cena {
       height: auto;
@@ -528,17 +693,17 @@ const depoimentos = [
     .cr-palco::after {
       display: none;
     }
-    .cr-palco-txt {
-      position: relative;
-      bottom: auto;
+    .stats {
+      position: static;
       margin-top: clamp(28px, 4vw, 48px);
+      padding-inline: var(--gutter);
     }
-    .cr-p {
-      opacity: 1;
+    .stat-l {
+      color: var(--bege-60);
+    }
+    .stat-fio,
+    .pilar::before {
       transform: none;
-    }
-    .stat::before {
-      transform: scaleX(1);
     }
   }
 </style>

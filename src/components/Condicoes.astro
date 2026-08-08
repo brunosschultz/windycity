@@ -15,35 +15,53 @@ const etapas = [
 ];
 ---
 
+<!-- CENA ÚNICA: a seção vira uma régua de 100%. As três parcelas dividem a
+     largura de conteúdo NA PROPORÇÃO REAL (10 / 20 / 70): a coluna de cada
+     etapa É a sua fatia do pagamento, o trilho sob os números é a medida
+     inteira e o scroll preenche fatia por fatia (--prog do driver global,
+     zero JS de seção). Texto legível desde o primeiro frame — o estado
+     "inativo" é um fantasma legível, nunca oculto; o movimento só confirma
+     a ordem de leitura 10 → 20 → 70. -->
 <section class="section theme-bege cd" id="condicoes" aria-labelledby="cd-t">
-  <div class="wrap">
-    <div class="cd-head">
-      <p class="eyebrow" data-rv>Condições comerciais</p>
-      <h2 class="h2-xl" id="cd-t" data-rv style="--d:80ms">
-        Mais <em class="ac">facilidade</em> no início. Mais planejamento até a entrega.
-      </h2>
+  <div class="cd-cena cena-alta" data-prog="pin">
+    <div class="cena-fixa cd-palco">
+      <div class="wrap cd-palco-in">
+        <div class="cd-head">
+          <p class="eyebrow" data-rv>Condições comerciais</p>
+          <h2 class="h2-xl" id="cd-t" data-rv style="--d:80ms">
+            Mais <em class="ac">facilidade</em> no início. Mais planejamento até a entrega.
+          </h2>
+        </div>
+
+        <ol class="fluxo">
+          {
+            etapas.map((e, i) => (
+              <li
+                class={`etapa ${e.destaque ? 'is-dest' : ''}`}
+                data-rv
+                style={`--d:${i * 110}ms; --w:${e.pct / 100}`}
+              >
+                <span class="etapa-alto">
+                  <span class="etapa-n">
+                    <span class="etapa-v" data-count={e.pct}>
+                      0
+                    </span>
+                    <span class="etapa-pc">%</span>
+                  </span>
+                </span>
+                <span class="etapa-trilho" aria-hidden="true">
+                  <span class="etapa-fill" />
+                </span>
+                <span class="etapa-l">{e.label}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
     </div>
+  </div>
 
-    <ol class="fluxo">
-      {
-        etapas.map((e, i) => (
-          <li
-            class={`etapa ${e.destaque ? 'is-dest' : ''}`}
-            data-rv
-            style={`--d:${i * 120}ms; --step:${i}; --w:${e.pct / 100}`}
-          >
-            <span class="etapa-n">
-              <span class="etapa-v" data-count={e.pct}>
-                0
-              </span>
-              <span class="etapa-pc">%</span>
-            </span>
-            <span class="etapa-l">{e.label}</span>
-          </li>
-        ))
-      }
-    </ol>
-
+  <div class="wrap">
     <div class="preco" data-rv>
       <span class="preco-k label">Faixa de valores</span>
       <p class="preco-v">
@@ -62,86 +80,118 @@ const etapas = [
         </svg>
       </a>
     </div>
-  </div>
 
-  <!-- Costura com a dobra de contato: a medida sai do conteúdo e vai até a
-       borda da tela, desenhada pelo próprio scroll. Decorativa. -->
-  <div class="cd-fecho bleed" data-prog aria-hidden="true"><span></span></div>
+    <!-- Costura com o contato: o fio verde desce do eixo esquerdo de conteúdo
+         (o mesmo eixo de onde partem todas as medidas da cena) até a borda da
+         seção, desenhado pelo próprio scroll. Ele reaparece — em bege, regra
+         do design system para superfícies escuras — no topo da dobra de
+         contato, na mesma coordenada x. Decorativo. -->
+    <div class="cd-costura" data-prog aria-hidden="true"><span></span></div>
+  </div>
 </section>
 
 <style>
   .cd {
-    padding-bottom: clamp(64px, 8vw, 120px);
-    /* espessura única das barras de medida (etapas + faixa de valores) */
+    /* o palco tem o próprio respiro superior; a costura fecha o inferior */
+    padding-top: 0;
+    padding-bottom: 0;
+    /* espessura fina das medidas de fecho (preço + costura) */
     --bar: clamp(2px, 0.22vw, 3px);
+    /* espessura do trilho da régua — mais presente que o fio, é o dado */
+    --trilho: clamp(5px, 0.5vw, 8px);
+    /* corpo-base dos números; cada etapa aplica a própria escala (--esc) */
+    --num: clamp(3.4rem, 13.5vw, 15rem);
   }
-  .cd-head {
-    /* largura livre — quem limita é o h2 abaixo, com ch no tamanho certo */
-    margin-bottom: clamp(50px, 7vw, 100px);
+
+  /* ---------- Cena (pin) ---------- */
+  .cd-cena {
+    /* 100svh de palco + ~120svh de curso para as três fatias se desenharem */
+    height: 220svh;
+  }
+  .cd-palco {
+    /* .cena-fixa (global) já dá sticky / 100svh / overflow hidden */
+    display: block;
+  }
+  .cd-palco-in {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: clamp(84px, 12vh, 148px);
+    padding-bottom: clamp(30px, 6vh, 72px);
   }
   .cd-head .h2-xl {
-    /* "ch" precisa ir no próprio h2: em .cd-head (16px) o "ch" saía ~4x
-       mais estreito do que no h2 (78px), quebrando o título cedo demais. */
+    /* "ch" no próprio h2: em outro corpo a medida sairia ~4x mais estreita */
     max-width: 20ch;
   }
 
-  /* Escada tipográfica: cada etapa recua mais e o número cresce junto —
-     a progressão 10 → 20 → 70 fica legível antes mesmo de ler o rótulo. */
+  /* Janelas sucessivas do curso do pin: cada fatia tem o seu trecho de
+     --prog e um respiro final com a régua completa antes de despinar.
+     Fallback 1 (não 0): sem JS ou com movimento reduzido o conteúdo nasce
+     no estado final — regra de ouro do projeto. */
+  .cd-palco {
+    --p1: clamp(0, calc((var(--prog, 1) - 0.06) / 0.22), 1);
+    --p2: clamp(0, calc((var(--prog, 1) - 0.34) / 0.22), 1);
+    --p3: clamp(0, calc((var(--prog, 1) - 0.62) / 0.26), 1);
+  }
+
+  /* ---------- A régua ---------- */
   .fluxo {
-    display: grid;
-    /* o vão entre etapas é bem maior que o respiro interno: assim cada barra
-       lê como topo do SEU número, não como fecho do número anterior */
-    gap: clamp(34px, 4.6vw, 76px);
-    margin-bottom: clamp(56px, 7vw, 100px);
+    display: flex;
+    align-items: stretch;
+    gap: clamp(6px, 0.8vw, 14px);
   }
   .etapa {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(18px, 4vw, 64px);
-    padding-block: clamp(12px, 1.4vw, 20px) 0;
-    /* recuo derivado do índice, em vez de nth-child solto */
-    padding-left: calc(var(--step, 0) * clamp(0px, 4.4vw, 96px));
-    border-top: 1px solid var(--rule);
-    /* rampa de escala do número (desktop) */
-    --esc: calc(0.62 + var(--step, 0) * 0.19);
+    /* a fatia É a coluna: flex-grow proporcional ao percentual real.
+       Propriedades separadas (não o shorthand): calc() dentro de `flex`
+       ainda tem parsing irregular em motores antigos. */
+    flex-grow: calc(var(--w, 0) * 100);
+    flex-shrink: 1;
+    flex-basis: 0px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .etapa:nth-child(1) {
+    --pi: var(--p1);
+    --esc: 0.42;
+  }
+  .etapa:nth-child(2) {
+    --pi: var(--p2);
+    --esc: 0.6;
+  }
+  .etapa:nth-child(3) {
+    --pi: var(--p3);
+    --esc: 1;
   }
 
-  /* A MEDIDA: o próprio fio da linha vira barra proporcional ao percentual.
-     O bloco posicionado é o padding-box da etapa — idêntico nas três, mesmo
-     com recuos diferentes —, então 10% / 20% / 70% partem do mesmo x e são
-     realmente comparáveis entre si. Só transform anima. */
-  .etapa::after {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: 0;
-    height: var(--bar);
-    width: calc(var(--w, 0) * 100%);
-    background: var(--verde);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.9s var(--ease-out);
-    transition-delay: calc(var(--d, 0ms) + 260ms);
+  /* Zona de número com altura única (a do maior): os três assentam na mesma
+     linha de base sobre o trilho, sem depender de subgrid. */
+  .etapa-alto {
+    height: calc(var(--num) * 0.82);
+    display: flex;
+    align-items: flex-end;
+    overflow: visible;
   }
-  .etapa.is-in::after {
-    transform: scaleX(1);
-  }
-
   .etapa-n {
     font-family: 'TimesWC', 'Times New Roman', Times, serif;
     font-style: italic;
-    font-size: calc(var(--esc, 1) * clamp(4rem, 14vw, 13rem));
+    font-size: calc(var(--num) * var(--esc, 1));
     line-height: 0.8;
     letter-spacing: -0.05em;
     color: var(--marrom);
     font-variant-numeric: lining-nums tabular-nums;
     display: inline-flex;
     align-items: baseline;
+    white-space: nowrap;
+    /* estado fantasma → protagonista, conduzido pelo scroll. Nunca invisível:
+       o piso de opacidade mantém a leitura completa desde o primeiro frame. */
+    opacity: calc(0.26 + var(--pi, 1) * 0.74);
+    transform: translate3d(0, calc((1 - var(--pi, 1)) * 16px), 0)
+      scale(calc(0.96 + var(--pi, 1) * 0.04));
+    transform-origin: left bottom;
   }
-  /* Reserva a largura dos dois dígitos finais: o contador sobe de 0 até 70
-     sem empurrar o "%" nem mexer na linha — zero layout shift. */
+  /* Reserva dos dois dígitos: o contador sobe até 70 sem empurrar o "%". */
   .etapa-v {
     min-width: 2ch;
     text-align: right;
@@ -149,31 +199,53 @@ const etapas = [
   .etapa-pc {
     font-size: 0.44em;
   }
-  .etapa-l {
-    font-size: clamp(0.875rem, 1.35vw, 1.0625rem);
-    line-height: 1.5;
-    color: var(--fg-soft);
-    max-width: 28ch;
-  }
   .etapa.is-dest .etapa-n {
     color: var(--verde);
+  }
+
+  /* Trilho: a medida inteira em repouso; o preenchimento verde é a fatia
+     sendo paga — desenhada pelo scroll (scaleX, compositor). */
+  .etapa-trilho {
+    position: relative;
+    display: block;
+    height: var(--trilho);
+    margin-top: clamp(14px, 2vw, 26px);
+    background: var(--rule);
+    overflow: hidden;
+  }
+  .etapa-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--verde);
+    transform: scaleX(var(--pi, 1));
+    transform-origin: left center;
+  }
+
+  .etapa-l {
+    margin-top: clamp(12px, 1.6vw, 22px);
+    font-size: clamp(0.8125rem, 1.05vw, 1rem);
+    line-height: 1.5;
+    color: var(--fg-soft);
+    max-width: 34ch;
+    opacity: calc(0.58 + var(--pi, 1) * 0.42);
   }
   .etapa.is-dest .etapa-l {
     color: var(--fg);
     font-weight: 500;
   }
 
-  /* Faixa de valores: fio + tipografia, sem moldura tracejada */
+  /* ---------- Faixa de valores (fecho: a medida completa) ---------- */
   .preco {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) auto;
     gap: clamp(16px, 3vw, 44px);
     align-items: center;
+    margin-top: clamp(64px, 9vw, 128px);
     padding-top: clamp(30px, 3.4vw, 46px);
     border-top: 1px solid var(--rule);
   }
-  /* Fecho da progressão: depois de 10 → 20 → 70 a barra completa a medida. */
+  /* Depois das fatias 10 → 20 → 70, aqui a barra fecha o 100%. */
   .preco::before {
     content: '';
     position: absolute;
@@ -199,8 +271,7 @@ const etapas = [
     color: var(--fg-soft);
     max-width: 44ch;
   }
-  /* Valor ainda pendente do cliente: marcado como campo a preencher,
-     não como número definitivo. */
+  /* Valor ainda pendente do cliente: marcado como campo a preencher. */
   .preco-v strong {
     color: var(--fg);
     font-weight: 600;
@@ -214,59 +285,146 @@ const etapas = [
     justify-self: end;
   }
 
-  /* Fio de costura com a próxima dobra: mesma leitura das barras acima —
-     trilho fixo + preenchimento verde —, só que agora de borda a borda da
-     tela. O preenchimento é desenhado pelo próprio scroll (--prog, driver
-     global): a medida sai do conteúdo e entrega o usuário no formulário. */
-  .cd-fecho {
-    margin-top: clamp(48px, 6vw, 88px);
-    height: 1px;
-    background: var(--rule);
+  /* ---------- Costura vertical com o contato ---------- */
+  .cd-costura {
+    position: relative;
+    height: clamp(80px, 14vh, 170px);
+    margin-top: clamp(40px, 5vw, 72px);
   }
-  .cd-fecho span {
-    display: block;
-    height: 100%;
+  .cd-costura span {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--bar);
     background: var(--verde);
-    /* fallback 0 (não 1): igual aos outros [data-prog] do site. O driver só
-       escreve --prog depois do primeiro callback do IntersectionObserver —
-       com fallback 1 a linha nasce cheia e depois encolhe, o que pisca se a
-       dobra já estiver na tela (deep link em #condicoes, F5 no meio da
-       página, restauração de scroll). */
-    transform: scaleX(var(--prog, 0));
-    transform-origin: left center;
+    /* fallback 0 (não 1): decorativo — igual aos outros [data-prog] do site,
+       evita a linha nascer cheia e encolher num deep link / F5 no meio da
+       página. O driver escreve --prog no primeiro callback do observer. */
+    transform: scaleY(var(--prog, 0));
+    transform-origin: center top;
   }
 
+  /* ---------- Telas baixas (desktop): cabem cena e números ---------- */
+  @media (min-width: 861px) and (max-height: 680px) {
+    .cd {
+      --num: clamp(3rem, 10.5vw, 11rem);
+    }
+    .cd-palco-in {
+      padding-top: clamp(64px, 10vh, 96px);
+    }
+  }
+
+  /* ---------- Mobile: empilhado, objetivo ---------- */
   @media (max-width: 860px) {
-    .etapa {
-      grid-template-columns: 1fr;
-      gap: 8px;
-      padding-block: 16px 0;
-      padding-left: 0;
-      /* rampa mais curta no mobile: os três números continuam grandes */
-      --esc: calc(0.74 + var(--step, 0) * 0.13);
+    /* Sem pin: cena vira fluxo normal. `.cd` na frente para ganhar de
+       `.cena-fixa` do global (mesma especificidade — precedente em Áreas
+       Comuns). O trilho continua sendo a régua: base = 100%, preenchimento
+       na proporção real da fatia. */
+    .cd-cena {
+      height: auto;
+    }
+    .cd .cd-palco {
+      position: static;
+      height: auto;
+      overflow: visible;
+    }
+    .cd-palco-in {
+      height: auto;
+      display: block;
+      padding-top: clamp(72px, 16vw, 96px);
+      padding-bottom: 0;
+    }
+    .cd-head {
+      margin-bottom: clamp(44px, 10vw, 64px);
+    }
+
+    .fluxo {
+      flex-direction: column;
+      gap: clamp(36px, 9vw, 56px);
+    }
+    .cd {
+      --num: clamp(3.1rem, 15vw, 4.6rem);
+    }
+    .etapa:nth-child(1) {
+      --esc: 0.66;
+    }
+    .etapa:nth-child(2) {
+      --esc: 0.8;
+    }
+    .etapa-alto {
+      height: auto;
+    }
+    /* No empilhado o driver de pin não tem curso: números e rótulos ficam
+       sempre inteiros; a entrada é o data-rv da própria etapa. */
+    .etapa-n {
+      opacity: 1;
+      transform: none;
     }
     .etapa-l {
+      opacity: 1;
       max-width: none;
     }
+    /* Preenchimento proporcional sobre trilho cheio (100% da largura),
+       revelado uma vez na entrada da etapa — família data-rv/.is-in. */
+    .etapa-fill {
+      transform: scaleX(0);
+      transition: transform 0.9s var(--ease-out);
+      transition-delay: calc(var(--d, 0ms) + 240ms);
+    }
+    .etapa.is-in .etapa-fill {
+      transform: scaleX(var(--w, 1));
+    }
+
     .preco {
       grid-template-columns: 1fr;
       gap: 14px;
+      margin-top: clamp(56px, 14vw, 80px);
     }
     .preco-cta {
       justify-self: stretch;
       width: 100%;
       margin-top: 8px;
     }
+    .cd-costura {
+      height: clamp(64px, 16vw, 110px);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .etapa::after,
+    /* O driver entrega --prog:1 (estado final); aqui só colapsa a cena alta
+       (o global já desfaz o sticky) e congela o que transiciona. */
+    .cd-cena {
+      height: auto;
+    }
+    .cd-palco-in {
+      height: auto;
+    }
+    .etapa-n {
+      opacity: 1;
+      transform: none;
+    }
+    .etapa-l {
+      opacity: 1;
+    }
+    .etapa-fill {
+      transition: none;
+      transform: scaleX(1);
+    }
     .preco::before {
       transform: scaleX(1);
       transition: none;
     }
-    .cd-fecho span {
+    .cd-costura span {
       transform: none;
+    }
+  }
+
+  /* Movimento reduzido no empilhado: o preenchimento congela na proporção
+     real da fatia (no trilho cheio, scaleX(1) mentiria 100% três vezes). */
+  @media (prefers-reduced-motion: reduce) and (max-width: 860px) {
+    .etapa-fill {
+      transform: scaleX(var(--w, 1));
     }
   }
 </style>

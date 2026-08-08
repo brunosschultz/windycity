@@ -1,28 +1,27 @@
 ---
 import { Picture } from 'astro:assets';
-import interna from '../assets/images/interna-03.png';
-import interna2 from '../assets/images/interna-01.png';
+import CenaCompacto from './CenaCompacto.astro';
 import unidLuz from '../assets/images/unid-sacada-02.jpg';
 import unidAr from '../assets/images/unid-sacada-01.jpg';
 import unidPlanta from '../assets/images/unid-meio-02.jpg';
+import unidFundo from '../assets/images/unid-meio-01.jpg';
 
-/* Pares exatamente como no wireframe aprovado.
-   Cada par ganhou a fotografia que serve de prova visual do argumento —
-   a foto entra por máscara (data-rv-img) com direção diferente por etapa,
-   e o recorte muda de largura para o ritmo não ficar de metrônomo. */
-const comparacoes = [
+/* ATO 1 — os três duelos mercado × WindyCity.
+   Cada par vira uma composição de ~92svh dividida por um fio central:
+   esquerda estreita e rebaixada (mercado, sem foto), direita dominante
+   (WindyCity, foto grande revelada por wipe a partir do fio).
+   Textos exatamente como aprovados — só posição/escala mudam. */
+const duelos = [
   {
     mercado:
       'Pouca iluminação natural — ambientes que dependem de luz artificial mesmo durante o dia.',
     windy: 'Unidades paralelas à face de iluminação — luz natural em todos os cômodos, sem exceção.',
     foto: unidLuz,
     alt: 'Kitchenette em madeira clara e cama no mesmo ambiente, com janela de piso a teto ao lado da cama, cortina leve e vista da cidade',
-    /* string vazia, não `undefined`: com undefined o Astro OMITE o atributo
-       e a foto fica fora do IntersectionObserver — sem máscara de entrada.
-       `data-rv-img=""` é a direção padrão (baixo → cima). */
-    dir: '',
+    /* janela ampla à direita do enquadramento — recortes preservam cama+janela */
+    pos: '62% 50%',
     mod: '',
-    sizes: '(max-width: 980px) calc(100vw - 40px), 48vw',
+    sizes: '(max-width: 980px) calc(100vw - 40px), 58vw',
   },
   {
     mercado: 'Ventilação limitada — pouca renovação de ar e menor conforto térmico.',
@@ -30,121 +29,143 @@ const comparacoes = [
       'Nenhum ambiente enclausurado — ventilação natural em todos os ambientes, inclusive banheiros.',
     foto: unidAr,
     alt: 'Corredor da cozinha em marcenaria de madeira clara, com vista enfiada até a cama e a abertura da sacada iluminada ao fundo',
-    dir: 'esq',
-    mod: 'cmp-row--wide cmp-row--flip',
-    sizes: '(max-width: 980px) calc(100vw - 40px), 55vw',
+    /* enfiada central cozinha→sacada: centro é o foco */
+    pos: 'center',
+    mod: 'duelo--amplo',
+    sizes: '(max-width: 980px) calc(100vw - 40px), 66vw',
   },
   {
     mercado: 'Espaços comprimidos — plantas que acomodam funções, mas sem fluidez.',
     windy: 'Plantas flexíveis — layout adaptável, podendo configurar 1 dormitório.',
     foto: unidPlanta,
     alt: 'Closet amplo com portas de vidro e iluminação interna ao lado da cama, com televisão, armários e kitchenette resolvidos na mesma parede',
-    dir: 'dir',
-    mod: 'cmp-row--inset',
-    sizes: '(max-width: 980px) calc(100vw - 40px), 44vw',
+    /* closet de vidro à esquerda-centro — puxamos levemente o recorte para ele */
+    pos: '42% 50%',
+    mod: 'duelo--recuado',
+    sizes: '(max-width: 980px) calc(100vw - 40px), 52vw',
   },
 ];
 ---
 
 <section class="section theme-preto dif" id="diferenciais" aria-labelledby="dif-t">
+  <!-- Abertura: título em toda a largura, lede deslocado à direita -->
   <div class="wrap">
-    <!-- Coluna fixa à esquerda, argumento rolando à direita -->
-    <div class="dif-top" data-prog>
-      <div class="sticky-col dif-intro">
-        <p class="eyebrow" data-rv>Diferenciais</p>
-        <h2 class="h2-xl" id="dif-t" data-rv style="--d:80ms">
-          Por que o WindyCity <em class="ac">vale</em> mais que um Studio comum
-        </h2>
-        <p class="body dif-body" data-rv style="--d:160ms">
-          A maioria dos Studios reduz a metragem e reduz junto aquilo que mais importa no dia a dia:
-          luz, ar e espaço para viver bem. O WindyCity foi desenhado para não fazer essa troca.
-        </p>
-        <!-- Trilho de avanço: puramente decorativo, guiado por --prog -->
-        <div class="dif-prog" aria-hidden="true" data-rv="fade" style="--d:240ms">
-          <span></span>
-        </div>
-      </div>
-
-      <ol class="cmp">
-        {
-          comparacoes.map((c, i) => (
-            <li class={`cmp-row ${c.mod}`}>
-              <div class="cmp-fig" data-rv-img={c.dir}>
-                <Picture
-                  src={c.foto}
-                  formats={['avif', 'webp']}
-                  fallbackFormat="webp"
-                  widths={[420, 700, 1000, 1400]}
-                  sizes={c.sizes}
-                  alt={c.alt}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-
-              <span class="cmp-ix label" data-rv>
-                {String(i + 1).padStart(2, '0')}
-              </span>
-
-              <div class="cmp-txt">
-                <p class="cmp-m" data-rv style="--d:60ms">
-                  <span class="cmp-m-lbl">O padrão do mercado</span>
-                  {c.mercado}
-                </p>
-
-                <p class="cmp-w" data-rv style="--d:140ms">
-                  <span class="cmp-w-lbl">
-                    <span class="cmp-mk" aria-hidden="true" />
-                    WindyCity
-                  </span>
-                  {c.windy}
-                </p>
-              </div>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
+    <header class="dif-abre">
+      <p class="eyebrow" data-rv>Diferenciais</p>
+      <h2 class="h2-xl" id="dif-t" data-rv style="--d:80ms">
+        Por que o WindyCity <em class="ac">vale</em> mais que um Studio comum
+      </h2>
+      <p class="lede dif-lede" data-rv style="--d:160ms">
+        A maioria dos Studios reduz a metragem e reduz junto aquilo que mais importa no dia a dia:
+        luz, ar e espaço para viver bem. O WindyCity foi desenhado para não fazer essa troca.
+      </p>
+    </header>
   </div>
 
-  <!-- Prova visual em sangria total: parallax na imagem, zoom guiado pelo
-       avanço do scroll no wrapper — elementos separados, para um transform
-       não sobrescrever o outro -->
-  <div class="bleed dif-hero" data-prog style="--zoom:0.06">
-    <div class="dif-hero-in cena-zoom" data-px="90" data-rv-img>
+  <!-- ============================================================
+       ATO 1 · Duelos. data-prog em cada <li> alimenta o preenchimento
+       verde do fio divisor (CSS puro via --prog); a foto abre por
+       máscara a partir do fio (data-rv-img="esq").
+       ============================================================ -->
+  <ol class="duelos">
+    {
+      duelos.map((d, i) => (
+        <li class={`duelo ${d.mod}`} data-prog>
+          <div class="wrap duelo-grade">
+            <div class="duelo-mercado">
+              <span class="duelo-num" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <p class="duelo-m" data-rv>
+                <span class="duelo-m-lbl">O padrão do mercado</span>
+                {d.mercado}
+              </p>
+              <div class="duelo-tracos" aria-hidden="true" />
+            </div>
+
+            <div class="duelo-fio" aria-hidden="true">
+              <span />
+            </div>
+
+            <div class="duelo-windy">
+              <div class="duelo-quadro">
+                <div class="duelo-fig" data-rv-img="esq">
+                  <Picture
+                    src={d.foto}
+                    formats={['avif', 'webp']}
+                    fallbackFormat="webp"
+                    widths={[480, 800, 1120, 1600]}
+                    sizes={d.sizes}
+                    alt={d.alt}
+                    loading="lazy"
+                    decoding="async"
+                    style={`--pos:${d.pos}`}
+                  />
+                </div>
+                <p class="duelo-w" data-rv style="--d:140ms">
+                  <span class="duelo-w-lbl">
+                    <span class="duelo-mk" aria-hidden="true" />
+                    WindyCity
+                  </span>
+                  {d.windy}
+                </p>
+              </div>
+            </div>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  <!-- ============================================================
+       ATO 2 · Demonstração em camadas: foto interna de fundo escurecida
+       por véu de token, diagrama SVG sobreposto como camada técnica e
+       texto por cima. O diagrama se desenha com ScrollTrigger (scrub
+       curto); sem JS ou com reduced-motion ele está completo no HTML.
+       ============================================================ -->
+  <div class="demo">
+    <div class="demo-fundo" data-px="60">
       <Picture
-        src={interna}
+        src={unidFundo}
         formats={['avif', 'webp']}
         fallbackFormat="webp"
-        widths={[760, 1100, 1500, 1920]}
+        widths={[760, 1200, 1600, 2200]}
         sizes="100vw"
-        alt="Interior do studio decorado com marcenaria em madeira clara e luz natural entrando pela varanda"
+        alt=""
         loading="lazy"
         decoding="async"
       />
     </div>
-  </div>
+    <div class="demo-veu" aria-hidden="true"></div>
 
-  <div class="wrap">
-    <!-- Partido arquitetônico: diagrama solto, sem moldura -->
-    <div class="arch">
-      <figure class="arch-fig" data-rv>
+    <div class="wrap demo-grade">
+      <div class="demo-txt">
+        <h3 class="h3" data-rv>Unidades paralelas à face de iluminação</h3>
+        <p class="body" data-rv style="--d:120ms">
+          Cada unidade foi implantada com o lado mais longo encostado diretamente na fachada leste ou
+          oeste — o esquema não é perpendicular, é paralelo a ela. A janela acompanha toda a extensão
+          da unidade, e não apenas uma abertura no fim de um corredor interno. Isso garante luz
+          natural em todos os cômodos do estúdio, sem exceção, e ventilação em todos os ambientes.
+        </p>
+      </div>
+
+      <figure class="demo-fig" data-demo-diagrama>
         <svg viewBox="0 0 320 240" role="img" aria-labelledby="arch-desc">
           <title id="arch-desc">
             Planta esquemática: unidades implantadas paralelas às fachadas leste e oeste, com janela
             acompanhando toda a extensão da unidade e corredor central entre elas
           </title>
           <line class="dg-face" x1="22" y1="26" x2="22" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
-          <line class="dg-face" style="--d:120ms" x1="298" y1="26" x2="298" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
+          <line class="dg-face" x1="298" y1="26" x2="298" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
 
-          <rect class="dg-u" style="--d:280ms" x="30" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect class="dg-u" style="--d:340ms" x="30" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect class="dg-u" style="--d:400ms" x="178" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect class="dg-u" style="--d:460ms" x="178" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect class="dg-u" x="30" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect class="dg-u" x="30" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect class="dg-u" x="178" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect class="dg-u" x="178" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
 
-          <rect class="dg-u" style="--d:540ms" x="142" y="26" width="36" height="188" fill="none" stroke="rgba(239,230,226,.2)" stroke-dasharray="3 4"></rect>
+          <rect class="dg-c" x="142" y="26" width="36" height="188" fill="none" stroke="rgba(239,230,226,.2)" stroke-dasharray="3 4"></rect>
 
-          <g class="dg-u" style="--d:620ms" stroke="#307351" stroke-width="1.3">
+          <g class="dg-s" fill="none" stroke="#307351" stroke-width="1.3">
             <path d="M8 56h9m0 0-3-3m3 3-3 3"></path>
             <path d="M8 120h9m0 0-3-3m3 3-3 3"></path>
             <path d="M8 184h9m0 0-3-3m3 3-3 3"></path>
@@ -153,131 +174,80 @@ const comparacoes = [
             <path d="M312 184h-9m0 0 3-3m-3 3 3 3"></path>
           </g>
 
-          <text class="ax dg-u" style="--d:700ms" x="22" y="15" text-anchor="middle">LESTE</text>
-          <text class="ax dg-u" style="--d:700ms" x="298" y="15" text-anchor="middle">OESTE</text>
-          <text class="ax2 dg-u" style="--d:760ms" x="160" y="124" text-anchor="middle" transform="rotate(-90 160 124)">corredor</text>
-          <text class="ax2 dg-u" style="--d:760ms" x="86" y="74" text-anchor="middle">unidade</text>
-          <text class="ax2 dg-u" style="--d:760ms" x="86" y="174" text-anchor="middle">unidade</text>
-          <text class="ax2 dg-u" style="--d:760ms" x="234" y="74" text-anchor="middle">unidade</text>
-          <text class="ax2 dg-u" style="--d:760ms" x="234" y="174" text-anchor="middle">unidade</text>
+          <text class="ax dg-l" x="22" y="15" text-anchor="middle">LESTE</text>
+          <text class="ax dg-l" x="298" y="15" text-anchor="middle">OESTE</text>
+          <text class="ax2 dg-l" x="160" y="124" text-anchor="middle" transform="rotate(-90 160 124)">corredor</text>
+          <text class="ax2 dg-l" x="86" y="74" text-anchor="middle">unidade</text>
+          <text class="ax2 dg-l" x="86" y="174" text-anchor="middle">unidade</text>
+          <text class="ax2 dg-l" x="234" y="74" text-anchor="middle">unidade</text>
+          <text class="ax2 dg-l" x="234" y="174" text-anchor="middle">unidade</text>
         </svg>
       </figure>
-
-      <div class="arch-txt" data-rv style="--d:110ms">
-        <h3 class="h3">Unidades paralelas à face de iluminação</h3>
-        <p class="body">
-          Cada unidade foi implantada com o lado mais longo encostado diretamente na fachada leste ou
-          oeste — o esquema não é perpendicular, é paralelo a ela. A janela acompanha toda a extensão
-          da unidade, e não apenas uma abertura no fim de um corredor interno. Isso garante luz
-          natural em todos os cômodos do estúdio, sem exceção, e ventilação em todos os ambientes.
-        </p>
-      </div>
-    </div>
-
-    <!-- Fecho: imagem desalinhada sangrando pela direita + frase em escala -->
-    <div class="claim-wrap">
-      <p class="claim" data-rv>
-        Ser compacto não deveria significar abrir mão de luz, ventilação e qualidade espacial. Foi a
-        partir dessa premissa que o WindyCity foi projetado.
-      </p>
-      <div class="claim-img bleed-r" data-px="60" data-rv-img="esq">
-        <Picture
-          src={interna2}
-          formats={['avif', 'webp']}
-          fallbackFormat="webp"
-          widths={[560, 860, 1200]}
-          sizes="(max-width: 900px) 100vw, 46vw"
-          alt="Closet iluminado e cozinha compacta integrada do studio decorado"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
     </div>
   </div>
+
+  <!-- ATO 3 · Cena da luz (frase-síntese sobre mídia em 100svh) -->
+  <CenaCompacto />
 </section>
 
 <style>
   /* ================================================================
-     Base = mobile. Tudo o que é composição de tela grande entra
-     em @media (min-width: 981px) como progressive enhancement.
+     Base = mobile. Composições de tela grande entram em
+     @media (min-width: 981px) como progressive enhancement.
      ================================================================ */
   .dif {
     padding-bottom: 0;
   }
 
-  .dif-top {
+  /* ---------- Abertura ---------- */
+  .dif-abre {
     display: grid;
-    gap: clamp(36px, 7vw, 120px);
-    margin-bottom: clamp(56px, 8vw, 120px);
+    gap: 24px;
+    margin-bottom: clamp(8px, 3vw, 48px);
   }
-  /* No mobile a intro NÃO fica presa: a leitura é uma sequência vertical */
-  .dif-intro {
-    position: static;
-  }
-  .dif-intro .h2-xl {
-    margin-bottom: 24px;
-  }
-  .dif-body {
-    max-width: 44ch;
+  .dif-lede {
+    max-width: 46ch;
   }
 
-  /* Trilho de avanço da coluna fixa (decorativo, só desktop) */
-  .dif-prog {
-    display: none;
-    width: 1px;
-    height: clamp(80px, 9vw, 140px);
-    margin-top: clamp(30px, 3.2vw, 48px);
-    background: var(--rule);
+  /* ---------- Ato 1 · Duelos ---------- */
+  .duelos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .duelo-grade {
     position: relative;
-    overflow: hidden;
-  }
-  .dif-prog span {
-    position: absolute;
-    inset: 0;
-    background: var(--verde);
-    transform: scaleY(var(--prog, 0));
-    transform-origin: top center;
-  }
-
-  /* Comparações: tipografia carrega o contraste, sem tabela nem caixa */
-  .cmp {
-    display: grid;
-  }
-  .cmp-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    padding-block: clamp(26px, 5vw, 46px);
-    border-top: 1px solid var(--rule);
-  }
-  .cmp-row:last-child {
-    border-bottom: 1px solid var(--rule);
+    padding-block: clamp(40px, 8vw, 64px);
   }
 
-  /* Fotografia da etapa */
-  .cmp-fig {
-    aspect-ratio: 16 / 11;
-    overflow: hidden;
-    margin-bottom: clamp(22px, 4.5vw, 36px);
-  }
-  .cmp-fig :global(picture) {
+  /* Número gigante como âncora da etapa */
+  .duelo-num {
+    font-family: 'TimesWC', 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(4.4rem, 17vw, 10.5rem);
+    line-height: 0.78;
+    letter-spacing: -0.045em;
+    font-variant-numeric: lining-nums tabular-nums;
     display: block;
-    height: 100%;
-  }
-  .cmp-fig :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    color: var(--bege-14);
+    margin-bottom: clamp(18px, 3.5vw, 34px);
   }
 
-  .cmp-ix {
-    display: block;
-    color: var(--verde);
-    letter-spacing: 0.18em;
-    margin-bottom: 14px;
+  /* Lado mercado: rebaixado, sem foto, encostado num trilho */
+  .duelo-m {
+    border-left: 1px solid var(--rule);
+    padding-left: 18px;
+    font-size: clamp(0.875rem, 1.05vw, 0.9375rem);
+    line-height: 1.55;
+    color: var(--bege-40);
+    max-width: 44ch;
   }
-
-  .cmp-m-lbl,
-  .cmp-w-lbl {
+  .duelo-m-lbl,
+  .duelo-w-lbl {
     display: block;
     font-size: 0.625rem;
     font-weight: 700;
@@ -285,221 +255,332 @@ const comparacoes = [
     text-transform: uppercase;
     margin-bottom: 8px;
   }
-  .cmp-m {
-    font-size: clamp(0.875rem, 1.1vw, 0.9375rem);
-    line-height: 1.5;
-    color: var(--bege-40);
-    margin-bottom: 18px;
-    max-width: 46ch;
-  }
-  .cmp-m-lbl {
+  .duelo-m-lbl {
     color: var(--bege-40);
   }
-  .cmp-w {
+
+  /* Padrão gráfico discreto de linhas — só ambienta o lado "apagado" */
+  .duelo-tracos {
+    display: none;
+    height: clamp(48px, 9vh, 96px);
+    width: min(220px, 70%);
+    background: repeating-linear-gradient(90deg, var(--bege-08) 0 1px, transparent 1px 10px);
+  }
+
+  /* Fio divisor: trilho sempre visível (--rule) + preenchimento verde
+     conduzido pelo avanço do scroll (--prog publicado pelo driver global) */
+  .duelo-fio {
+    position: relative;
+    width: 1px;
+    height: 46px;
+    margin-block: 12px 16px;
+    background: var(--rule);
+  }
+  .duelo-fio span {
+    position: absolute;
+    inset: 0;
+    background: var(--verde);
+    transform: scaleY(var(--prog, 0));
+    transform-origin: top center;
+  }
+  .duelo-fio::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -3px;
+    width: 7px;
+    height: 7px;
+    transform: translateX(-50%);
+    background: var(--verde);
+  }
+
+  /* Lado WindyCity: foto grande com texto sobreposto no pé */
+  .duelo-quadro {
+    position: relative;
+  }
+  .duelo-fig {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+  .duelo-fig :global(picture) {
+    display: block;
+    height: 100%;
+  }
+  .duelo-fig :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--pos, center);
+  }
+  /* O texto invade o pé da foto; o gradiente (token preto → transparente)
+     garante contraste e se funde com o fundo da seção */
+  .duelo-w {
+    position: relative;
+    margin-top: calc(clamp(64px, 20vw, 110px) * -1);
+    padding: clamp(44px, 12vw, 72px) 18px 0;
+    background: linear-gradient(
+      to top,
+      var(--preto) 38%,
+      color-mix(in srgb, var(--preto) 62%, transparent) 72%,
+      transparent 100%
+    );
     font-size: clamp(1.15rem, 2.1vw, 1.7rem);
     font-weight: 600;
     line-height: 1.25;
     letter-spacing: -0.022em;
     color: var(--bege);
-    max-width: 30ch;
+    max-width: 32ch;
   }
-  .cmp-w-lbl {
+  .duelo-w-lbl {
     color: var(--bege);
     display: flex;
     align-items: center;
     gap: 9px;
   }
-  .cmp-mk {
+  .duelo-mk {
     width: 9px;
     height: 9px;
     background: var(--verde);
     flex: none;
   }
 
-  /* Sangria total — o zoom fica no wrapper, o parallax no <img> */
-  .dif-hero {
-    height: clamp(340px, 78vh, 780px);
+  /* ---------- Ato 2 · Demonstração em camadas ---------- */
+  .demo {
+    position: relative;
     overflow: hidden;
+    min-height: 100svh;
+    display: grid;
+    align-items: center;
+    background: var(--preto);
+    padding-block: clamp(72px, 12vh, 160px);
   }
-  .dif-hero-in {
-    height: 100%;
+  .demo-fundo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
   }
-  .dif-hero-in :global(picture) {
+  .demo-fundo :global(picture) {
     display: block;
     height: 100%;
   }
-  .dif-hero :global(img) {
+  .demo-fundo :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
   }
-
-  /* Diagrama */
-  .arch {
+  .demo-veu {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--preto) 78%, transparent);
+  }
+  .demo-veu::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      var(--preto) 0%,
+      transparent 24%,
+      transparent 76%,
+      var(--preto) 100%
+    );
+  }
+  .demo-grade {
+    position: relative;
+    z-index: 2;
     display: grid;
-    gap: clamp(30px, 6vw, 88px);
+    gap: clamp(36px, 7vw, 96px);
     align-items: center;
-    padding-block: clamp(52px, 7vw, 108px);
   }
-  .arch-fig svg {
+  .demo-txt .h3 {
+    margin-bottom: 16px;
+    max-width: 20ch;
+  }
+  .demo-txt .body {
+    max-width: 58ch;
+  }
+  .demo-fig {
+    margin: 0;
+  }
+  .demo-fig svg {
     width: 100%;
-    max-width: 620px;
+    max-width: 580px;
     height: auto;
     margin-inline: auto;
+    display: block;
   }
-  .arch-fig :global(.ax) {
+  .demo-fig :global(.ax) {
     font-family: 'Sora', sans-serif;
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.16em;
     fill: #efe6e2;
   }
-  .arch-fig :global(.ax2) {
+  .demo-fig :global(.ax2) {
     font-family: 'Sora', sans-serif;
     font-size: 8.5px;
     letter-spacing: 0.08em;
     fill: rgba(239, 230, 226, 0.42);
   }
-  /* Construção do esquema: fachadas se desenham, o resto entra em cascata.
-     São 2 traços curtos + opacidade — nada de filter/blur. */
-  .arch-fig :global(.dg-face) {
-    stroke-dasharray: 190;
-    stroke-dashoffset: 190;
-    transition: stroke-dashoffset 1.05s var(--ease-out);
-    transition-delay: var(--d, 0ms);
-  }
-  .arch-fig.is-in :global(.dg-face) {
-    stroke-dashoffset: 0;
-  }
-  .arch-fig :global(.dg-u) {
-    opacity: 0;
-    transition: opacity 0.6s var(--ease-out);
-    transition-delay: var(--d, 0ms);
-  }
-  .arch-fig.is-in :global(.dg-u) {
-    opacity: 1;
-  }
-
-  .arch-txt .h3 {
-    margin-bottom: 16px;
-    max-width: 20ch;
-  }
-
-  /* Fecho com imagem desalinhada */
-  .claim-wrap {
-    display: grid;
-    gap: clamp(30px, 6vw, 80px);
-    align-items: center;
-    border-top: 1px solid var(--rule);
-    padding-top: clamp(44px, 6vw, 84px);
-    padding-bottom: clamp(64px, 8vw, 120px);
-  }
-  .claim {
-    font-size: clamp(1.35rem, 2.9vw, 2.5rem);
-    line-height: 1.22;
-    font-weight: 700;
-    letter-spacing: -0.028em;
-    color: var(--bege);
-    max-width: 24ch;
-    text-wrap: balance;
-  }
-  .claim-img {
-    height: clamp(240px, 46vh, 420px);
-    overflow: hidden;
-  }
-  .claim-img :global(picture) {
-    display: block;
-    height: 100%;
-  }
-  .claim-img :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   /* ---------------- Desktop ---------------- */
   @media (min-width: 981px) {
-    .dif-top {
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    .dif-abre {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      align-items: end;
+      column-gap: clamp(40px, 5vw, 96px);
     }
-    .dif-intro {
-      position: sticky;
+    .dif-abre .eyebrow {
+      grid-column: 1 / -1;
     }
-    .dif-prog {
+    .dif-lede {
+      border-left: 1px solid var(--rule);
+      padding-left: clamp(20px, 2.2vw, 40px);
+      max-width: 40ch;
+    }
+
+    /* Composição de ~92svh: mercado estreito | fio central | windy dominante */
+    .duelo-grade {
+      grid-template-columns: minmax(0, 0.8fr) auto minmax(0, 1.5fr);
+      column-gap: clamp(28px, 4vw, 72px);
+      align-items: center;
+      min-height: 92svh;
+      padding-block: clamp(48px, 6vh, 96px);
+    }
+    .duelo-mercado {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(22px, 3.5vh, 40px);
+    }
+    .duelo-num {
+      margin-bottom: 0;
+      font-size: clamp(5rem, 8.5vw, 10rem);
+    }
+    .duelo-m {
+      border-left: 0;
+      padding-left: 0;
+      max-width: 26ch;
+    }
+    .duelo-tracos {
       display: block;
     }
 
-    /* Rail do número à esquerda, texto à direita, foto ocupando a coluna */
-    .cmp-row {
-      grid-template-columns: 3.2rem minmax(0, 1fr);
-      column-gap: clamp(14px, 2vw, 28px);
+    .duelo-fio {
+      align-self: stretch;
+      height: auto;
+      margin-block: 0;
     }
-    .cmp-fig {
-      grid-column: 1 / -1;
-      grid-row: 1;
+
+    .duelo-windy {
+      min-width: 0;
+    }
+    .duelo-quadro {
+      display: block;
+    }
+    .duelo-fig {
+      aspect-ratio: 4 / 3;
+    }
+    .duelo-w {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin-top: 0;
+      max-width: none;
+      padding: clamp(72px, 8vw, 130px) clamp(22px, 2.2vw, 40px) clamp(20px, 2vw, 34px);
+      background: linear-gradient(
+        to top,
+        color-mix(in srgb, var(--preto) 88%, transparent) 0%,
+        color-mix(in srgb, var(--preto) 45%, transparent) 60%,
+        transparent 100%
+      );
+    }
+    .duelo-w-lbl {
+      margin-bottom: 10px;
+    }
+
+    /* Etapa 02: foto panorâmica sangrando até a borda direita da tela */
+    .duelo--amplo .duelo-fig {
       aspect-ratio: 16 / 10;
-      margin-bottom: clamp(26px, 3vw, 44px);
-    }
-    .cmp-ix {
-      grid-column: 1;
-      grid-row: 2;
-      margin-bottom: 0;
-      padding-top: 6px;
-    }
-    .cmp-txt {
-      grid-column: 2;
-      grid-row: 2;
-    }
-
-    /* Etapa 02: faixa larga sangrando pela direita, e texto ANTES da foto —
-       quebra a cadência de três blocos idênticos */
-    .cmp-row--wide .cmp-fig {
       margin-right: calc(var(--sangria) * -1);
-      aspect-ratio: 2 / 1;
     }
-    .cmp-row--flip .cmp-fig {
-      grid-row: 2;
-      margin-bottom: 0;
-      margin-top: clamp(26px, 3vw, 44px);
+    .duelo--amplo .duelo-w {
+      right: calc(var(--sangria) * -1);
+      padding-right: var(--sangria);
     }
-    .cmp-row--flip .cmp-ix,
-    .cmp-row--flip .cmp-txt {
-      grid-row: 1;
+    /* Etapa 03: foto mais recolhida e proporção diferente — quebra o metrônomo */
+    .duelo--recuado .duelo-quadro {
+      width: 88%;
     }
-
-    /* Etapa 03: foto recuada, alinhada à coluna de texto */
-    .cmp-row--inset .cmp-fig {
-      grid-column: 2 / -1;
+    .duelo--recuado .duelo-fig {
       aspect-ratio: 3 / 2;
     }
 
-    .arch {
-      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    .demo-grade {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     }
-    .arch-txt {
+    .demo-txt {
       border-left: 1px solid var(--rule);
       padding-left: clamp(24px, 2.6vw, 44px);
     }
-
-    .claim-wrap {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    }
-    .claim-img {
-      height: clamp(300px, 52vh, 560px);
-    }
   }
 
-  /* Sem movimento: o esquema aparece inteiro, sem depender de scroll */
+  /* Sem movimento: fio divisor inteiro (verde), sem depender de scroll.
+     O restante do movimento é GSAP e já fica atrás de reduzMovimento(). */
   @media (prefers-reduced-motion: reduce) {
-    .arch-fig :global(.dg-face) {
-      stroke-dasharray: none;
-      stroke-dashoffset: 0;
-    }
-    .arch-fig :global(.dg-u) {
-      opacity: 1;
-    }
-    .dif-prog span {
+    .duelo-fio span {
       transform: none;
     }
   }
 </style>
+
+<script>
+  import { aoAproximar, reduzMovimento } from '../scripts/ilha';
+
+  /* ATO 2 — o diagrama se constrói conforme o scroll se aproxima dele:
+     fachadas leste/oeste se desenham (stroke-dashoffset), unidades surgem
+     em cascata, corredor e rótulos em seguida, setas de incidência por
+     último. Estado inicial escondido SÓ via gsap.set — sem JS ou com
+     reduced-motion o SVG está completo no HTML. */
+  const diagrama = document.querySelector<HTMLElement>('[data-demo-diagrama]');
+  if (diagrama) {
+    aoAproximar(diagrama, async () => {
+      if (reduzMovimento()) return;
+
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger'),
+      ]);
+      gsap.registerPlugin(ScrollTrigger);
+
+      const faces = diagrama.querySelectorAll('.dg-face');
+      const unidades = diagrama.querySelectorAll('.dg-u');
+      const corredor = diagrama.querySelectorAll('.dg-c');
+      const rotulos = diagrama.querySelectorAll('.dg-l');
+      const setas = diagrama.querySelectorAll('.dg-s path');
+
+      gsap.set(faces, { strokeDasharray: 190, strokeDashoffset: 190 });
+      gsap.set([...unidades, ...corredor, ...rotulos, ...setas], { opacity: 0 });
+
+      gsap
+        .timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: diagrama,
+            start: 'top 85%',
+            end: 'top 30%',
+            scrub: 0.6,
+          },
+        })
+        .to(faces, { strokeDashoffset: 0, duration: 0.9, stagger: 0.15 })
+        .to(unidades, { opacity: 1, duration: 0.35, stagger: 0.12 }, '-=0.35')
+        .to(corredor, { opacity: 1, duration: 0.3 }, '-=0.15')
+        .to(rotulos, { opacity: 1, duration: 0.35, stagger: 0.06 }, '<')
+        .to(setas, { opacity: 1, duration: 0.3, stagger: 0.07 });
+    });
+  }
+</script>
