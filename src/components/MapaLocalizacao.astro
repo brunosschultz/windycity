@@ -88,16 +88,16 @@ const ruaBrigadeiroFranco = {
     display: none;
   }
 
-  /* ---------- recolore os tiles (Positron) pra paleta da marca ----------
-     Sem isso o mapa fica no azul/cinza padrão do Carto — o filtro puxa
-     pro verde/marrom sem perder a leitura de ruas/quadras. */
+  /* ---------- base escura (Dark Matter) recolorida pro verde da marca ----------
+     Tileset já nasce escuro (não é filtro simulando escuro) — o filtro aqui
+     só puxa os detalhes (ruas, parques) pro verde, estilo Waze à noite. */
   .mapa-el :global(.leaflet-tile-pane) {
-    filter: grayscale(0.35) sepia(0.25) hue-rotate(50deg) saturate(0.9) brightness(1.02) contrast(0.97);
+    filter: sepia(0.7) saturate(3.5) hue-rotate(75deg) brightness(0.85) contrast(1.05);
   }
 
   .mapa-el :global(.leaflet-container) {
     font-family: 'Sora', system-ui, sans-serif;
-    background: var(--bege);
+    background: var(--preto);
   }
 
   /* Controles de zoom: discretos, na paleta do site */
@@ -150,6 +150,25 @@ const ruaBrigadeiroFranco = {
   .mapa-el :global(.pin-dest) {
     filter: drop-shadow(0 4px 8px rgba(1, 8, 17, 0.3));
     cursor: pointer;
+  }
+
+  /* ---------- rótulo permanente do destaque (nome, sempre visível) ----------
+     Identifica o pin sem precisar de hover — o cartão com foto/distância
+     continua sendo hover (desktop) ou toque (mobile). */
+  .mapa-el :global(.tt-dest-nome) {
+    background: var(--marrom) !important;
+    color: var(--bege) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 2px 7px !important;
+    font-size: 0.625rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(1, 8, 17, 0.3) !important;
+  }
+  .mapa-el :global(.tt-dest-nome)::before {
+    border-top-color: var(--marrom) !important;
   }
 
   /* ---------- rótulo hover da rua evidenciada ---------- */
@@ -285,7 +304,7 @@ const ruaBrigadeiroFranco = {
         attributionControl: true,
       }).setView([emp.lat, emp.lng], 15);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         subdomains: 'abcd',
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap &copy; CARTO',
@@ -349,6 +368,14 @@ const ruaBrigadeiroFranco = {
       });
       destaques.forEach((d) => {
         const marcador = L.marker([d.lat, d.lng], { icon: iconeDest }).addTo(grupo);
+        // Nome sempre visível — o pin sozinho não diz o que é; o cartão
+        // com foto/distância continua exigindo hover/toque.
+        marcador.bindTooltip(d.nome, {
+          permanent: true,
+          direction: 'top',
+          offset: [0, -18],
+          className: 'tt-dest-nome',
+        });
         if (isTouch) {
           marcador.on('click', (e) => {
             L.DomEvent.stop(e);
@@ -364,13 +391,13 @@ const ruaBrigadeiroFranco = {
       if (isTouch) mapa.on('click', fechar);
 
       // Rua Brigadeiro Franco inteira: evidenciada como traçado (não como
-      // pin) — uma faixa bege por baixo dá contraste, o verde por cima
-      // (50% opacidade) é o destaque.
+      // pin) — uma faixa escura por baixo dá contraste no mapa noturno, o
+      // verde por cima (50% opacidade) é o destaque.
       if (rua.trechos.length) {
         L.polyline(rua.trechos, {
-          color: 'var(--bege)',
+          color: 'var(--preto)',
           weight: 9,
-          opacity: 0.9,
+          opacity: 0.6,
           lineCap: 'round',
           lineJoin: 'round',
         }).addTo(mapa);

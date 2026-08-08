@@ -1,9 +1,12 @@
 ---
 import { Picture } from 'astro:assets';
-import rooftop from '../assets/images/comum-rooftop.png';
-import lavanderia from '../assets/images/comum-lavanderia.png';
-import bicicletario from '../assets/images/comum-bicicletario.png';
-import salaReuniao from '../assets/images/comum-sala-reuniao.png';
+import terraco01 from '../assets/images/comum-terraco-01.jpg';
+import terraco02 from '../assets/images/comum-terraco-02.jpg';
+import terraco03 from '../assets/images/comum-terraco-03.jpg';
+import lavanderia01 from '../assets/images/comum-lavanderia-01.jpg';
+import lavanderia02 from '../assets/images/comum-lavanderia-02.jpg';
+import bicicletario from '../assets/images/comum-bike.jpg';
+import salaReuniao from '../assets/images/comum-reuniao.jpg';
 import predioCutout from '../assets/images/fachada-07-alpha-logo.png';
 ---
 
@@ -20,7 +23,7 @@ import predioCutout from '../assets/images/fachada-07-alpha-logo.png';
           pede, sem sair<br class="brk" />
           do prédio.
         </h2>
-        <p class="body ac-body" data-rv style="--d:160ms">
+        <p class="body acs-body" data-rv style="--d:160ms">
           Áreas comuns pensadas para ampliar a rotina, a convivência e a praticidade de moradores e
           hóspedes — muito além da unidade.
         </p>
@@ -41,88 +44,162 @@ import predioCutout from '../assets/images/fachada-07-alpha-logo.png';
     </div>
   </div>
 
-  <!-- Abertura em sangria total -->
-  <figure class="bleed ac-open" data-px="70" data-rv-img>
-    <Picture
-      src={rooftop}
-      formats={['avif', 'webp']}
-      fallbackFormat="webp"
-      widths={[760, 1100, 1500, 1920]}
-      sizes="100vw"
-      alt="Rooftop do WindyCity com espaço gourmet, lareira central sobre deck de madeira e vista para a cidade"
-      loading="lazy"
-      decoding="async"
-    />
-    <figcaption class="ac-cap ac-cap--over">
-      <span class="ac-ix">01</span>
-      <span class="ac-nome">Rooftop</span>
-    </figcaption>
-  </figure>
+  <!-- ============================ 01 · ROOFTOP ============================
+       Abertura da sequência: cena curta com a foto presa por ~70svh enquanto
+       o enquadramento abre (escala guiada por --prog). Direto filho da
+       <section>, ou seja, já ocupa 100% da largura SEM .bleed — de propósito:
+       .bleed usa translateX(-50%) e um ancestral transformado é justamente o
+       que costuma quebrar position:sticky. -->
+  <div class="acs-cena cena-alta" data-prog="pin">
+    <!-- O <figure> é o quadro preso (e não o recipiente alto) porque a
+         <figcaption> precisa ser filha direta do <figure> para o par
+         imagem+legenda continuar associado — e porque é este elemento que
+         serve de bloco de contenção da legenda posicionada. -->
+    <figure class="cena-fixa acs-cena-fixa">
+      <div class="acs-cena-media cena-zoom" style="--zoom:0.18" data-rv-img>
+        <Picture
+          src={terraco01}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[760, 1100, 1500, 1920, 2400]}
+          sizes="100vw"
+          alt="Rooftop do WindyCity com espaço gourmet, lareira central sobre deck de madeira e vista para a cidade"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <figcaption class="acs-cap acs-cap--over">
+        <span class="acs-ix">01</span>
+        <span class="acs-nome">Rooftop</span>
+      </figcaption>
+    </figure>
+  </div>
 
+  <!-- Duas vistas de apoio do MESMO ambiente 01 (por isso sem numeração
+       própria): escalas bem diferentes e parallax em forças distintas, o que
+       faz as duas se descolarem uma da outra conforme a página rola. -->
   <div class="wrap">
-    <!-- Grade desalinhada: escalas e alturas diferentes, sem moldura -->
-    <div class="ac-grid">
-      <figure class="ac-it ac-it--a" data-px="46" data-rv-img>
-        <div class="ac-media">
+    <div class="acs-par">
+      <div class="acs-par-a bleed-l" data-px="46" data-rv-img>
+        <div class="acs-media">
           <Picture
-            src={lavanderia}
+            src={terraco02}
             formats={['avif', 'webp']}
             fallbackFormat="webp"
-            widths={[520, 780, 1100]}
-            sizes="(max-width: 860px) 100vw, 52vw"
+            widths={[520, 800, 1100, 1400]}
+            sizes="(max-width: 860px) 94vw, 64vw"
+            alt="Terraço do WindyCity ao pôr do sol, com espreguiçadeiras, banco corrido e vista aberta para a cidade"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+
+      <div class="acs-par-b" data-px="96" data-rv-img="dir" style="--d:120ms">
+        <div class="acs-media">
+          <Picture
+            src={terraco03}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[360, 560, 760]}
+            sizes="(max-width: 860px) 94vw, 32vw"
+            alt="Bancada gourmet de madeira do rooftop, com churrasqueira embutida e nicho de lenha ao lado"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================== 02 · LAVANDERIA ==========================
+       Composição dupla do mesmo espaço: a menor (fechada) chega deslocada
+       para baixo, a maior (aberta) sangra pela direita. -->
+  <div class="wrap">
+    <div class="acs-lav">
+      <figure class="acs-lav-a" data-px="38" data-rv-img>
+        <div class="acs-media">
+          <Picture
+            src={lavanderia01}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[420, 640, 900]}
+            sizes="(max-width: 860px) 94vw, 40vw"
             alt="Lavanderia coletiva do WindyCity com máquinas, bancada e painel ripado de madeira"
             loading="lazy"
             decoding="async"
           />
         </div>
-        <figcaption class="ac-cap">
-          <span class="ac-ix">02</span>
-          <span class="ac-nome">Lavanderia</span>
+        <figcaption class="acs-cap">
+          <span class="acs-ix">02</span>
+          <span class="acs-nome">Lavanderia</span>
         </figcaption>
       </figure>
 
-      <figure class="ac-it ac-it--b" data-px="72" data-rv-img style="--d:110ms">
-        <div class="ac-media">
+      <div class="acs-lav-b bleed-r" data-px="88" data-rv-img="cima" style="--d:100ms">
+        <div class="acs-media">
           <Picture
-            src={bicicletario}
+            src={lavanderia02}
             formats={['avif', 'webp']}
             fallbackFormat="webp"
-            widths={[420, 640, 900]}
-            sizes="(max-width: 860px) 100vw, 40vw"
-            alt="Bicicletário do WindyCity com bicicletas em suportes de parede sob cobertura"
+            widths={[520, 800, 1150]}
+            sizes="(max-width: 860px) 100vw, 58vw"
+            alt="Lavanderia coletiva do WindyCity em ângulo aberto, com bancada de pedra, prateleiras e plantas"
             loading="lazy"
             decoding="async"
           />
         </div>
-        <figcaption class="ac-cap">
-          <span class="ac-ix">03</span>
-          <span class="ac-nome">Bicicletário</span>
-        </figcaption>
-      </figure>
+      </div>
     </div>
   </div>
 
-  <!-- Fecho sangrando pela direita -->
+  <!-- ========================= 03 · BICICLETÁRIO =========================
+       Faixa panorâmica sangrando pela esquerda: proporção deitada e baixa,
+       oposta a tudo que veio antes. Revelação abrindo da esquerda. -->
   <div class="wrap">
-    <figure class="ac-close bleed-r" data-px="55" data-rv-img>
-      <div class="ac-media">
+    <figure class="acs-bike bleed-l" data-px="42" data-rv-img="esq">
+      <div class="acs-media acs-media--bike">
+        <Picture
+          src={bicicletario}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[560, 900, 1300, 1700]}
+          sizes="(max-width: 860px) 94vw, 94vw"
+          alt="Bicicletário do WindyCity com bicicletas em suportes de parede sob cobertura"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <figcaption class="acs-cap acs-cap--recuo">
+        <span class="acs-ix">03</span>
+        <span class="acs-nome">Bicicletário</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <!-- ======================= 04 · SALA DE REUNIÃO ========================
+       Fecho em sangria total, com reenquadramento guiado pelo scroll
+       (data-prog + .cena-zoom) — mesma linguagem da abertura, sem pin. -->
+  <figure class="acs-fecho" data-prog>
+    <div class="acs-fecho-media" data-rv-img="centro">
+      <div class="acs-fecho-zoom cena-zoom" style="--zoom:0.12">
         <Picture
           src={salaReuniao}
           formats={['avif', 'webp']}
           fallbackFormat="webp"
-          widths={[760, 1100, 1500]}
-          sizes="(max-width: 860px) 100vw, 78vw"
+          widths={[760, 1100, 1500, 1920]}
+          sizes="100vw"
           alt="Sala de reunião do WindyCity com mesa de madeira, televisão e painel ripado com plantas"
           loading="lazy"
           decoding="async"
         />
       </div>
-      <figcaption class="ac-cap">
-        <span class="ac-ix">04</span>
-        <span class="ac-nome">Sala de reunião</span>
-      </figcaption>
-    </figure>
-  </div>
+    </div>
+    <figcaption class="acs-cap acs-cap--full">
+      <span class="acs-ix">04</span>
+      <span class="acs-nome">Sala de reunião</span>
+    </figcaption>
+  </figure>
 </section>
 
 <style>
@@ -131,7 +208,8 @@ import predioCutout from '../assets/images/fachada-07-alpha-logo.png';
     ".ac" já é a classe global de acento em Times Italic (ver global.css).
     Usar ".ac" aqui SERIA um bug: como font-family/font-style são herdados,
     a seção inteira herdaria Times Italic por baixo do capô. Foi exatamente
-    o que aconteceu antes de virar ".acs".
+    o que aconteceu antes de virar ".acs". Por isso NADA nesta folha começa
+    com ".ac-" — nem como prefixo de layout.
   */
   .acs {
     padding-bottom: clamp(70px, 9vw, 130px);
@@ -144,7 +222,7 @@ import predioCutout from '../assets/images/fachada-07-alpha-logo.png';
     height: clamp(560px, 80vh, 900px);
     display: flex;
     align-items: center;
-    margin-bottom: clamp(64px, 9vw, 120px);
+    margin-bottom: clamp(56px, 8vw, 104px);
     /* Sem tema próprio — herda o bege do <section> pai (nada de fundo preto). */
   }
   .acs-duo-in {
@@ -195,89 +273,169 @@ import predioCutout from '../assets/images/fachada-07-alpha-logo.png';
     display: block;
   }
 
-  .ac-body {
+  .acs-body {
     max-width: 50ch;
   }
-
-  .ac-open {
-    height: clamp(360px, 84vh, 860px);
-    overflow: hidden;
-    position: relative;
+  /* Faixa estreita do desktop: entre a saída do mobile (861px) e ~1100px o
+     bloco de texto (piso de 590px) e a fachada (58vw) não cabem lado a lado,
+     e o parágrafo entrava na parte JÁ OPACA da foto — ilegível, não é o
+     efeito de dissolver. O título não precisa de ajuste: as quebras manuais
+     mantêm as linhas curtas o bastante para caírem só no degradê. */
+  @media (min-width: 861px) and (max-width: 1100px) {
+    .acs-body {
+      max-width: min(50ch, 40vw);
+    }
   }
-  .ac-open :global(img) {
+
+  /* ---------- Peça de mídia padrão da seção ---------- */
+  .acs-media {
+    overflow: hidden;
+    height: 100%;
+  }
+  .acs-media :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .ac-media {
-    overflow: hidden;
-    height: 100%;
-  }
-  .ac-media :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Legenda editorial: índice + nome, fora da imagem */
-  .ac-cap {
+  /* ---------- Legenda editorial: índice + nome ---------- */
+  .acs-cap {
     display: flex;
     align-items: baseline;
     gap: 14px;
     padding-top: 16px;
   }
-  .ac-ix {
+  .acs-ix {
     font-family: 'TimesWC', 'Times New Roman', Times, serif;
     font-style: italic;
     font-size: 1.5rem;
     line-height: 1;
     color: var(--verde);
   }
-  .ac-nome {
+  .acs-nome {
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
   }
-  .ac-cap--over {
+  /* Legenda sobre a foto (cena 01) */
+  .acs-cap--over {
     position: absolute;
-    left: var(--gutter);
-    bottom: clamp(20px, 3vw, 40px);
+    z-index: 2;
+    left: var(--sangria);
+    bottom: clamp(24px, 4vw, 52px);
     padding-top: 0;
     color: var(--bege);
     text-shadow: 0 1px 18px rgba(1, 8, 17, 0.55);
   }
-  .ac-cap--over .ac-ix {
+  .acs-cap--over .acs-ix {
     color: var(--bege);
   }
+  /* Legenda de peça que sangra pela esquerda: recua até a coluna de leitura */
+  .acs-cap--recuo {
+    padding-left: var(--sangria);
+  }
+  /* Legenda de peça em sangria total (fecho) */
+  .acs-cap--full {
+    padding-left: var(--sangria);
+    padding-right: var(--sangria);
+  }
 
-  /* Duas peças em escalas e alturas diferentes */
-  .ac-grid {
+  /* ==================== 01 · cena presa (pin curto) ====================
+     170svh de recipiente = ~70svh de avanço com a foto presa. Curto de
+     propósito: o scroll não fica sequestrado, só desacelera uma vez. */
+  .acs-cena {
+    height: 170svh;
+  }
+  .acs-cena-fixa {
+    /* .cena-fixa (global) já dá position:sticky / 100svh / overflow:hidden */
+    background: var(--preto);
+  }
+  .acs-cena-media {
+    height: 100%;
+  }
+  .acs-cena-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Véu de contraste sob a legenda. Estático — nada de filter/blur animado. */
+  .acs-cena-fixa::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 46%;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(1, 8, 17, 0.6), rgba(1, 8, 17, 0));
+  }
+
+  /* ============ 01 · par de apoio (escalas propositalmente desiguais) ============ */
+  .acs-par {
     display: grid;
-    grid-template-columns: minmax(0, 1.16fr) minmax(0, 0.84fr);
-    gap: clamp(16px, 3vw, 56px);
+    grid-template-columns: minmax(0, 1.38fr) minmax(0, 0.62fr);
+    gap: clamp(18px, 3vw, 60px);
     align-items: start;
-    padding-top: clamp(48px, 7vw, 110px);
+    padding-top: clamp(30px, 4.5vw, 76px);
   }
-  .ac-it--a .ac-media {
-    height: clamp(280px, 52vh, 540px);
+  .acs-par-a .acs-media {
+    height: clamp(240px, 46vh, 470px);
   }
-  /* Desalinhamento vertical — tira a leitura de "duas caixas lado a lado" */
-  .ac-it--b {
-    margin-top: clamp(40px, 9vw, 150px);
+  /* A pequena entra bem mais abaixo e bem menor: quebra a leitura de grade */
+  .acs-par-b {
+    margin-top: clamp(52px, 11vw, 190px);
   }
-  .ac-it--b .ac-media {
-    height: clamp(300px, 58vh, 620px);
-  }
-
-  .ac-close {
-    padding-top: clamp(48px, 7vw, 110px);
-  }
-  .ac-close .ac-media {
-    height: clamp(320px, 66vh, 680px);
+  .acs-par-b .acs-media {
+    height: clamp(180px, 30vh, 320px);
   }
 
+  /* ======================== 02 · lavanderia dupla ======================== */
+  .acs-lav {
+    display: grid;
+    grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+    gap: clamp(20px, 3.4vw, 68px);
+    align-items: start;
+    padding-top: clamp(64px, 9vw, 150px);
+  }
+  .acs-lav-a {
+    margin-top: clamp(70px, 13vw, 210px);
+  }
+  .acs-lav-a .acs-media {
+    height: clamp(250px, 44vh, 420px);
+  }
+  .acs-lav-b .acs-media {
+    height: clamp(340px, 72vh, 700px);
+  }
+
+  /* ====================== 03 · bicicletário panorâmico ====================== */
+  .acs-bike {
+    padding-top: clamp(56px, 8vw, 132px);
+  }
+  .acs-media--bike {
+    height: clamp(220px, 40vh, 420px);
+  }
+
+  /* ========================= 04 · fecho em sangria ========================= */
+  .acs-fecho {
+    padding-top: clamp(64px, 9vw, 150px);
+  }
+  .acs-fecho-media {
+    overflow: hidden;
+    height: clamp(320px, 66vh, 700px);
+  }
+  .acs-fecho-zoom {
+    height: 100%;
+  }
+  .acs-fecho-zoom :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ============================== Mobile ==============================
+     Galeria vertical: nada de pin, nada de zoom guiado por scroll (o
+     parallax global já é desligado abaixo de 761px). As fotos passam a
+     ocupar quase toda a largura, alternando o lado da sangria. */
   @media (max-width: 860px) {
     /* Empilha: texto em cima, foto embaixo em largura total. O degradê
        muda de eixo (esquerda→direita vira cima→baixo) pra continuar
@@ -287,11 +445,9 @@ import predioCutout from '../assets/images/fachada-07-alpha-logo.png';
       flex-direction: column;
       align-items: stretch;
       padding-block: clamp(48px, 10vw, 76px) 0;
-      margin-bottom: clamp(48px, 7vw, 80px);
+      margin-bottom: clamp(40px, 6vw, 68px);
     }
-    .acs-duo-txt {
-      max-width: none;
-    }
+    .acs-duo-txt,
     .acs-duo-h2 {
       max-width: none;
     }
@@ -308,20 +464,81 @@ import predioCutout from '../assets/images/fachada-07-alpha-logo.png';
       object-position: bottom center;
     }
 
-    .ac-grid {
-      grid-template-columns: 1fr;
-      gap: 34px;
+    /* Cena 01 vira foto normal: sem sticky, sem escala guiada por scroll.
+       Os seletores abaixo levam `.acs` na frente de propósito: precisam
+       ganhar de `.cena-fixa` / `.cena-zoom` do global.css, que têm a mesma
+       especificidade — sem isso a vitória dependeria da ordem do bundle, e
+       um dia em que ela virasse o zoom voltaria no mobile (e com ele a
+       imagem escalada estourando a largura da tela). */
+    .acs-cena {
+      height: auto;
     }
-    .ac-it--b {
+    .acs .acs-cena-fixa {
+      position: static;
+      height: auto;
+    }
+    .acs .acs-cena-media {
+      height: clamp(340px, 86vw, 540px);
+      transform: none;
+      /* sem transform animado aqui, então nada de camada promovida à toa
+         (o `will-change` vem de .cena-zoom no global.css) */
+      will-change: auto;
+    }
+    .acs-cap--over {
+      left: var(--gutter);
+    }
+
+    .acs-par,
+    .acs-lav {
+      grid-template-columns: 1fr;
+      gap: 26px;
+    }
+    .acs-par-b,
+    .acs-lav-a {
       margin-top: 0;
     }
-    .ac-it--a .ac-media,
-    .ac-it--b .ac-media,
-    .ac-close .ac-media {
-      height: clamp(260px, 52vh, 420px);
+    /* Alterna o lado da sangria pra galeria não virar uma coluna só */
+    .acs-par-b,
+    .acs-bike {
+      margin-right: calc(var(--sangria) * -1);
     }
-    .ac-close {
-      margin-right: calc(50% - 50vw);
+    .acs-bike {
+      margin-left: calc(var(--sangria) * -1);
+    }
+    .acs-cap--recuo {
+      padding-left: var(--sangria);
+      padding-right: var(--sangria);
+    }
+    .acs-par-a .acs-media,
+    .acs-par-b .acs-media,
+    .acs-lav-a .acs-media,
+    .acs-lav-b .acs-media {
+      height: clamp(260px, 62vw, 400px);
+    }
+    .acs-media--bike {
+      height: clamp(200px, 46vw, 300px);
+    }
+    .acs-fecho-media {
+      height: clamp(280px, 62vw, 400px);
+    }
+    .acs .acs-fecho-zoom {
+      transform: none;
+      will-change: auto;
+    }
+    .acs-cap--full {
+      padding-inline: var(--gutter);
+    }
+  }
+
+  /* Sem movimento: a cena alta colapsa e as escalas guiadas por scroll
+     saem de cena — o global já zera .cena-fixa/.cena-zoom, aqui só
+     devolvemos altura de imagem pras peças que dependiam do sticky. */
+  @media (prefers-reduced-motion: reduce) {
+    .acs-cena {
+      height: auto;
+    }
+    .acs .acs-cena-media {
+      height: clamp(340px, 62vh, 620px);
     }
   }
 </style>

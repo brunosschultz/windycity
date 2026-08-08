@@ -1,8 +1,9 @@
 ---
 import { Picture } from 'astro:assets';
 import poster from '../assets/images/fachada-02.png';
-import fachadaDia from '../assets/images/fachada-03.png';
-import elevacao from '../assets/images/fachada-05-alpha.png';
+import torre from '../assets/images/fachada-baixo.jpg';
+import fachadaDia from '../assets/images/fachada-dia-hd.jpg';
+import fachadaNoite from '../assets/images/fachada-noite-hd.jpg';
 import { EMPREENDIMENTO } from '../config';
 
 /* `pendente` = dado que o próprio wireframe marca como a confirmar. */
@@ -26,19 +27,37 @@ const depoimentos = [
 
 <section class="section theme-preto cr" id="girassol" aria-labelledby="gi-t">
   <div class="wrap">
-    <div class="cr-head">
-      <p class="eyebrow" data-rv>Conheça a Girassol</p>
-      <h2 class="h2-xl" id="gi-t" data-rv style="--d:80ms">
-        Por que <em class="ac">confiar</em> na Girassol?
-      </h2>
-      <p class="body cr-body" data-rv style="--d:160ms">
-        A Girassol é formada por profissionais com experiência em planejamento, construção e gestão
-        de empreendimentos. A marca é recente — a experiência, não. Aqui, o contato com quem decide é
-        direto: sem coordenador do coordenador.
-      </p>
+    <!-- Abertura assimétrica: a coluna de texto termina na mesma linha em que
+         a foto termina; a foto sangra até a borda direita da tela. -->
+    <div class="cr-top">
+      <div class="cr-head">
+        <p class="eyebrow" data-rv>Conheça a Girassol</p>
+        <h2 class="h2-xl" id="gi-t" data-rv style="--d:80ms">
+          Por que <em class="ac">confiar</em> na Girassol?
+        </h2>
+        <p class="body cr-body" data-rv style="--d:160ms">
+          A Girassol é formada por profissionais com experiência em planejamento, construção e gestão
+          de empreendimentos. A marca é recente — a experiência, não. Aqui, o contato com quem decide é
+          direto: sem coordenador do coordenador.
+        </p>
+      </div>
+
+      <figure class="cr-torre bleed-r" data-px="60" data-rv-img style="--d:120ms">
+        <Picture
+          src={torre}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[520, 780, 1100, 1400]}
+          sizes="(max-width: 900px) 95vw, 56vw"
+          alt="Fachada do WindyCity vista de baixo para cima, com o letreiro windycity na base e as varandas recortadas contra o céu"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
     </div>
 
-    <!-- Números em escala de pôster, sem caixas -->
+    <!-- Números em escala de pôster, sem caixas. O fio de cada coluna é
+         desenhado da esquerda para a direita quando o dado entra. -->
     <ul class="stats">
       {
         stats.map((s, i) => (
@@ -54,8 +73,59 @@ const depoimentos = [
     </ul>
   </div>
 
-  <!-- Vídeo institucional: sangria total com poster -->
-  <figure class="bleed cr-video" data-px="80" data-rv-img>
+  <!-- Cena: a mesma fachada, mesmo enquadramento, do dia para a noite.
+       A foto fica presa em tela cheia enquanto os dois pilares avançam;
+       o cruzamento das duas imagens é conduzido por --prog (0 → 1). -->
+  <div class="cr-cena cena-alta" data-prog="pin">
+    <div class="cena-fixa cr-palco">
+      <figure class="cr-ciclo cena-zoom" data-rv-img>
+        <Picture
+          src={fachadaDia}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[760, 1100, 1500, 1920]}
+          sizes="100vw"
+          alt="Fachada completa do WindyCity em vista diurna, com jardineiras nas varandas"
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="cr-noite" aria-hidden="true">
+          <Picture
+            src={fachadaNoite}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[760, 1100, 1500, 1920]}
+            sizes="100vw"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+        </span>
+      </figure>
+
+      <!-- Pilares: só tipografia e fio, agora sobre a fachada -->
+      <div class="cr-palco-txt">
+        <div class="wrap">
+          <div class="pilares">
+            <div class="pilar cr-p" style="--in:0.14">
+              <h3 class="h3">Histórico</h3>
+              <p>
+                Experiência construída ao longo de décadas em planejamento, construção e gestão de
+                empreendimentos.
+              </p>
+            </div>
+            <div class="pilar cr-p" style="--in:0.34">
+              <h3 class="h3">Atendimento próximo</h3>
+              <p>Contato direto com quem decide — inclusive no pós-obra, sem intermediários.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vídeo institucional: placeholder do vídeo futuro, em sangria total -->
+  <figure class="cr-video" data-px="80" data-rv-img>
     <Picture
       src={poster}
       formats={['avif', 'webp']}
@@ -78,49 +148,6 @@ const depoimentos = [
   </figure>
 
   <div class="wrap">
-    <!-- Pilares: só tipografia e fio -->
-    <div class="pilares">
-      <div class="pilar" data-rv>
-        <h3 class="h3">Histórico</h3>
-        <p>
-          Experiência construída ao longo de décadas em planejamento, construção e gestão de
-          empreendimentos.
-        </p>
-      </div>
-      <div class="pilar" data-rv style="--d:110ms">
-        <h3 class="h3">Atendimento próximo</h3>
-        <p>Contato direto com quem decide — inclusive no pós-obra, sem intermediários.</p>
-      </div>
-    </div>
-
-    <!-- Galeria desalinhada -->
-    <div class="cr-gal">
-      <figure class="cr-g cr-g--a" data-px="50" data-rv-img>
-        <Picture
-          src={fachadaDia}
-          formats={['avif', 'webp']}
-          fallbackFormat="webp"
-          widths={[520, 780, 1100]}
-          sizes="(max-width: 860px) 100vw, 54vw"
-          alt="Fachada completa do WindyCity em vista diurna, com jardineiras nas varandas"
-          loading="lazy"
-          decoding="async"
-        />
-      </figure>
-      <figure class="cr-g cr-g--b" data-rv-img style="--d:120ms">
-        <Picture
-          src={elevacao}
-          formats={['avif', 'webp']}
-          fallbackFormat="webp"
-          widths={[420, 640, 900]}
-          sizes="(max-width: 860px) 100vw, 40vw"
-          alt="Elevação frontal do WindyCity com as unidades iluminadas"
-          loading="lazy"
-          decoding="async"
-        />
-      </figure>
-    </div>
-
     <!-- Depoimentos: linhas editoriais, sem card -->
     <ul class="depo">
       {
@@ -159,9 +186,12 @@ const depoimentos = [
   .cr {
     padding-bottom: clamp(70px, 9vw, 130px);
   }
-  .cr-head {
-    /* largura livre — quem limita é o h2 abaixo, com ch no tamanho certo */
-    margin-bottom: clamp(48px, 6vw, 88px);
+
+  /* ---------- Abertura ---------- */
+  .cr-top {
+    display: grid;
+    gap: clamp(30px, 5vw, 48px);
+    margin-bottom: clamp(48px, 7vw, 92px);
   }
   .cr-head .h2-xl {
     /* "ch" precisa ir no próprio h2: em .cr-head (16px) o "ch" saía ~4x
@@ -172,20 +202,45 @@ const depoimentos = [
   .cr-body {
     max-width: 54ch;
   }
+  .cr-torre {
+    position: relative;
+    overflow: hidden;
+    height: clamp(300px, 56vh, 460px);
+  }
+  .cr-torre :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 46%;
+  }
 
-  /* Números */
+  /* ---------- Números ---------- */
   .stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: clamp(20px, 3vw, 44px);
-    margin-bottom: clamp(56px, 8vw, 110px);
   }
   .stat {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    padding-top: 20px;
-    border-top: 1px solid var(--rule);
+    padding-top: 22px;
+  }
+  /* fio que se desenha com o dado, em vez de border-top já pronta */
+  .stat::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: var(--bege-40);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.9s var(--ease-out);
+    transition-delay: var(--d, 0ms);
+  }
+  .stat.is-in::before {
+    transform: scaleX(1);
   }
   .stat-n {
     font-family: 'TimesWC', 'Times New Roman', Times, serif;
@@ -212,11 +267,90 @@ const depoimentos = [
     color: var(--verde);
   }
 
-  /* Vídeo */
+  /* ---------- Cena dia → noite ---------- */
+  .cr-cena {
+    height: 175svh;
+    margin-top: clamp(56px, 8vw, 110px);
+  }
+  .cr-palco {
+    background: var(--preto);
+  }
+  .cr-ciclo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    --zoom: 0.03;
+  }
+  .cr-ciclo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+  /* a noite entra por cima, cruzando a opacidade com o avanço da cena */
+  .cr-noite {
+    position: absolute;
+    inset: 0;
+    display: block;
+    opacity: var(--prog, 0);
+    will-change: opacity;
+  }
+  /* véu de leitura: constante, não animado */
+  .cr-palco::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        to top,
+        rgba(1, 8, 17, 0.9) 0%,
+        rgba(1, 8, 17, 0.5) 24%,
+        rgba(1, 8, 17, 0) 56%
+      ),
+      linear-gradient(to bottom, rgba(1, 8, 17, 0.4), rgba(1, 8, 17, 0) 26%);
+  }
+  .cr-palco-txt {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    bottom: clamp(28px, 5vw, 68px);
+  }
+
+  /* ---------- Pilares ---------- */
+  .pilares {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(22px, 4vw, 80px);
+  }
+  .pilar {
+    border-top: 1px solid var(--bege-40);
+    padding-top: clamp(14px, 1.6vw, 20px);
+  }
+  .pilar .h3 {
+    margin-bottom: 10px;
+  }
+  .pilar p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--bege-80);
+    max-width: 40ch;
+  }
+  /* entrada escalonada guiada pelo avanço da cena — sem JS próprio */
+  .cr-p {
+    --p: min(1, max(0, calc((var(--prog, 0) - var(--in, 0)) * 5)));
+    opacity: var(--p);
+    transform: translate3d(0, calc(18px * (1 - var(--p))), 0);
+  }
+
+  /* ---------- Vídeo ---------- */
   .cr-video {
     position: relative;
-    height: clamp(340px, 80vh, 800px);
+    height: clamp(320px, 74vh, 700px);
     overflow: hidden;
+    margin-top: clamp(56px, 8vw, 110px);
   }
   .cr-video :global(img) {
     width: 100%;
@@ -228,7 +362,7 @@ const depoimentos = [
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(1, 8, 17, 0.72), rgba(1, 8, 17, 0.08) 62%);
+    background: linear-gradient(to top, rgba(1, 8, 17, 0.78), rgba(1, 8, 17, 0.06) 62%);
     pointer-events: none;
   }
   .cr-play {
@@ -244,26 +378,26 @@ const depoimentos = [
     display: grid;
     place-items: center;
     color: var(--bege);
-    backdrop-filter: blur(3px);
+    background: rgba(1, 8, 17, 0.26);
     transition:
       transform 0.5s var(--ease),
-      background-color 0.4s ease;
+      background-color 0.4s ease,
+      border-color 0.4s ease;
   }
   .cr-play svg {
     width: 42%;
     height: 42%;
   }
-  .cr-video:hover .cr-play {
-    transform: translate(-50%, -50%) scale(1.07);
-    background: rgba(239, 230, 226, 0.12);
-  }
   .cr-vcap {
     position: absolute;
     z-index: 2;
     left: var(--gutter);
+    right: var(--gutter);
     bottom: clamp(20px, 3vw, 40px);
     display: grid;
     gap: 6px;
+    padding-top: clamp(14px, 2vw, 20px);
+    border-top: 1px solid var(--bege-40);
     color: var(--bege);
   }
   .cr-vcap .label {
@@ -273,48 +407,15 @@ const depoimentos = [
     font-size: 0.875rem;
     color: var(--bege-60);
   }
-
-  /* Pilares */
-  .pilares {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: clamp(26px, 5vw, 80px);
-    padding-block: clamp(56px, 8vw, 108px);
-  }
-  .pilar .h3 {
-    margin-bottom: 12px;
-  }
-  .pilar p {
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    color: var(--bege-60);
-    max-width: 40ch;
+  @media (hover: hover) {
+    .cr-video:hover .cr-play {
+      transform: translate(-50%, -50%) scale(1.07);
+      background: rgba(239, 230, 226, 0.14);
+      border-color: var(--bege);
+    }
   }
 
-  /* Galeria */
-  .cr-gal {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-    gap: clamp(16px, 3vw, 48px);
-    align-items: start;
-  }
-  .cr-g {
-    overflow: hidden;
-  }
-  .cr-g :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .cr-g--a {
-    height: clamp(280px, 54vh, 560px);
-  }
-  .cr-g--b {
-    margin-top: clamp(36px, 8vw, 130px);
-    height: clamp(300px, 60vh, 640px);
-  }
-
-  /* Depoimentos */
+  /* ---------- Depoimentos ---------- */
   .depo {
     margin-top: clamp(56px, 8vw, 108px);
     border-top: 1px solid var(--rule);
@@ -331,6 +432,7 @@ const depoimentos = [
     width: 34px;
     height: 34px;
     color: var(--verde);
+    transition: transform 0.5s var(--ease);
   }
   .depo-ic svg {
     width: 100%;
@@ -345,6 +447,15 @@ const depoimentos = [
     font-size: 0.9375rem;
     line-height: 1.55;
     color: var(--bege-60);
+    transition: color 0.4s ease;
+  }
+  @media (hover: hover) {
+    .depo-it:hover .depo-ic {
+      transform: translateX(4px);
+    }
+    .depo-it:hover .depo-d {
+      color: var(--bege-80);
+    }
   }
 
   .cr-cta {
@@ -352,21 +463,38 @@ const depoimentos = [
     margin-top: clamp(40px, 5vw, 64px);
   }
 
+  /* ---------- Desktop: assimetria e zoom de cena ---------- */
+  @media (min-width: 761px) {
+    .cr-ciclo {
+      --zoom: 0.055;
+    }
+  }
+  @media (min-width: 901px) {
+    .cr-top {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
+      gap: clamp(40px, 5vw, 88px);
+      align-items: end;
+    }
+    .cr-head {
+      padding-bottom: clamp(8px, 2.5vw, 36px);
+    }
+    .cr-torre {
+      height: clamp(420px, 72vh, 740px);
+      margin-top: clamp(20px, 4vw, 64px);
+    }
+    .cr-cena {
+      height: 215svh;
+    }
+  }
+
   @media (max-width: 900px) {
     .stats {
       grid-template-columns: repeat(2, 1fr);
       gap: 26px 20px;
     }
-    .pilares,
-    .cr-gal {
+    .pilares {
       grid-template-columns: 1fr;
-    }
-    .cr-g--b {
-      margin-top: 0;
-    }
-    .cr-g--a,
-    .cr-g--b {
-      height: clamp(250px, 50vh, 400px);
+      gap: 18px;
     }
     .depo-it {
       grid-template-columns: 34px 1fr;
@@ -378,6 +506,39 @@ const depoimentos = [
     }
     .cr-cta .btn {
       width: 100%;
+    }
+  }
+
+  /* ---------- Sem movimento ----------
+     A cena deixa de ser alta e de prender: vira uma foto normal seguida do
+     texto. A NOITE é escondida por completo (e não em meio-caminho), então
+     quem lê o alt da imagem diurna vê exatamente a imagem diurna. */
+  @media (prefers-reduced-motion: reduce) {
+    .cr-cena {
+      height: auto;
+    }
+    .cr-ciclo {
+      position: relative;
+      inset: auto;
+      aspect-ratio: 16 / 9;
+    }
+    .cr-noite {
+      opacity: 0;
+    }
+    .cr-palco::after {
+      display: none;
+    }
+    .cr-palco-txt {
+      position: relative;
+      bottom: auto;
+      margin-top: clamp(28px, 4vw, 48px);
+    }
+    .cr-p {
+      opacity: 1;
+      transform: none;
+    }
+    .stat::before {
+      transform: scaleX(1);
     }
   }
 </style>

@@ -2,22 +2,46 @@
 import { Picture } from 'astro:assets';
 import interna from '../assets/images/interna-03.png';
 import interna2 from '../assets/images/interna-01.png';
+import unidLuz from '../assets/images/unid-sacada-02.jpg';
+import unidAr from '../assets/images/unid-sacada-01.jpg';
+import unidPlanta from '../assets/images/unid-meio-02.jpg';
 
-/* Pares exatamente como no wireframe aprovado. */
+/* Pares exatamente como no wireframe aprovado.
+   Cada par ganhou a fotografia que serve de prova visual do argumento —
+   a foto entra por máscara (data-rv-img) com direção diferente por etapa,
+   e o recorte muda de largura para o ritmo não ficar de metrônomo. */
 const comparacoes = [
   {
     mercado:
       'Pouca iluminação natural — ambientes que dependem de luz artificial mesmo durante o dia.',
     windy: 'Unidades paralelas à face de iluminação — luz natural em todos os cômodos, sem exceção.',
+    foto: unidLuz,
+    alt: 'Kitchenette em madeira clara e cama no mesmo ambiente, com janela de piso a teto ao lado da cama, cortina leve e vista da cidade',
+    /* string vazia, não `undefined`: com undefined o Astro OMITE o atributo
+       e a foto fica fora do IntersectionObserver — sem máscara de entrada.
+       `data-rv-img=""` é a direção padrão (baixo → cima). */
+    dir: '',
+    mod: '',
+    sizes: '(max-width: 980px) calc(100vw - 40px), 48vw',
   },
   {
     mercado: 'Ventilação limitada — pouca renovação de ar e menor conforto térmico.',
     windy:
       'Nenhum ambiente enclausurado — ventilação natural em todos os ambientes, inclusive banheiros.',
+    foto: unidAr,
+    alt: 'Corredor da cozinha em marcenaria de madeira clara, com vista enfiada até a cama e a abertura da sacada iluminada ao fundo',
+    dir: 'esq',
+    mod: 'cmp-row--wide cmp-row--flip',
+    sizes: '(max-width: 980px) calc(100vw - 40px), 55vw',
   },
   {
     mercado: 'Espaços comprimidos — plantas que acomodam funções, mas sem fluidez.',
     windy: 'Plantas flexíveis — layout adaptável, podendo configurar 1 dormitório.',
+    foto: unidPlanta,
+    alt: 'Closet amplo com portas de vidro e iluminação interna ao lado da cama, com televisão, armários e kitchenette resolvidos na mesma parede',
+    dir: 'dir',
+    mod: 'cmp-row--inset',
+    sizes: '(max-width: 980px) calc(100vw - 40px), 44vw',
   },
 ];
 ---
@@ -25,7 +49,7 @@ const comparacoes = [
 <section class="section theme-preto dif" id="diferenciais" aria-labelledby="dif-t">
   <div class="wrap">
     <!-- Coluna fixa à esquerda, argumento rolando à direita -->
-    <div class="dif-top">
+    <div class="dif-top" data-prog>
       <div class="sticky-col dif-intro">
         <p class="eyebrow" data-rv>Diferenciais</p>
         <h2 class="h2-xl" id="dif-t" data-rv style="--d:80ms">
@@ -35,26 +59,47 @@ const comparacoes = [
           A maioria dos Studios reduz a metragem e reduz junto aquilo que mais importa no dia a dia:
           luz, ar e espaço para viver bem. O WindyCity foi desenhado para não fazer essa troca.
         </p>
+        <!-- Trilho de avanço: puramente decorativo, guiado por --prog -->
+        <div class="dif-prog" aria-hidden="true" data-rv="fade" style="--d:240ms">
+          <span></span>
+        </div>
       </div>
 
       <ol class="cmp">
         {
           comparacoes.map((c, i) => (
-            <li class="cmp-row" data-rv style={`--d:${i * 80}ms`}>
-              <span class="cmp-ix label">{String(i + 1).padStart(2, '0')}</span>
+            <li class={`cmp-row ${c.mod}`}>
+              <div class="cmp-fig" data-rv-img={c.dir}>
+                <Picture
+                  src={c.foto}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="webp"
+                  widths={[420, 700, 1000, 1400]}
+                  sizes={c.sizes}
+                  alt={c.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
 
-              <p class="cmp-m">
-                <span class="cmp-m-lbl">O padrão do mercado</span>
-                {c.mercado}
-              </p>
+              <span class="cmp-ix label" data-rv>
+                {String(i + 1).padStart(2, '0')}
+              </span>
 
-              <p class="cmp-w">
-                <span class="cmp-w-lbl">
-                  <span class="cmp-mk" aria-hidden="true" />
-                  WindyCity
-                </span>
-                {c.windy}
-              </p>
+              <div class="cmp-txt">
+                <p class="cmp-m" data-rv style="--d:60ms">
+                  <span class="cmp-m-lbl">O padrão do mercado</span>
+                  {c.mercado}
+                </p>
+
+                <p class="cmp-w" data-rv style="--d:140ms">
+                  <span class="cmp-w-lbl">
+                    <span class="cmp-mk" aria-hidden="true" />
+                    WindyCity
+                  </span>
+                  {c.windy}
+                </p>
+              </div>
             </li>
           ))
         }
@@ -62,18 +107,22 @@ const comparacoes = [
     </div>
   </div>
 
-  <!-- Prova visual em sangria total -->
-  <div class="bleed dif-hero" data-px="90" data-rv-img>
-    <Picture
-      src={interna}
-      formats={['avif', 'webp']}
-      fallbackFormat="webp"
-      widths={[760, 1100, 1500, 1920]}
-      sizes="100vw"
-      alt="Interior do studio decorado com marcenaria em madeira clara e luz natural entrando pela varanda"
-      loading="lazy"
-      decoding="async"
-    />
+  <!-- Prova visual em sangria total: parallax na imagem, zoom guiado pelo
+       avanço do scroll no wrapper — elementos separados, para um transform
+       não sobrescrever o outro -->
+  <div class="bleed dif-hero" data-prog style="--zoom:0.06">
+    <div class="dif-hero-in cena-zoom" data-px="90" data-rv-img>
+      <Picture
+        src={interna}
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        widths={[760, 1100, 1500, 1920]}
+        sizes="100vw"
+        alt="Interior do studio decorado com marcenaria em madeira clara e luz natural entrando pela varanda"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
   </div>
 
   <div class="wrap">
@@ -85,17 +134,17 @@ const comparacoes = [
             Planta esquemática: unidades implantadas paralelas às fachadas leste e oeste, com janela
             acompanhando toda a extensão da unidade e corredor central entre elas
           </title>
-          <line x1="22" y1="26" x2="22" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
-          <line x1="298" y1="26" x2="298" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
+          <line class="dg-face" x1="22" y1="26" x2="22" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
+          <line class="dg-face" style="--d:120ms" x1="298" y1="26" x2="298" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
 
-          <rect x="30" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect x="30" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect x="178" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect x="178" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect class="dg-u" style="--d:280ms" x="30" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect class="dg-u" style="--d:340ms" x="30" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect class="dg-u" style="--d:400ms" x="178" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
+          <rect class="dg-u" style="--d:460ms" x="178" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
 
-          <rect x="142" y="26" width="36" height="188" fill="none" stroke="rgba(239,230,226,.2)" stroke-dasharray="3 4"></rect>
+          <rect class="dg-u" style="--d:540ms" x="142" y="26" width="36" height="188" fill="none" stroke="rgba(239,230,226,.2)" stroke-dasharray="3 4"></rect>
 
-          <g stroke="#307351" stroke-width="1.3">
+          <g class="dg-u" style="--d:620ms" stroke="#307351" stroke-width="1.3">
             <path d="M8 56h9m0 0-3-3m3 3-3 3"></path>
             <path d="M8 120h9m0 0-3-3m3 3-3 3"></path>
             <path d="M8 184h9m0 0-3-3m3 3-3 3"></path>
@@ -104,13 +153,13 @@ const comparacoes = [
             <path d="M312 184h-9m0 0 3-3m-3 3 3 3"></path>
           </g>
 
-          <text x="22" y="15" class="ax" text-anchor="middle">LESTE</text>
-          <text x="298" y="15" class="ax" text-anchor="middle">OESTE</text>
-          <text x="160" y="124" class="ax2" text-anchor="middle" transform="rotate(-90 160 124)">corredor</text>
-          <text x="86" y="74" class="ax2" text-anchor="middle">unidade</text>
-          <text x="86" y="174" class="ax2" text-anchor="middle">unidade</text>
-          <text x="234" y="74" class="ax2" text-anchor="middle">unidade</text>
-          <text x="234" y="174" class="ax2" text-anchor="middle">unidade</text>
+          <text class="ax dg-u" style="--d:700ms" x="22" y="15" text-anchor="middle">LESTE</text>
+          <text class="ax dg-u" style="--d:700ms" x="298" y="15" text-anchor="middle">OESTE</text>
+          <text class="ax2 dg-u" style="--d:760ms" x="160" y="124" text-anchor="middle" transform="rotate(-90 160 124)">corredor</text>
+          <text class="ax2 dg-u" style="--d:760ms" x="86" y="74" text-anchor="middle">unidade</text>
+          <text class="ax2 dg-u" style="--d:760ms" x="86" y="174" text-anchor="middle">unidade</text>
+          <text class="ax2 dg-u" style="--d:760ms" x="234" y="74" text-anchor="middle">unidade</text>
+          <text class="ax2 dg-u" style="--d:760ms" x="234" y="174" text-anchor="middle">unidade</text>
         </svg>
       </figure>
 
@@ -131,7 +180,7 @@ const comparacoes = [
         Ser compacto não deveria significar abrir mão de luz, ventilação e qualidade espacial. Foi a
         partir dessa premissa que o WindyCity foi projetado.
       </p>
-      <div class="claim-img bleed-r" data-px="60" data-rv-img>
+      <div class="claim-img bleed-r" data-px="60" data-rv-img="esq">
         <Picture
           src={interna2}
           formats={['avif', 'webp']}
@@ -148,15 +197,22 @@ const comparacoes = [
 </section>
 
 <style>
+  /* ================================================================
+     Base = mobile. Tudo o que é composição de tela grande entra
+     em @media (min-width: 981px) como progressive enhancement.
+     ================================================================ */
   .dif {
     padding-bottom: 0;
   }
 
   .dif-top {
     display: grid;
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-    gap: clamp(40px, 7vw, 120px);
-    margin-bottom: clamp(70px, 9vw, 130px);
+    gap: clamp(36px, 7vw, 120px);
+    margin-bottom: clamp(56px, 8vw, 120px);
+  }
+  /* No mobile a intro NÃO fica presa: a leitura é uma sequência vertical */
+  .dif-intro {
+    position: static;
   }
   .dif-intro .h2-xl {
     margin-bottom: 24px;
@@ -165,25 +221,59 @@ const comparacoes = [
     max-width: 44ch;
   }
 
+  /* Trilho de avanço da coluna fixa (decorativo, só desktop) */
+  .dif-prog {
+    display: none;
+    width: 1px;
+    height: clamp(80px, 9vw, 140px);
+    margin-top: clamp(30px, 3.2vw, 48px);
+    background: var(--rule);
+    position: relative;
+    overflow: hidden;
+  }
+  .dif-prog span {
+    position: absolute;
+    inset: 0;
+    background: var(--verde);
+    transform: scaleY(var(--prog, 0));
+    transform-origin: top center;
+  }
+
   /* Comparações: tipografia carrega o contraste, sem tabela nem caixa */
   .cmp {
     display: grid;
   }
   .cmp-row {
     display: grid;
-    grid-template-columns: 3.2rem 1fr;
-    gap: 4px clamp(14px, 2vw, 28px);
-    padding-block: clamp(26px, 3.4vw, 46px);
+    grid-template-columns: minmax(0, 1fr);
+    padding-block: clamp(26px, 5vw, 46px);
     border-top: 1px solid var(--rule);
   }
   .cmp-row:last-child {
     border-bottom: 1px solid var(--rule);
   }
+
+  /* Fotografia da etapa */
+  .cmp-fig {
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    margin-bottom: clamp(22px, 4.5vw, 36px);
+  }
+  .cmp-fig :global(picture) {
+    display: block;
+    height: 100%;
+  }
+  .cmp-fig :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   .cmp-ix {
-    grid-row: span 2;
+    display: block;
     color: var(--verde);
     letter-spacing: 0.18em;
-    padding-top: 6px;
+    margin-bottom: 14px;
   }
 
   .cmp-m-lbl,
@@ -226,10 +316,17 @@ const comparacoes = [
     flex: none;
   }
 
-  /* Sangria total */
+  /* Sangria total — o zoom fica no wrapper, o parallax no <img> */
   .dif-hero {
     height: clamp(340px, 78vh, 780px);
     overflow: hidden;
+  }
+  .dif-hero-in {
+    height: 100%;
+  }
+  .dif-hero-in :global(picture) {
+    display: block;
+    height: 100%;
   }
   .dif-hero :global(img) {
     width: 100%;
@@ -240,14 +337,15 @@ const comparacoes = [
   /* Diagrama */
   .arch {
     display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: clamp(34px, 6vw, 96px);
+    gap: clamp(30px, 6vw, 88px);
     align-items: center;
-    padding-block: clamp(64px, 9vw, 130px);
+    padding-block: clamp(52px, 7vw, 108px);
   }
   .arch-fig svg {
     width: 100%;
+    max-width: 620px;
     height: auto;
+    margin-inline: auto;
   }
   .arch-fig :global(.ax) {
     font-family: 'Sora', sans-serif;
@@ -262,6 +360,26 @@ const comparacoes = [
     letter-spacing: 0.08em;
     fill: rgba(239, 230, 226, 0.42);
   }
+  /* Construção do esquema: fachadas se desenham, o resto entra em cascata.
+     São 2 traços curtos + opacidade — nada de filter/blur. */
+  .arch-fig :global(.dg-face) {
+    stroke-dasharray: 190;
+    stroke-dashoffset: 190;
+    transition: stroke-dashoffset 1.05s var(--ease-out);
+    transition-delay: var(--d, 0ms);
+  }
+  .arch-fig.is-in :global(.dg-face) {
+    stroke-dashoffset: 0;
+  }
+  .arch-fig :global(.dg-u) {
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-out);
+    transition-delay: var(--d, 0ms);
+  }
+  .arch-fig.is-in :global(.dg-u) {
+    opacity: 1;
+  }
+
   .arch-txt .h3 {
     margin-bottom: 16px;
     max-width: 20ch;
@@ -270,10 +388,11 @@ const comparacoes = [
   /* Fecho com imagem desalinhada */
   .claim-wrap {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: clamp(34px, 6vw, 80px);
+    gap: clamp(30px, 6vw, 80px);
     align-items: center;
-    padding-bottom: clamp(70px, 9vw, 130px);
+    border-top: 1px solid var(--rule);
+    padding-top: clamp(44px, 6vw, 84px);
+    padding-bottom: clamp(64px, 8vw, 120px);
   }
   .claim {
     font-size: clamp(1.35rem, 2.9vw, 2.5rem);
@@ -285,8 +404,12 @@ const comparacoes = [
     text-wrap: balance;
   }
   .claim-img {
-    height: clamp(300px, 52vh, 560px);
+    height: clamp(240px, 46vh, 420px);
     overflow: hidden;
+  }
+  .claim-img :global(picture) {
+    display: block;
+    height: 100%;
   }
   .claim-img :global(img) {
     width: 100%;
@@ -294,28 +417,89 @@ const comparacoes = [
     object-fit: cover;
   }
 
-  @media (max-width: 980px) {
-    .dif-top,
-    .arch,
-    .claim-wrap {
-      grid-template-columns: 1fr;
+  /* ---------------- Desktop ---------------- */
+  @media (min-width: 981px) {
+    .dif-top {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
     }
-    .sticky-col {
-      position: static;
+    .dif-intro {
+      position: sticky;
     }
-    .claim-img {
-      height: clamp(240px, 46vh, 420px);
-      margin-right: calc(50% - 50vw);
+    .dif-prog {
+      display: block;
     }
-  }
-  @media (max-width: 620px) {
+
+    /* Rail do número à esquerda, texto à direita, foto ocupando a coluna */
     .cmp-row {
-      grid-template-columns: 1fr;
-      gap: 0;
+      grid-template-columns: 3.2rem minmax(0, 1fr);
+      column-gap: clamp(14px, 2vw, 28px);
+    }
+    .cmp-fig {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      aspect-ratio: 16 / 10;
+      margin-bottom: clamp(26px, 3vw, 44px);
     }
     .cmp-ix {
-      grid-row: auto;
-      margin-bottom: 14px;
+      grid-column: 1;
+      grid-row: 2;
+      margin-bottom: 0;
+      padding-top: 6px;
+    }
+    .cmp-txt {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    /* Etapa 02: faixa larga sangrando pela direita, e texto ANTES da foto —
+       quebra a cadência de três blocos idênticos */
+    .cmp-row--wide .cmp-fig {
+      margin-right: calc(var(--sangria) * -1);
+      aspect-ratio: 2 / 1;
+    }
+    .cmp-row--flip .cmp-fig {
+      grid-row: 2;
+      margin-bottom: 0;
+      margin-top: clamp(26px, 3vw, 44px);
+    }
+    .cmp-row--flip .cmp-ix,
+    .cmp-row--flip .cmp-txt {
+      grid-row: 1;
+    }
+
+    /* Etapa 03: foto recuada, alinhada à coluna de texto */
+    .cmp-row--inset .cmp-fig {
+      grid-column: 2 / -1;
+      aspect-ratio: 3 / 2;
+    }
+
+    .arch {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    }
+    .arch-txt {
+      border-left: 1px solid var(--rule);
+      padding-left: clamp(24px, 2.6vw, 44px);
+    }
+
+    .claim-wrap {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    }
+    .claim-img {
+      height: clamp(300px, 52vh, 560px);
+    }
+  }
+
+  /* Sem movimento: o esquema aparece inteiro, sem depender de scroll */
+  @media (prefers-reduced-motion: reduce) {
+    .arch-fig :global(.dg-face) {
+      stroke-dasharray: none;
+      stroke-dashoffset: 0;
+    }
+    .arch-fig :global(.dg-u) {
+      opacity: 1;
+    }
+    .dif-prog span {
+      transform: none;
     }
   }
 </style>

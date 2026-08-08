@@ -315,49 +315,86 @@ const schema = {
         if (video && video.readyState >= 1) lerDuracao();
       }
 
-      /* 3a · Parallax nas imagens de sangria.
-         Só desktop: no mobile o ganho visual não paga o custo de scroll. */
-      const camadas = [...document.querySelectorAll<HTMLElement>('[data-px]')];
-      if (camadas.length && !reduz && matchMedia('(min-width: 761px)').matches) {
-        let visiveis: HTMLElement[] = [];
-        const ioPx = new IntersectionObserver(
-          (es) => {
-            for (const e of es) {
-              const el = e.target as HTMLElement;
-              if (e.isIntersecting) {
-                if (!visiveis.includes(el)) visiveis.push(el);
-              } else {
-                visiveis = visiveis.filter((v) => v !== el);
+      /* 3a · Driver único de cena: parallax (--py) + progresso (--prog).
+         UM listener de scroll e UM rAF para a página inteira, em vez de cada
+         seção trazer o seu. Só escreve custom property; quem anima é o CSS,
+         sempre em transform/opacity (compositor).
+
+         [data-px]   → --py em px (parallax). Só desktop: no mobile o ganho
+                       visual não paga o custo de scroll.
+         [data-prog] → --prog de 0 a 1, para scrollytelling. Duas medidas:
+                       padrão  = travessia do elemento pela viewport
+                                 (0 ao encostar embaixo, 1 ao sair em cima);
+                       ="pin"  = avanço dentro de uma cena alta com filho
+                                 sticky (0 no topo da cena, 1 no fim dela).
+         Os dois são simétricos: valem igual descendo e subindo o scroll. */
+      const temParallax = !reduz && matchMedia('(min-width: 761px)').matches;
+      const camadas = [
+        ...document.querySelectorAll<HTMLElement>(temParallax ? '[data-px], [data-prog]' : '[data-prog]'),
+      ];
+
+      if (camadas.length) {
+        if (reduz) {
+          /* Sem movimento: entrega o estado final para o conteúdo aparecer
+             inteiro, sem depender de scroll. */
+          camadas.forEach((el) => {
+            el.style.setProperty('--prog', '1');
+            el.style.setProperty('--py', '0px');
+          });
+        } else {
+          let visiveis: HTMLElement[] = [];
+          const ioCena = new IntersectionObserver(
+            (es) => {
+              for (const e of es) {
+                const el = e.target as HTMLElement;
+                if (e.isIntersecting) {
+                  if (!visiveis.includes(el)) visiveis.push(el);
+                } else {
+                  visiveis = visiveis.filter((v) => v !== el);
+                }
+              }
+              if (visiveis.length) agendar();
+            },
+            { rootMargin: '15% 0px' }
+          );
+          camadas.forEach((el) => ioCena.observe(el));
+
+          const trava = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+          let pendente = false;
+
+          const desenhar = () => {
+            const vh = window.innerHeight;
+            for (const el of visiveis) {
+              const r = el.getBoundingClientRect();
+
+              if (el.dataset.px !== undefined && temParallax) {
+                // -1 (abaixo da tela) → 1 (acima da tela)
+                const p = (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2);
+                const forca = Number(el.dataset.px) || 60;
+                el.style.setProperty('--py', `${(p * forca).toFixed(1)}px`);
+              }
+
+              if (el.dataset.prog !== undefined) {
+                const curso =
+                  el.dataset.prog === 'pin'
+                    ? trava(-r.top / Math.max(r.height - vh, 1))
+                    : trava((vh - r.top) / (vh + r.height));
+                el.style.setProperty('--prog', curso.toFixed(4));
               }
             }
-          },
-          { rootMargin: '15% 0px' }
-        );
-        camadas.forEach((el) => ioPx.observe(el));
+            pendente = false;
+          };
 
-        let pendente = false;
-        const desenhar = () => {
-          const vh = window.innerHeight;
-          for (const el of visiveis) {
-            const r = el.getBoundingClientRect();
-            // -1 (abaixo da tela) → 1 (acima da tela)
-            const p = (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2);
-            const forca = Number(el.dataset.px) || 60;
-            el.style.setProperty('--py', `${(p * forca).toFixed(1)}px`);
-          }
-          pendente = false;
-        };
-        addEventListener(
-          'scroll',
-          () => {
+          function agendar() {
             if (pendente) return;
             pendente = true;
             requestAnimationFrame(desenhar);
-          },
-          { passive: true }
-        );
-        addEventListener('resize', desenhar, { passive: true });
-        desenhar();
+          }
+
+          addEventListener('scroll', agendar, { passive: true });
+          addEventListener('resize', agendar, { passive: true });
+          desenhar();
+        }
       }
 
       /* 3b · CTA flutuante recolhe na hero (já tem botão próprio na primeira

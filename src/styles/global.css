@@ -60,9 +60,17 @@
   --marrom-16: rgba(65, 55, 55, 0.16);
   --marrom-08: rgba(65, 55, 55, 0.08);
 
-  /* Layout */
-  --maxw: 1240px;
-  --gutter: clamp(20px, 5vw, 64px);
+  /* Layout
+     O conteúdo ocupa a largura da tela menos o respiro lateral, em vez de
+     ficar preso numa coluna estreita centralizada (o que deixava ~340px
+     mortos de cada lado em 1920). O respiro cresce junto com a tela e
+     trava em 120px: 6.25vw dá exatamente 120px numa viewport de 1920.
+     --maxw só entra como trava em telas muito largas (>2200), pra linha
+     de leitura não virar uma faixa infinita em monitor ultrawide. */
+  --maxw: 2200px;
+  --gutter: clamp(20px, 6.25vw, 120px);
+  /* Da borda de conteúdo do .wrap até a borda da tela — base da sangria */
+  --sangria: calc((100vw - min(100vw, var(--maxw))) / 2 + var(--gutter));
   --section-y: clamp(84px, 11vw, 168px);
   --radius: 3px;
 
@@ -351,12 +359,17 @@ h4 {
   margin-left: 50%;
   transform: translateX(-50%);
 }
-/* Sangra só de um lado — mantém o eixo de leitura e desalinha a imagem */
+/* Sangra só de um lado — mantém o eixo de leitura e desalinha a imagem.
+   `--sangria` é a distância entre a borda de conteúdo do .wrap e a borda
+   da tela. Usar essa medida (em vez do antigo `50% - 50vw`) deixa a
+   sangria independente de aninhamento: em `50% - 50vw` o 50% vale sobre o
+   container mais próximo, então dentro de uma coluna de grid a conta
+   estourava a largura da tela. */
 .bleed-r {
-  margin-right: calc(50% - 50vw);
+  margin-right: calc(var(--sangria) * -1);
 }
 .bleed-l {
-  margin-left: calc(50% - 50vw);
+  margin-left: calc(var(--sangria) * -1);
 }
 
 /* Coluna que fica parada enquanto a outra rola */
@@ -615,11 +628,58 @@ h4 {
     clip-path 0.85s var(--ease-out),
     transform 1.1s var(--ease-out);
 }
+/* Direção da máscara. O padrão abre de baixo para cima; estas variantes
+   dão ritmo diferente entre dobras vizinhas sem inventar outra linguagem —
+   é sempre o mesmo recorte, só muda de onde ele abre. */
+[data-rv-img='esq'] img {
+  clip-path: inset(0 100% 0 0);
+}
+[data-rv-img='dir'] img {
+  clip-path: inset(0 0 0 100%);
+}
+[data-rv-img='cima'] img {
+  clip-path: inset(100% 0 0 0);
+}
+[data-rv-img='centro'] img {
+  clip-path: inset(0 50% 0 50%);
+}
 [data-rv-img].is-in img {
   clip-path: inset(0 0 0 0);
 }
 [data-rv-img]:not([data-px]).is-in img {
   transform: scale(1);
+}
+
+/* ---------- Cena guiada pelo scroll ----------
+   O driver em Base.astro publica --prog (0→1) nos elementos [data-prog].
+   Daqui pra baixo é só CSS: nada de JS por seção.
+
+   .cena-alta  → recipiente alto que segura um filho sticky (pin)
+   .cena-fixa  → o filho que fica presente enquanto a cena passa
+   .cena-zoom  → escala sutil conduzida pelo avanço do scroll */
+.cena-alta {
+  position: relative;
+}
+.cena-fixa {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+.cena-zoom {
+  transform: scale(calc(1 + var(--prog, 0) * var(--zoom, 0.08)));
+  transform-origin: center;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cena-fixa {
+    position: static;
+    height: auto;
+  }
+  .cena-zoom {
+    transform: none;
+  }
 }
 
 /* Revelação de texto linha a linha (usado no h1) */

@@ -1,6 +1,19 @@
 ---
+import { Picture } from 'astro:assets';
 import { EMPREENDIMENTO } from '../config';
 import MapaLocalizacao from './MapaLocalizacao.astro';
+
+/* A mídia de abertura é a fachada com a rua e o ponto de ônibus à vista —
+   o mesmo enquadramento em que o vídeo de drone vai nascer antes de subir
+   e revelar a região. Usar aqui a foto aérea da Arena repetiria, poucos
+   blocos abaixo, exatamente a imagem do ponto 01. */
+import aberturaRua from '../assets/images/fachada-dia-hd.jpg';
+import arena from '../assets/images/loc-arena.jpg';
+import mobilidade from '../assets/images/loc-mobilidade.jpg';
+import pucpr from '../assets/images/loc-pucpr.jpg';
+import shopping from '../assets/images/loc-shopping.jpg';
+import restaurante from '../assets/images/loc-restaurante.jpg';
+import farmacia from '../assets/images/loc-farmacia.jpg';
 
 /* Conteúdo exato do wireframe aprovado. O travessão separa título e
    descrição — a quebra é só hierarquia tipográfica, o texto é o mesmo. */
@@ -17,11 +30,13 @@ const pontos = [
 ---
 
 <section class="section theme-branco loc" id="localizacao" aria-labelledby="loc-t">
-  <div class="wrap">
-    <p class="eyebrow" data-rv>Localização</p>
-    <h2 class="h2-xl" id="loc-t" data-rv style="--d:40ms">
-      Viva a cidade com mais <em class="ac">autonomia</em>
-    </h2>
+  <div class="wrap loc-head">
+    <div class="loc-head-t">
+      <p class="eyebrow" data-rv>Localização</p>
+      <h2 class="h2-xl" id="loc-t" data-rv style="--d:40ms">
+        Viva a cidade com mais <em class="ac">autonomia</em>
+      </h2>
+    </div>
     <p class="body loc-body" data-rv style="--d:70ms">
       O WindyCity está em uma região conectada a transporte, universidades, serviços, lazer e aos
       principais movimentos de Curitiba — com ponto de ônibus em frente e menor dependência do
@@ -29,29 +44,155 @@ const pontos = [
     </p>
   </div>
 
+  <!-- ==========================================================================
+       MÍDIA PRINCIPAL DA DOBRA — bloco isolado de propósito.
+       Quando o vídeo de drone (subida da fachada revelando a cidade) chegar,
+       trocar SOMENTE o <Picture> abaixo por um <video autoplay muted loop
+       playsinline poster="..."> com as mesmas regras de .loc-media img
+       (width/height 100% + object-fit:cover). Nada mais da dobra muda:
+       o parallax (data-px) e a revelação por máscara (data-rv-img) ficam no
+       <figure>, não no conteúdo.
+       ========================================================================== -->
+  <figure class="bleed loc-media" data-px="70" data-rv-img>
+    <Picture
+      src={aberturaRua}
+      formats={['avif', 'webp']}
+      fallbackFormat="webp"
+      widths={[760, 1100, 1500, 1920, 2400]}
+      sizes="100vw"
+      alt="Fachada do WindyCity vista da rua em dia de sol, com calçada arborizada e ponto de ônibus em frente"
+      loading="lazy"
+      decoding="async"
+    />
+  </figure>
+
   <MapaLocalizacao />
 
   <div class="wrap">
-    <!-- Pontos de interesse vêm antes do Walk Score -->
-    <ul class="pontos">
-      {
-        pontos.map((p, i) => (
-          <li class="ponto" data-rv style={`--d:${i * 55}ms`}>
-            <span class="ponto-i label">{String(i + 1).padStart(2, '0')}</span>
-            <span class="ponto-t">{p.t}</span>
-            <span class="ponto-d">{p.d}</span>
-          </li>
-        ))
-      }
-    </ul>
+    <!-- Pontos de interesse vêm antes do Walk Score.
+         Mobile: foto e texto se intercalam (grid + order) num fluxo vertical.
+         Desktop: as fotos viram um painel sticky que troca em crossfade
+         conforme o ponto ativo — mesma marcação, sem duplicar imagem. -->
+    <div class="loc-cols" data-loc-pontos>
+      <div class="loc-fotos">
+        <figure class="loc-foto is-ativo" data-foto style="--o:1" data-rv-img>
+          <Picture
+            src={arena}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[460, 700, 950, 1240, 1600]}
+            sizes="(max-width: 980px) 90vw, 40vw"
+            alt="Arena da Baixada vista de cima à noite, com a fachada iluminada em vermelho"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
 
-    <!-- Walk Score fecha a seção -->
-    <div class="score theme-preto" data-rv>
-      <div class="score-n">
+        <figure class="loc-foto" data-foto style="--o:3" data-rv-img="esq">
+          <Picture
+            src={mobilidade}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[420, 640, 900, 1240]}
+            sizes="(max-width: 980px) 90vw, 40vw"
+            alt="Estações-tubo de Curitiba com ônibus biarticulado vermelho e prédio histórico ao fundo"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+
+        <figure class="loc-foto" data-foto style="--o:5" data-rv-img>
+          <Picture
+            src={pucpr}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[420, 640, 900, 1200]}
+            sizes="(max-width: 980px) 90vw, 40vw"
+            alt="Campus da PUCPR, com bloco de fachada vermelha e passarela de acesso"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+
+        <!-- Cotidiano reúne as três fotos de serviço: o Shopping Estação
+             conduz a composição e restaurante/farmácia entram como apoio.
+             A farmácia é o arquivo de menor resolução (555px) — por isso
+             só aparece em miniatura, recortada (o cover corta os cantos
+             arredondados que já vêm embutidos no JPG). -->
+        <figure class="loc-foto loc-foto--col" data-foto style="--o:7" data-rv-img>
+          <div class="lc-main">
+            <Picture
+              src={shopping}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[360, 560, 800, 1040]}
+              sizes="(max-width: 980px) 59vw, 26vw"
+              alt="Fachada curva do Shopping Estação, com o relógio no alto"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="lc-t">
+            <Picture
+              src={restaurante}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[200, 320, 460]}
+              sizes="(max-width: 980px) 31vw, 14vw"
+              alt="Fachada amarela do Restaurante Peixinho, entre palmeiras"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="lc-t">
+            <Picture
+              src={farmacia}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[180, 280, 420]}
+              sizes="(max-width: 980px) 31vw, 14vw"
+              alt="Fachada de farmácia Droga Raia aberta 24 horas"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </figure>
+
+        <!-- O quinto ponto não tem foto própria (e nenhuma das disponíveis
+             o representa sem forçar sentido): entra como placa tipográfica
+             na cor da marca, para o painel nunca ficar vazio. -->
+        <figure class="loc-foto loc-foto--placa" data-foto style="--o:9" aria-hidden="true">
+          <span class="placa-n">05</span>
+        </figure>
+      </div>
+
+      <ul class="pontos">
+        {
+          pontos.map((p, i) => (
+            <li
+              class:list={['ponto', { 'is-ativo': i === 0 }]}
+              data-ponto
+              data-rv
+              style={`--d:${i * 55}ms;--o:${i * 2 + 2}`}
+            >
+              <span class="ponto-i label">{String(i + 1).padStart(2, '0')}</span>
+              <span class="ponto-t">{p.t}</span>
+              <span class="ponto-d">{p.d}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <!-- Walk Score fecha a seção — faixa preta em sangria total -->
+  <div class="score theme-preto bleed">
+    <div class="wrap score-in">
+      <div class="score-n" data-rv>
         <span class="num-xl" data-count={EMPREENDIMENTO.walkScore}>0</span>
         <span class="label score-esc">de 0 a 100</span>
       </div>
-      <div class="score-t">
+      <div class="score-t" data-rv style="--d:90ms">
         <h3 class="h3">Walk Score {EMPREENDIMENTO.walkScore}</h3>
         <p>
           Walk Score é um índice internacional que avalia, de 0 a 100, o quanto uma região permite
@@ -62,8 +203,22 @@ const pontos = [
           universidades e lazer próximos, com pouca ou nenhuma dependência de carro.
         </p>
       </div>
+      <!-- Régua do índice: representação gráfica do valor na escala 0–100 já
+           informada ao lado. Decorativa, sem texto novo. O preenchimento sai
+           do mesmo EMPREENDIMENTO.walkScore do número — nunca de um % fixo no
+           CSS, senão a régua desencontra do dado se o config mudar. -->
+      <div
+        class="score-reg"
+        data-rv
+        style={`--d:150ms;--pct:${EMPREENDIMENTO.walkScore}%`}
+        aria-hidden="true"
+      >
+        <span class="score-reg-fill"></span>
+      </div>
     </div>
+  </div>
 
+  <div class="wrap">
     <div class="loc-cta" data-rv>
       <a class="btn btn--ghost" href="#contato">
         <span>Ver o entorno</span>
@@ -81,28 +236,114 @@ const pontos = [
 </section>
 
 <style>
+  /* ---------------- Abertura editorial ---------------- */
   #loc-t {
     max-width: 16ch;
     margin-bottom: 24px;
   }
   .loc-body {
     max-width: 54ch;
-    margin-bottom: clamp(46px, 6vw, 82px);
+    margin-bottom: clamp(38px, 5vw, 64px);
+  }
+
+  /* ---------------- Mídia principal (slot do vídeo de drone) ---------------- */
+  .loc-media {
+    position: relative;
+    overflow: hidden;
+    height: clamp(300px, 62vh, 720px);
+    margin-bottom: clamp(40px, 6vw, 72px);
+    background: var(--marrom-08);
+  }
+  .loc-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---------------- Pontos + fotos ----------------
+     Base (mobile): uma coluna só; foto e texto se alternam pelo `order`,
+     publicado em --o na marcação. `display:contents` nos dois recipientes
+     faz figuras e itens virarem irmãos na mesma grade — é o que permite
+     intercalar sem duplicar nenhuma imagem no HTML. */
+  .loc-cols {
+    display: grid;
+    margin-bottom: clamp(50px, 7vw, 90px);
+  }
+  .loc-fotos,
+  .pontos {
+    display: contents;
+  }
+
+  .loc-foto {
+    order: var(--o, 0);
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--marrom-08);
+    aspect-ratio: 16 / 10;
+    margin-bottom: 16px;
+  }
+  .loc-foto :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Cotidiano: principal + duas miniaturas de apoio */
+  .loc-foto--col {
+    display: grid;
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    background: none;
+  }
+  .loc-foto--col > * {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--marrom-08);
+  }
+  .loc-foto--col .lc-main {
+    grid-row: 1 / span 2;
+  }
+
+  /* Placa do quinto ponto */
+  .loc-foto--placa {
+    background: var(--verde);
+    display: grid;
+    place-items: center;
+  }
+  .loc-foto--placa::after {
+    content: '';
+    position: absolute;
+    inset: clamp(10px, 2.5vw, 22px);
+    border: 1px solid var(--bege-40);
+    pointer-events: none;
+  }
+  .placa-n {
+    font-family: 'TimesWC', 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--bege);
+    font-size: clamp(6rem, 20vw, 14rem);
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    font-variant-numeric: lining-nums;
   }
 
   /* Lista editorial: sem cards, só ritmo tipográfico e fio */
-  .pontos {
-    border-top: 1px solid var(--rule);
-    margin-bottom: clamp(56px, 7vw, 100px);
-  }
   .ponto {
+    order: var(--o, 0);
     display: grid;
-    grid-template-columns: 3.6rem minmax(0, 15rem) minmax(0, 1fr);
-    gap: clamp(16px, 3vw, 48px);
-    align-items: baseline;
-    padding-block: clamp(20px, 2.4vw, 30px);
+    grid-template-columns: 2.4rem 1fr;
+    gap: 6px 14px;
+    align-items: start;
+    padding-bottom: clamp(22px, 4vw, 30px);
+    margin-bottom: clamp(30px, 6vw, 44px);
     border-bottom: 1px solid var(--rule);
-    transition: opacity 0.35s var(--ease);
+  }
+  .ponto:last-child {
+    margin-bottom: 0;
   }
   .ponto-i {
     color: var(--verde);
@@ -115,33 +356,30 @@ const pontos = [
     line-height: 1.2;
   }
   .ponto-d {
+    grid-column: 2;
     font-size: 0.9375rem;
     line-height: 1.55;
     color: var(--fg-soft);
-  }
-  /* Foco por atenuação: destaca o item sob o cursor sem caixa nem borda */
-  .pontos:hover .ponto {
-    opacity: 0.42;
-  }
-  .pontos:hover .ponto:hover {
-    opacity: 1;
+    /* trava a linha de leitura: sem isso a descrição ganhava ~920px de
+       caixa pra um texto de meia linha, deixando um vão enorme à direita */
+    max-width: 46ch;
   }
 
-  /* Walk Score */
+  /* ---------------- Walk Score ---------------- */
   .score {
     background: var(--preto);
     color: var(--bege);
-    padding: clamp(30px, 4.4vw, 68px);
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: clamp(30px, 6vw, 90px);
-    align-items: center;
+    padding-block: clamp(44px, 7vw, 96px);
     margin-bottom: clamp(38px, 5vw, 60px);
+  }
+  .score-in {
+    display: grid;
+    gap: clamp(24px, 4vw, 40px);
   }
   .score-n {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
+    align-items: baseline;
+    gap: 18px;
   }
   .score-n .num-xl {
     color: var(--bege);
@@ -165,33 +403,205 @@ const pontos = [
     color: var(--bege-60);
   }
 
+  /* Régua 0–100: cresce em scaleX (compositor). A largura vem de --pct,
+     publicado na marcação a partir do config. */
+  .score-reg {
+    position: relative;
+    height: 2px;
+    background: var(--bege-14);
+  }
+  .score-reg-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--pct, 92%);
+    background: var(--verde);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 1.05s var(--ease-out) 0.15s;
+  }
+  .score-reg.is-in .score-reg-fill {
+    transform: scaleX(1);
+  }
+
   .loc-cta {
     display: flex;
   }
+  .loc-cta .btn {
+    width: 100%;
+  }
 
-  @media (max-width: 900px) {
-    .ponto {
-      grid-template-columns: 2.4rem 1fr;
-      gap: 6px 14px;
+  /* ==========================================================================
+     Desktop: painel de fotos sticky + lista rolando ao lado
+     ========================================================================== */
+  @media (min-width: 981px) {
+    .loc-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: clamp(40px, 5vw, 96px);
+      align-items: end;
+    }
+    #loc-t {
+      margin-bottom: 0;
+    }
+    .loc-body {
+      margin-bottom: 0;
+      padding-bottom: 6px;
+    }
+    .loc-head {
+      margin-bottom: clamp(48px, 6vw, 82px);
+    }
+
+    .loc-cols {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      column-gap: clamp(40px, 5vw, 96px);
       align-items: start;
     }
-    .ponto-d {
-      grid-column: 2;
+    /* volta a ser caixa: as figuras deixam de ser itens da grade e passam
+       a se empilhar dentro do painel que fica preso na tela */
+    .loc-fotos {
+      display: block;
+      position: sticky;
+      top: clamp(92px, 13vh, 148px);
+      height: min(64vh, 640px);
     }
-    .pontos:hover .ponto {
+    .loc-foto {
+      position: absolute;
+      inset: 0;
+      aspect-ratio: auto;
+      margin-bottom: 0;
+      opacity: 0;
+      transform: translate3d(0, 14px, 0);
+      transition:
+        opacity 0.55s var(--ease),
+        transform 0.7s var(--ease);
+    }
+    .loc-foto.is-ativo {
       opacity: 1;
+      transform: translate3d(0, 0, 0);
     }
-    .score {
-      grid-template-columns: 1fr;
-      gap: 22px;
+
+    .pontos {
+      display: block;
+      border-top: 1px solid var(--rule);
+    }
+    /* Linhas altas de propósito: é a distância de rolagem delas que dá
+       tempo ao painel de ficar preso e trocar de foto com calma. */
+    .ponto {
+      grid-template-columns: 3.6rem minmax(0, 1fr);
+      gap: 12px clamp(16px, 2vw, 34px);
+      align-content: center;
+      min-height: clamp(180px, 25vh, 265px);
+      padding-block: clamp(26px, 3vw, 40px);
+      margin-bottom: 0;
+      /* espaço pro marcador do item ativo, à esquerda do número */
+      padding-left: 24px;
+      position: relative;
+    }
+    .ponto-t {
+      font-size: clamp(1.25rem, 2.1vw, 1.85rem);
+    }
+    .ponto-d {
+      font-size: 1rem;
+    }
+    /* Marcador do ponto ativo: fio verde que cresce — sem dimmer no texto,
+       para não derrubar o contraste dos itens inativos. */
+    .ponto::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: clamp(26px, 3vw, 40px);
+      bottom: clamp(26px, 3vw, 40px);
+      width: 2px;
+      background: var(--verde);
+      transform: scaleY(0);
+      transform-origin: top center;
+      transition: transform 0.5s var(--ease);
+    }
+    .ponto.is-ativo::before {
+      transform: scaleY(1);
+    }
+    .ponto-i {
+      color: var(--fg-faint);
+      transition: color 0.4s var(--ease);
+    }
+    .ponto.is-ativo .ponto-i {
+      color: var(--verde);
+    }
+
+    .score-in {
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: clamp(40px, 6vw, 90px);
+      row-gap: clamp(34px, 4vw, 56px);
+      align-items: center;
     }
     .score-n {
-      flex-direction: row;
-      align-items: baseline;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .score-reg {
+      grid-column: 1 / -1;
+    }
+
+    .loc-cta .btn {
+      width: auto;
+    }
+  }
+
+  /* Sem movimento: o painel sticky deixa de existir e as fotos voltam ao
+     fluxo. É obrigatório porque a regra global de reduced-motion força
+     opacity:1 em [data-rv-img] — empilhadas em absoluto, as cinco
+     apareceriam sobrepostas. */
+  @media (min-width: 981px) and (prefers-reduced-motion: reduce) {
+    .loc-fotos {
+      position: static;
+      height: auto;
+      display: grid;
       gap: 18px;
     }
-    .loc-cta .btn {
-      width: 100%;
+    .loc-foto {
+      position: relative;
+      inset: auto;
+      aspect-ratio: 16 / 10;
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .loc-foto,
+    .ponto::before,
+    .score-reg-fill,
+    .ponto-i {
+      transition: none;
     }
   }
 </style>
+
+<script>
+  /* Ponto ativo do painel sticky. Sem listener de scroll: uma faixa estreita
+     no meio da viewport (rootMargin negativo em cima e embaixo) decide qual
+     item está em foco. Simétrico — descendo pega o item que entra, subindo
+     pega o anterior, porque findIndex sempre devolve o de menor índice em
+     foco. Se nenhum item estiver na faixa (vãos no mobile), mantém o último. */
+  const raiz = document.querySelector<HTMLElement>('[data-loc-pontos]');
+  if (raiz) {
+    const itens = [...raiz.querySelectorAll<HTMLElement>('[data-ponto]')];
+    const fotos = [...raiz.querySelectorAll<HTMLElement>('[data-foto]')];
+    let atual = 0;
+
+    const io = new IntersectionObserver(
+      (entradas) => {
+        for (const e of entradas) {
+          (e.target as HTMLElement).dataset.foco = e.isIntersecting ? '1' : '';
+        }
+        const i = itens.findIndex((el) => el.dataset.foco === '1');
+        if (i < 0 || i === atual) return;
+        atual = i;
+        itens.forEach((el, k) => el.classList.toggle('is-ativo', k === i));
+        fotos.forEach((el, k) => el.classList.toggle('is-ativo', k === i));
+      },
+      { rootMargin: '-45% 0px -45% 0px' }
+    );
+    itens.forEach((el) => io.observe(el));
+  }
+</script>

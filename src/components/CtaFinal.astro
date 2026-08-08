@@ -1,6 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
-import fundo from '../assets/images/interna-04.png';
+import fundo from '../assets/images/fachada-noite-hd.jpg';
 import { CONTATO } from '../config';
 
 /* Enquanto o número real não chega, o form avisa em vez de abrir link quebrado. */
@@ -8,12 +8,12 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
 ---
 
 <section class="cta" id="contato" aria-labelledby="ct-t">
-  <div class="cta-bg" aria-hidden="true">
+  <div class="cta-bg" aria-hidden="true" data-rv-img="centro">
     <Picture
       src={fundo}
       formats={['avif', 'webp']}
       fallbackFormat="webp"
-      widths={[760, 1100, 1500, 1920]}
+      widths={[640, 960, 1280, 1600, 1920]}
       sizes="100vw"
       alt=""
       loading="lazy"
@@ -41,65 +41,95 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
         <li>
           <span class="label">Instagram</span>
           <a class="cta-v cta-link" href={CONTATO.instagramUrl} target="_blank" rel="noopener">
-            {CONTATO.instagram}
+            <span class="cta-link-t">{CONTATO.instagram}</span>
+            <svg class="cta-arw" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path
+                d="M3 9 9 3m0 0H4.6M9 3v4.4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
           </a>
         </li>
       </ul>
     </div>
 
-    <form class="form" data-lead data-wa={waBase} novalidate data-rv style="--d:200ms">
-      <div class="f-row">
-        <label for="f-nome">Nome</label>
-        <input id="f-nome" name="nome" type="text" placeholder="Seu nome" autocomplete="name" required />
-      </div>
-      <div class="f-row">
-        <label for="f-wa">WhatsApp</label>
-        <input
-          id="f-wa"
-          name="whatsapp"
-          type="tel"
-          inputmode="tel"
-          placeholder="(XX) XXXXX-XXXX"
-          autocomplete="tel"
-          data-tel
-          required
-        />
-      </div>
-      <div class="f-row">
-        <label for="f-tipo">Tipologia de interesse</label>
-        <div class="f-sel">
-          <select id="f-tipo" name="tipologia">
-            <option>Studio</option>
-            <option>Garden</option>
-            <option>Ainda não sei</option>
-          </select>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M4 6.5 8 10.5l4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </div>
-      </div>
+    <div class="form-wrap" data-rv style="--d:200ms">
+      <form class="form" data-lead data-wa={waBase} novalidate>
+        <span class="form-bar" aria-hidden="true"></span>
 
-      <button class="btn btn--block form-btn" type="submit">
-        <span>Receber material e falar no WhatsApp</span>
-      </button>
-      <p class="form-msg" data-form-msg role="status" aria-live="polite"></p>
-      <p class="form-note">Você será direcionado ao WhatsApp de um corretor Girassol</p>
-    </form>
+        <div class="f-row" style="--i:0">
+          <label for="f-nome">Nome</label>
+          <input id="f-nome" name="nome" type="text" placeholder="Seu nome" autocomplete="name" required />
+        </div>
+        <div class="f-row" style="--i:1">
+          <label for="f-wa">WhatsApp</label>
+          <input
+            id="f-wa"
+            name="whatsapp"
+            type="tel"
+            inputmode="tel"
+            placeholder="(XX) XXXXX-XXXX"
+            autocomplete="tel"
+            data-tel
+            required
+          />
+        </div>
+        <div class="f-row" style="--i:2">
+          <label for="f-tipo">Tipologia de interesse</label>
+          <div class="f-sel">
+            <select id="f-tipo" name="tipologia">
+              <option>Studio</option>
+              <option>Garden</option>
+              <option>Ainda não sei</option>
+            </select>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 6.5 8 10.5l4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+
+        <button class="btn btn--block form-btn" type="submit" style="--i:3">
+          <span>Receber material e falar no WhatsApp</span>
+          <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M2 8h11m0 0L9 4m4 4l-4 4"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </button>
+        <p class="form-msg" data-form-msg role="status" aria-live="polite"></p>
+        <p class="form-note" style="--i:4">Você será direcionado ao WhatsApp de um corretor Girassol</p>
+      </form>
+    </div>
   </div>
 </section>
 
 <style>
-  /* Seção sobre imagem: o verde vira véu, não chapa */
+  /* Seção sobre imagem: o verde vira véu, não chapa.
+     A foto é a fachada noturna — já escura, com as janelas acesas como único
+     ponto de luz. Isso deixa baixar a opacidade do véu no miolo e a
+     arquitetura finalmente aparece, sem virar ruído: quem fica sobre a foto
+     é só a coluna de texto (canto superior, onde o véu é quase sólido); o
+     formulário é um card opaco. */
   .cta {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    padding-block: clamp(84px, 11vw, 168px);
+    padding-block: var(--section-y);
+    /* base explícita: antes de a máscara da foto abrir, o que se vê é o véu
+       sobre preto — declarar evita depender do fundo do <body> */
+    background: var(--preto);
     color: var(--bege);
     --fg: var(--bege);
     --fg-soft: var(--bege-60);
     --fg-faint: var(--bege-40);
     --rule: var(--bege-14);
+    /* espessura da medida verde — mesma linguagem das barras de Condições */
+    --bar: clamp(2px, 0.22vw, 3px);
   }
   .cta-bg {
     position: absolute;
@@ -110,13 +140,69 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 50% 46%;
+  }
+  /* A foto entra por máscara (contrato global data-rv-img), mas SEM a escala
+     de repouso do padrão: nada pode se mexer atrás dos campos, nem por 1s.
+     Especificidade propositalmente acima de `[data-rv-img]:not([data-px]) img`
+     para não depender da ordem de injeção do CSS.
+     Variante "centro": a fachada abre do eixo para as bordas — fecha a página
+     como um plano de cinema, e numa imagem panorâmica (3200x1786) lê muito
+     melhor que a cortina vertical. Mesmo recorte usado no fecho de Áreas
+     Comuns (.acs-fecho-media), que é a outra imagem panorâmica do site. */
+  .cta .cta-bg[data-rv-img] :global(img) {
+    transform: none;
+    transition: clip-path 1.25s var(--ease-out);
   }
   .cta-veil {
     position: absolute;
     inset: 0;
     z-index: -1;
     background:
-      linear-gradient(115deg, rgba(48, 115, 81, 0.96) 0%, rgba(48, 115, 81, 0.82) 46%, rgba(1, 8, 17, 0.86) 100%);
+      /* 1 · scrim de leitura, VERDE: fecha a coluna esquerda, onde o texto cai
+         sobre a foto (a fachada noturna tem varandas quase brancas que comiam
+         o lede). Horizontal de propósito — acompanha a coluna em qualquer
+         largura, ao contrário da diagonal. Verde e não preto para apagar o
+         realce da foto sem escurecer a seção nem sujar a cor da marca. */
+      linear-gradient(
+        90deg,
+        rgba(48, 115, 81, 0.8) 0%,
+        rgba(48, 115, 81, 0.74) 34%,
+        rgba(48, 115, 81, 0.66) 48%,
+        rgba(48, 115, 81, 0.24) 57%,
+        rgba(48, 115, 81, 0) 66%
+      ),
+      /* 2 · rebaixamento sob o mesmo trecho: o #307351 puro só entrega ~4,2:1
+         com bege, então o texto precisa de um fundo no máximo tão claro
+         quanto o verde chapado. Um ponto de preto garante isso sem virar
+         chapa escura. */
+      linear-gradient(
+          90deg,
+          rgba(1, 8, 17, 0.3) 0%,
+          rgba(1, 8, 17, 0.28) 34%,
+          rgba(1, 8, 17, 0.25) 48%,
+          rgba(1, 8, 17, 0.09) 57%,
+          rgba(1, 8, 17, 0) 66%
+        ),
+      /* 3 · diagonal de marca: verde cheio no canto do texto, janela aberta
+         no miolo (onde está o prédio iluminado), preto no fim */
+      linear-gradient(
+          112deg,
+          rgba(48, 115, 81, 0.96) 0%,
+          rgba(48, 115, 81, 0.88) 24%,
+          rgba(48, 115, 81, 0.56) 46%,
+          rgba(1, 8, 17, 0.46) 60%,
+          rgba(1, 8, 17, 0.8) 82%,
+          rgba(1, 8, 17, 0.93) 100%
+        ),
+      /* 4 · solda com o rodapé preto e reforça o topo sob o eyebrow */
+      linear-gradient(
+          180deg,
+          rgba(1, 8, 17, 0.45) 0%,
+          rgba(1, 8, 17, 0.08) 22%,
+          rgba(1, 8, 17, 0.1) 58%,
+          rgba(1, 8, 17, 0.84) 100%
+        );
   }
   .cta :global(.eyebrow) {
     color: var(--bege);
@@ -124,7 +210,7 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
 
   .cta-in {
     display: grid;
-    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
     gap: clamp(36px, 6vw, 92px);
     align-items: center;
   }
@@ -132,33 +218,84 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
     margin-bottom: 22px;
     max-width: 15ch;
   }
+  /* bege cheio, não bege-80: sobre o verde institucional o texto corrido a 80%
+     ficava em ~2,7:1. Com bege sólido chega ao teto que a cor da marca
+     permite (~4,3:1) sem inventar cor nova. */
   .cta-lede {
-    color: var(--bege-80);
-    margin-bottom: clamp(26px, 3.4vw, 40px);
+    color: var(--bege);
+    margin-bottom: clamp(30px, 3.6vw, 44px);
   }
 
+  /* Contatos como tabela editorial (mesma lógica da faixa de valores em
+     Condições): rótulo à esquerda, valor grande à direita, fio entre linhas. */
   .cta-ct {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px 48px;
+    display: grid;
+    max-width: 30rem;
+    border-bottom: 1px solid var(--rule);
   }
   .cta-ct li {
+    position: relative;
     display: grid;
-    gap: 6px;
+    grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr);
+    align-items: baseline;
+    gap: 8px 20px;
+    padding-block: clamp(14px, 1.6vw, 19px);
+    border-top: 1px solid var(--rule);
   }
+  /* Medida que corre sobre o fio de cada linha ao entrar — mesma leitura das
+     barras de Condições, agora como assinatura de fechamento. Só scaleX.
+     Vai em BEGE, não em verde: aqui o fundo é o próprio véu verde, e o
+     #307351 chapado sobre ele some. É a mesma decisão já tomada no design
+     system para o .eyebrow em temas escuros. */
+  .cta-ct li::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--bege);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.85s var(--ease-out);
+    transition-delay: calc(var(--d, 0ms) + 300ms + var(--i, 0) * 110ms);
+  }
+  .cta-ct.is-in li::before {
+    transform: scaleX(1);
+  }
+  .cta-ct li:nth-child(2) {
+    --i: 1;
+  }
+  /* bege-60 era o limite de legibilidade sobre o verde institucional; 80%
+     recupera o rótulo sem inventar cor nova */
   .cta-ct .label {
-    color: var(--bege-60);
+    color: var(--bege-80);
   }
+  /* O número é o CTA de verdade desta coluna: sobe de escala e ganha
+     tabular-nums para os dígitos não dançarem quando o real substituir o
+     placeholder. */
   .cta-v {
-    font-size: 1rem;
+    font-size: clamp(1.0625rem, 1.9vw, 1.55rem);
     font-weight: 600;
+    letter-spacing: -0.02em;
     color: var(--bege);
+    font-variant-numeric: lining-nums tabular-nums;
   }
   .cta-link {
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
     width: fit-content;
+    /* alvo de toque confortável sem alterar o ritmo da tabela */
+    padding-block: 6px;
+    margin-block: -6px;
+    transition: color 0.25s var(--ease);
   }
-  .cta-link::after {
+  .cta-link-t {
+    position: relative;
+  }
+  .cta-link-t::after {
     content: '';
     position: absolute;
     left: 0;
@@ -166,26 +303,126 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
     width: 100%;
     height: 1px;
     background: currentColor;
-    opacity: 0.45;
-    transition: opacity 0.3s ease;
+    opacity: 0.4;
+    transform-origin: left;
+    transition: opacity 0.3s var(--ease);
   }
-  .cta-link:hover::after {
+  .cta-arw {
+    flex: none;
+    opacity: 0.65;
+    transition:
+      transform 0.35s var(--ease),
+      opacity 0.35s var(--ease);
+  }
+  .cta-link:hover .cta-link-t::after {
     opacity: 1;
+  }
+  .cta-link:hover .cta-arw {
+    transform: translate3d(2px, -2px, 0);
+    opacity: 1;
+  }
+  .cta-link:focus-visible {
+    outline: 2px solid var(--bege);
+    outline-offset: 4px;
+    border-radius: 2px;
   }
 
   /* --- Formulário --- */
+  .form-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    margin-left: auto;
+  }
+  /* Registro deslocado: moldura de 1px fora de esquadro atrás do card.
+     Detalhe de impresso. Entra em opacidade pura e nunca mais se move:
+     não desloca nada, não participa do layout. */
+  .form-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 18px -18px -18px 18px;
+    border: 1px solid var(--bege-40);
+    border-radius: var(--radius);
+    pointer-events: none;
+    /* entra por último, em opacidade pura: a moldura continua sem deslocar
+       nada (zero layout shift), só deixa de existir antes da hora */
+    opacity: 0;
+    transition: opacity 0.8s var(--ease-out) 0.72s;
+  }
+  .form-wrap.is-in::before {
+    opacity: 1;
+  }
   .form {
+    --pad: clamp(26px, 3.2vw, 44px);
+    position: relative;
     background: var(--bege);
     color: var(--marrom);
     border-radius: var(--radius);
-    padding: clamp(24px, 3.4vw, 46px);
+    padding: var(--pad);
     display: grid;
-    gap: 18px;
-    box-shadow: 0 30px 80px rgba(1, 8, 17, 0.3);
+    gap: 16px;
+    box-shadow: 0 34px 90px rgba(1, 8, 17, 0.42);
+  }
+  /* Medida verde no topo do card: mesmo elemento gráfico das etapas de
+     Condições, encerrando a progressão dentro do formulário. Fora do fluxo
+     do grid (absoluto), então não abre gap nem empurra campo nenhum. */
+  .form-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--bar);
+    background: var(--verde);
+    border-radius: var(--radius) var(--radius) 0 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.95s var(--ease-out) 0.34s;
+    pointer-events: none;
+  }
+  .form-wrap.is-in .form-bar {
+    transform: scaleX(1);
+  }
+
+  /* Escalonamento interno: os campos assentam um a um depois do card.
+     Um único alvo observado (.form-wrap) comanda tudo por transition-delay —
+     sem observer extra, sem JS de seção. */
+  .f-row,
+  .form-note {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+    transition:
+      opacity 0.55s var(--ease-out),
+      transform 0.55s var(--ease-out);
+    transition-delay: calc(300ms + var(--i, 0) * 65ms);
+  }
+  .form-wrap.is-in .f-row,
+  .form-wrap.is-in .form-note {
+    opacity: 1;
+    transform: none;
   }
   .f-row {
+    position: relative;
     display: grid;
     gap: 7px;
+  }
+  /* Marca do campo ativo: fio verde na margem interna do card, na altura da
+     linha em foco. Absoluto, então não vira item do grid nem desloca o rótulo.
+     Só scaleY — nada de sombra ou blur. */
+  .f-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--pad) / -2);
+    width: 2px;
+    background: var(--verde);
+    transform: scaleY(0);
+    transform-origin: center top;
+    transition: transform 0.3s var(--ease-out);
+    pointer-events: none;
+  }
+  .f-row:focus-within::before {
+    transform: scaleY(1);
   }
   .form label {
     font-size: 0.6875rem;
@@ -193,46 +430,87 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--marrom-50);
+    transition: color 0.22s var(--ease);
+  }
+  /* O rótulo acompanha o campo ativo — orientação sem mexer no layout */
+  .f-row:focus-within label {
+    color: var(--verde);
   }
   .form input,
   .form select {
     width: 100%;
-    min-height: 50px;
-    padding: 13px 15px;
+    min-height: 52px;
+    padding: 14px 16px;
     background: var(--branco);
     border: 1px solid var(--marrom-16);
     border-radius: var(--radius);
     font-size: 1rem; /* 16px evita zoom automático no iOS */
+    line-height: 1.4;
     color: var(--marrom);
-    transition:
-      border-color 0.25s ease,
-      box-shadow 0.25s ease;
+    transition: border-color 0.22s var(--ease);
     appearance: none;
   }
   .form input::placeholder {
     color: var(--marrom-50);
   }
+  .form input:hover,
+  .form select:hover {
+    border-color: var(--marrom-50);
+  }
+  /* Foco em outline (nunca box-shadow animado): sempre visível sobre o bege */
   .form input:focus-visible,
-  .form select:focus-visible {
-    outline: none;
+  .form select:focus-visible,
+  .form select:focus {
+    outline: 2px solid var(--verde);
+    outline-offset: 1px;
     border-color: var(--verde);
-    box-shadow: 0 0 0 3px rgba(48, 115, 81, 0.16);
   }
   .f-sel {
     position: relative;
     display: grid;
   }
+  .f-sel select {
+    padding-right: 46px;
+    cursor: pointer;
+  }
   .f-sel svg {
     position: absolute;
-    right: 15px;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--marrom-50);
     pointer-events: none;
+    transition: color 0.22s var(--ease);
+  }
+  .f-sel:focus-within svg {
+    color: var(--verde);
   }
   .form-btn {
-    margin-top: 4px;
+    margin-top: 6px;
     min-height: 56px;
+    /* o rótulo é longo: em card estreito ele quebra em duas linhas e o
+       padding padrão do .btn apertaria demais */
+    padding-inline: 22px;
+    line-height: 1.25;
+    text-align: center;
+    /* entra só em opacidade: o transform do .btn continua reservado ao hover,
+       senão o levantar de 2px brigaria com a animação de entrada */
+    opacity: 0;
+    transition:
+      opacity 0.55s var(--ease-out) calc(300ms + var(--i, 0) * 65ms),
+      transform 0.35s var(--ease),
+      background-color 0.35s var(--ease),
+      color 0.35s var(--ease),
+      border-color 0.35s var(--ease);
+  }
+  .form-wrap.is-in .form-btn {
+    opacity: 1;
+  }
+  /* O foco padrão do .btn é verde sobre verde — invisível aqui. Sobre o card
+     bege o anel vai em marrom, que é a cor de texto desta superfície. */
+  .form-btn:focus-visible {
+    outline: 2px solid var(--marrom);
+    outline-offset: 3px;
   }
   .form-msg:empty {
     display: none;
@@ -243,16 +521,107 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
     color: var(--verde);
     font-weight: 600;
     text-align: center;
+    padding: 11px 14px;
+    background: rgba(48, 115, 81, 0.09);
+    border: 1px solid rgba(48, 115, 81, 0.22);
+    border-radius: var(--radius);
   }
   .form-note {
     font-size: 0.75rem;
+    line-height: 1.45;
     color: var(--marrom-50);
     text-align: center;
+  }
+
+  @media (max-width: 1023px) {
+    /* moldura deslocada só onde há folga lateral de sobra */
+    .form-wrap::before {
+      content: none;
+    }
   }
 
   @media (max-width: 900px) {
     .cta-in {
       grid-template-columns: 1fr;
+    }
+    .form-wrap {
+      max-width: none;
+      margin-left: 0;
+    }
+    .cta-bg :global(img) {
+      /* no recorte vertical o topo do prédio contra o céu é mais silencioso
+         atrás do texto do que a faixa de sacadas acesas */
+      object-position: 50% 34%;
+    }
+    /* Sem a segunda coluna, o texto inteiro cai sobre a foto: o véu passa a
+       ser vertical e fecha o terço superior, onde estão título e lede. A foto
+       abre a partir da metade — atrás do card, que é opaco. No celular a
+       leitura vem antes da fotografia. */
+    .cta-veil {
+      background:
+        linear-gradient(
+          168deg,
+          rgba(48, 115, 81, 0.96) 0%,
+          rgba(48, 115, 81, 0.93) 34%,
+          rgba(48, 115, 81, 0.89) 48%,
+          rgba(48, 115, 81, 0.62) 58%,
+          rgba(1, 8, 17, 0.74) 72%,
+          rgba(1, 8, 17, 0.93) 100%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(1, 8, 17, 0.4) 0%,
+          rgba(1, 8, 17, 0.3) 26%,
+          rgba(1, 8, 17, 0.3) 50%,
+          rgba(1, 8, 17, 0.62) 100%
+        );
+    }
+    .cta-ct {
+      max-width: none;
+    }
+    .cta-ct li {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+    /* No toque o link precisa de 48px de altura real. O margin negativo
+       devolve o espaço, então a linha da tabela não muda de altura. */
+    .cta-link {
+      padding-block: 11px;
+      margin-block: -11px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cta-arw,
+    .cta-link,
+    .form label,
+    .form input,
+    .form select,
+    .f-sel svg,
+    .f-row::before {
+      transition: none;
+    }
+    .cta-link:hover .cta-arw {
+      transform: none;
+    }
+    /* Entradas escalonadas: entregam o estado final de imediato. O runtime
+       marca .is-in em todos os alvos no load quando o movimento é reduzido,
+       mas estes filhos não são [data-rv] — precisam da regra explícita. */
+    .f-row,
+    .form-note,
+    .form-btn {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .form-bar,
+    .cta-ct li::before {
+      transform: scaleX(1);
+      transition: none;
+    }
+    .form-wrap::before {
+      opacity: 1;
+      transition: none;
     }
   }
 </style>
