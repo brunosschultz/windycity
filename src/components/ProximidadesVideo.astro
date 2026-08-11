@@ -146,6 +146,37 @@
           desenhar();
         });
 
+        /* Um seek por vez. O rAF pede posição nova até 60x por segundo, mas
+           mover o currentTime enquanto o anterior ainda não terminou faz o
+           Chrome do Android descartar o pedido e esvaziar o decodificador a
+           cada vez — é daí que vem o engasgo e o quadro que "passa sem
+           aparecer". No iOS o seek do AVFoundation é rápido o bastante para
+           mascarar isso; no MediaCodec, não.
+           Guardando só o ÚLTIMO alvo pendente, o vídeo anda no ritmo que o
+           aparelho aguenta em vez de acumular fila. */
+        let buscando = false;
+        let pendente: number | null = null;
+        const irPara = (t: number) => {
+          if (buscando) {
+            pendente = t;
+            return;
+          }
+          buscando = true;
+          video.currentTime = t;
+        };
+        const aoBuscar = () => {
+          buscando = false;
+          if (pendente === null) return;
+          const t = pendente;
+          pendente = null;
+          irPara(t);
+        };
+        video.addEventListener('seeked', aoBuscar);
+        // se o seek falhar, não trava o scrub para sempre
+        video.addEventListener('error', () => {
+          buscando = false;
+        });
+
         let pedido = false;
         const desenhar = () => {
           pedido = false;
@@ -163,7 +194,10 @@
           // -0.02 evita travar um quadro antes do fim em navegadores que
           // arredondam currentTime para cima do duration e ignoram o seek
           const alvo = Math.min(p * duracao, duracao - 0.02);
-          if (Math.abs(video.currentTime - alvo) > 0.01) video.currentTime = alvo;
+          /* Zona morta de ~1 quadro (30fps): abaixo disso o seek não muda
+             nada na tela e só gasta decodificador. Era 0.01s — um terço de
+             quadro, ou seja, seek jogado fora. */
+          if (Math.abs(video.currentTime - alvo) > 0.033) irPara(alvo);
         };
         const agendar = () => {
           if (pedido) return;
