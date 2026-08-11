@@ -1,15 +1,20 @@
 ---
 import { EMPREENDIMENTO } from '../config';
 
+/* Mesmo texto aprovado de sempre — só separado em duas partes para o
+   título da etapa não ficar no mesmo peso da explicação. O travessão
+   original é o ponto de corte. */
 const etapas = [
-  { pct: EMPREENDIMENTO.entrada, label: 'de entrada — menor desembolso inicial' },
+  { pct: EMPREENDIMENTO.entrada, titulo: 'de entrada', label: 'menor desembolso inicial' },
   {
     pct: EMPREENDIMENTO.obra,
-    label: 'durante a obra — pagamento distribuído ao longo da construção',
+    titulo: 'durante a obra',
+    label: 'pagamento distribuído ao longo da construção',
   },
   {
     pct: EMPREENDIMENTO.chaves,
-    label: 'na entrega das chaves — maior parcela concentrada na conclusão',
+    titulo: 'na entrega das chaves',
+    label: 'maior parcela concentrada na conclusão',
     destaque: true,
   },
 ];
@@ -52,6 +57,7 @@ const etapas = [
                 <span class="etapa-trilho" aria-hidden="true">
                   <span class="etapa-fill" />
                 </span>
+                <span class="etapa-t">{e.titulo}</span>
                 <span class="etapa-l">{e.label}</span>
               </li>
             ))
@@ -221,8 +227,19 @@ const etapas = [
     transform-origin: left center;
   }
 
-  .etapa-l {
+  /* Título da etapa: peso e cor próprios, para não se misturar com a
+     explicação logo abaixo. */
+  .etapa-t {
+    display: block;
     margin-top: clamp(12px, 1.6vw, 22px);
+    font-size: clamp(1.15rem, 2vw, 1.7rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.028em;
+    color: var(--verde);
+  }
+  .etapa-l {
+    margin-top: 6px;
     font-size: clamp(0.8125rem, 1.05vw, 1rem);
     line-height: 1.5;
     color: var(--fg-soft);

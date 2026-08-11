@@ -2,6 +2,7 @@
 import { Picture } from 'astro:assets';
 import { EMPREENDIMENTO } from '../config';
 import MapaLocalizacao from './MapaLocalizacao.astro';
+import ProximidadesVideo from './ProximidadesVideo.astro';
 
 /* A mídia de abertura é a fachada com a rua e o ponto de ônibus à vista —
    o mesmo enquadramento em que o vídeo de drone vai nascer antes de subir
@@ -11,6 +12,10 @@ import aberturaRua from '../assets/images/fachada-dia-hd.jpg';
 import arena from '../assets/images/loc-arena.jpg';
 import mobilidade from '../assets/images/loc-mobilidade.jpg';
 import pucpr from '../assets/images/loc-pucpr.jpg';
+/* Fachada do Unicuritiba — arquivo trazido da pasta de imagens do outro
+   projeto da agência (era o único no computador). Se a origem não for a
+   pretendida, basta substituir este arquivo. */
+import unicuritiba from '../assets/images/loc-unicuritiba.jpg';
 import shopping from '../assets/images/loc-shopping.jpg';
 import restaurante from '../assets/images/loc-restaurante.jpg';
 import farmacia from '../assets/images/loc-farmacia.jpg';
@@ -27,20 +32,28 @@ import fotoWalkScore from '../assets/images/loc-mobilidade.jpg';
    a sequência agora é 01–04. `leg` é a identificação visível da foto
    no painel (nomes próprios reais exigidos pelo cliente). */
 const pontos = [
-  { t: 'Arena da Baixada', d: 'proximidade com jogos, shows e grandes eventos' },
-  { t: 'Mobilidade', d: 'fácil acesso ao transporte público e eixos urbanos' },
-  { t: 'Universidades', d: 'próximo à PUCPR e outros centros de ensino' },
-  { t: 'Cotidiano', d: 'mercados, farmácias, restaurantes e serviços essenciais' },
+  {
+    t: 'Arena da Baixada',
+    d: 'proximidade com jogos, shows e grandes eventos',
+    /* `meta` é o dado objetivo do ponto, exibido sobre a fotografia no
+       lugar do antigo título repetido. */
+    meta: '950 m',
+  },
+  {
+    t: 'Mobilidade',
+    d: 'fácil acesso ao transporte público e eixos urbanos',
+    meta: 'Ponto de ônibus em frente',
+  },
+  { t: 'Universidades', d: 'próximo à PUCPR e outros centros de ensino', meta: null },
+  { t: 'Cotidiano', d: 'mercados, farmácias, restaurantes e serviços essenciais', meta: null },
 ];
 ---
 
 <section class="section theme-branco loc" id="localizacao" aria-labelledby="loc-t">
   <!-- 1 · Abertura editorial: título em escala de pôster à esquerda,
        parágrafo deslocado para a coluna oposta, rente à base do título.
-       O parágrafo termina no travessão de propósito: a oração final
-       ("com ponto de ônibus em frente…") desce como legenda editorial
-       sobre a fotografia que mostra exatamente esse ponto de ônibus —
-       mesmo texto aprovado, só reagrupado sobre a imagem. -->
+       O parágrafo carrega o texto aprovado INTEIRO — a sobreposição da
+       foto abaixo é o endereço do empreendimento, não um trecho dele. -->
   <header class="wrap loc-abre">
     <p class="eyebrow" data-rv>Localização</p>
     <h2 class="h2-xl loc-titulo" id="loc-t" data-rv style="--d:40ms">
@@ -48,7 +61,8 @@ const pontos = [
     </h2>
     <p class="lede loc-lede" data-rv style="--d:90ms">
       O WindyCity está em uma região conectada a transporte, universidades, serviços, lazer e aos
-      principais movimentos de Curitiba —
+      principais movimentos de Curitiba — com ponto de ônibus em frente e menor dependência do
+      carro.
     </p>
   </header>
 
@@ -62,21 +76,29 @@ const pontos = [
        <figure>, e a legenda editorial (figcaption) permanece sobreposta,
        independente de a mídia ser foto ou vídeo.
        ========================================================================== -->
-  <figure class="bleed loc-media" data-px="60" data-rv-img>
-    <Picture
-      src={aberturaRua}
-      formats={['avif', 'webp']}
-      fallbackFormat="webp"
-      widths={[760, 1160, 1600, 2048, 2880]}
-      sizes="100vw"
-      alt="Fachada do WindyCity vista da rua em dia de sol, com calçada arborizada e ponto de ônibus em frente"
-      loading="lazy"
-      decoding="async"
-    />
+  <figure class="bleed loc-media" data-px="60" data-rv-img data-prog>
+    <!-- data-prog alimenta --prog (0→1) durante a travessia da figura pela
+         viewport; o zoom-out lê essa custom property em CSS puro. Só
+         transform, sem recálculo de layout. -->
+    <div class="loc-media-zoom">
+      <Picture
+        src={aberturaRua}
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        widths={[760, 1160, 1600, 2048, 2880]}
+        sizes="100vw"
+        alt="Fachada do WindyCity vista da rua em dia de sol, com calçada arborizada e ponto de ônibus em frente"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <!-- Endereço como assinatura da imagem: escala de pôster, quebrado em
+         duas linhas (logradouro + bairro/cidade) para não perder legibilidade. -->
     <figcaption class="loc-media-leg">
-      <span class="loc-media-frase ac" data-rv style="--d:160ms">
-        com ponto de ônibus em frente e menor dependência do carro.
-      </span>
+      <address class="loc-endereco" data-rv style="--d:160ms">
+        <span class="loc-endereco-l1">Rua Conselheiro Dantas, 1287</span>
+        <span class="loc-endereco-l2">Prado Velho | Curitiba/PR</span>
+      </address>
     </figcaption>
   </figure>
 
@@ -103,7 +125,7 @@ const pontos = [
             />
           </div>
           <figcaption class="loc-leg">
-            <span class="loc-leg-t ac">Arena da Baixada</span>
+            <span class="loc-leg-m">{pontos[0].meta}</span>
           </figcaption>
         </figure>
 
@@ -121,10 +143,15 @@ const pontos = [
             />
           </div>
           <figcaption class="loc-leg">
-            <span class="loc-leg-t ac">Mobilidade</span>
+            <span class="loc-leg-m">{pontos[1].meta}</span>
           </figcaption>
         </figure>
 
+        <!-- Universidades: PUC-PR e Unicuritiba são DUAS etapas da mesma
+             sequência — cada fachada ocupa o painel inteiro, como as demais,
+             em vez de dividirem o quadro. O item 03 percorre o dobro de
+             altura (ver .loc-item--duplo) para as duas terem o mesmo tempo
+             de tela das outras. -->
         <figure class="loc-foto f-puc" data-foto style="--o:5" data-rv-img="dir">
           <div class="loc-mov" data-mov>
             <Picture
@@ -139,7 +166,25 @@ const pontos = [
             />
           </div>
           <figcaption class="loc-leg">
-            <span class="loc-leg-t ac">PUC-PR</span>
+            <span class="loc-leg-m">PUC-PR</span>
+          </figcaption>
+        </figure>
+
+        <figure class="loc-foto f-uni" data-foto style="--o:5" data-rv-img="dir">
+          <div class="loc-mov" data-mov>
+            <Picture
+              src={unicuritiba}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[420, 640, 900, 1079]}
+              sizes="(max-width: 1023px) 92vw, 55vw"
+              alt="Fachada do Unicuritiba, com o volume envidraçado da entrada e o letreiro da instituição"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <figcaption class="loc-leg">
+            <span class="loc-leg-m">Unicuritiba</span>
           </figcaption>
         </figure>
 
@@ -190,9 +235,6 @@ const pontos = [
               <span class="cot-rotulo label">Droga Raia</span>
             </div>
           </div>
-          <figcaption class="loc-leg">
-            <span class="loc-leg-t ac">Cotidiano</span>
-          </figcaption>
         </figure>
       </div>
 
@@ -200,8 +242,9 @@ const pontos = [
         {
           pontos.map((p, i) => (
             <li
-              class:list={['loc-item', { 'is-ativo': i === 0 }]}
+              class:list={['loc-item', { 'is-ativo': i === 0, 'loc-item--duplo': i === 2 }]}
               data-item
+              data-fotos={i === 2 ? 2 : 1}
               data-rv
               style={`--d:${i * 55}ms;--o:${i * 2 + 2}`}
             >
@@ -215,8 +258,13 @@ const pontos = [
     </div>
   </div>
 
-  <!-- 4 · Mapa entre o scrolly e o Walk Score -->
-  <MapaLocalizacao />
+  <!-- 4 · Cena de vídeo das proximidades conduzida pelo scroll.
+
+       MAPA OCULTO A PEDIDO DO CLIENTE (decisão temporária): o componente e
+       todos os dados dele seguem no projeto, intactos. Para trazer de volta,
+       basta reativar a linha abaixo — nada mais precisa mudar. -->
+  <ProximidadesVideo />
+  {/* <MapaLocalizacao /> */}
 
   <!-- 5 · Walk Score — fecho da dobra: faixa preta em sangria total, número
        gigante e régua à esquerda, fotografia em recorte vertical colada às
@@ -337,8 +385,21 @@ const pontos = [
   .loc-media {
     position: relative;
     overflow: hidden;
-    height: min(92svh, 1000px);
+    height: 100svh;
     background: var(--marrom-08);
+  }
+  /* Zoom-out conforme o scroll avança: entra ampliada e vai abrindo até a
+     escala natural. Interpola 1.16 → 1.0 sobre --prog (0→1). Sem JS a
+     custom property não existe e o fallback `1` entrega a imagem já aberta. */
+  .loc-media-zoom {
+    height: 100%;
+    transform: scale(calc(1.16 - 0.16 * var(--prog, 1)));
+    transform-origin: center center;
+    will-change: transform;
+  }
+  .loc-media :global(picture) {
+    display: block;
+    height: 100%;
   }
   .loc-media :global(img) {
     width: 100%;
@@ -356,22 +417,55 @@ const pontos = [
       object-position: 62% 50%;
     }
   }
+  @media (prefers-reduced-motion: reduce) {
+    .loc-media-zoom {
+      transform: none;
+    }
+  }
+  /* Endereço centralizado na altura da foto. O véu agora é radial a partir
+     do centro (não mais um gradiente de base), porque o texto deixou de
+     cair sobre a base escura da imagem. */
   .loc-media-leg {
     position: absolute;
-    inset-inline: 0;
-    bottom: 0;
+    inset: 0;
     z-index: 2;
-    padding: clamp(72px, 12vw, 170px) var(--sangria) clamp(20px, 3vw, 48px);
-    background: linear-gradient(180deg, transparent, var(--preto) 135%);
+    display: flex;
+    align-items: center;
+    padding-inline: var(--sangria);
+    background: radial-gradient(
+      120% 78% at 30% 50%,
+      rgb(1 8 17 / 68%) 0%,
+      rgb(1 8 17 / 38%) 45%,
+      rgb(1 8 17 / 0%) 78%
+    );
     pointer-events: none;
   }
-  .loc-media-frase {
+  /* Endereço em escala de pôster sobre a fachada. A linha 1 (logradouro,
+     mais longa) governa a escala: usa vw para crescer com a largura, mas
+     o clamp impede que estoure a sangria em telas largas. A linha 2 é
+     menor de propósito — hierarquia dentro do próprio endereço. */
+  .loc-endereco {
     display: block;
+    font-style: normal;
+    color: #fff;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    text-shadow: 0 2px 40px rgb(0 0 0 / 35%);
+  }
+  .loc-endereco-l1,
+  .loc-endereco-l2 {
+    display: block;
+    font-weight: 600;
+  }
+  .loc-endereco-l1 {
+    font-size: clamp(1.9rem, 5.1vw, 5.4rem);
+  }
+  /* Bairro + cidade: 20% menor que a escala anterior desta linha, para o
+     logradouro seguir sendo a informação dominante. */
+  .loc-endereco-l2 {
+    font-size: clamp(1.08rem, 2.72vw, 2.88rem);
     color: var(--bege);
-    font-size: clamp(1.35rem, 3vw, 2.8rem);
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    max-width: 24ch;
   }
 
   /* ---------------- 3 · Scrollytelling ----------------
@@ -408,11 +502,17 @@ const pontos = [
     aspect-ratio: 16 / 9;
   }
   .f-mob,
-  .f-puc {
+  .f-puc,
+  .f-uni {
     aspect-ratio: 3 / 2;
   }
+  /* O Cotidiano é um conjunto de três fotos soltas, sem moldura: nada de
+     fundo, borda ou sombra atrás delas. */
   .f-cot {
     aspect-ratio: 4 / 3;
+    background: none;
+    overflow: visible;
+    border-radius: 0;
   }
   .loc-mov {
     position: absolute;
@@ -435,6 +535,9 @@ const pontos = [
   .f-puc :global(img) {
     object-position: 38% 50%;
   }
+  .f-uni :global(img) {
+    object-position: center 45%;
+  }
   .cot-main :global(img) {
     object-position: center 28%;
   }
@@ -450,7 +553,6 @@ const pontos = [
     position: relative;
     overflow: hidden;
     border-radius: var(--radius);
-    background: var(--marrom-08);
   }
   .cot-main {
     grid-row: 1 / span 2;
@@ -473,8 +575,8 @@ const pontos = [
     letter-spacing: 0.1em;
   }
 
-  /* legenda editorial do painel — sempre visível, o usuário nunca precisa
-     deduzir o que está vendo */
+  /* Sobre a fotografia fica só o dado objetivo do ponto (distância,
+     descrição) — o nome já é o título do item ao lado, não se repete. */
   .loc-leg {
     position: absolute;
     inset-inline: 0;
@@ -486,10 +588,11 @@ const pontos = [
     background: linear-gradient(180deg, transparent, var(--preto) 140%);
     pointer-events: none;
   }
-  .loc-leg-t {
+  .loc-leg-m {
     color: var(--bege);
-    font-size: clamp(1.35rem, 4.5vw, 2rem);
-    line-height: 0.95;
+    font-size: clamp(0.95rem, 1.9vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.2;
     letter-spacing: -0.01em;
   }
 
@@ -551,7 +654,6 @@ const pontos = [
       margin-left: calc(var(--sangria) * -1);
       overflow: hidden;
       border-radius: 0 var(--radius) var(--radius) 0;
-      background: var(--marrom-08);
     }
     .is-js .loc-foto {
       position: absolute;
@@ -564,14 +666,20 @@ const pontos = [
     .is-js .loc-leg {
       padding: clamp(80px, 8vw, 150px) clamp(28px, 3vw, 56px) clamp(22px, 2.4vw, 44px);
     }
-    .is-js .loc-leg-t {
-      font-size: clamp(2.2rem, 3.4vw, 4rem);
+    .is-js .loc-leg-m {
+      font-size: clamp(1.15rem, 1.5vw, 1.55rem);
     }
     .is-js .cot-tile .cot-rotulo {
       left: 12px;
       bottom: 12px;
       font-size: 0.6875rem;
       letter-spacing: 0.14em;
+    }
+    /* Sem caixa cinza: nem o painel nem o quadro do Cotidiano pintam fundo,
+       então as três fotos ficam soltas sobre o branco da seção. */
+    .is-js .f-cot {
+      overflow: hidden;
+      background: none;
     }
 
     .is-js .loc-itens {
@@ -590,6 +698,11 @@ const pontos = [
     }
     .is-js .loc-item + .loc-item {
       border-top: 1px solid var(--rule);
+    }
+    /* Universidades comanda duas fotografias: percorre o dobro para cada
+       uma ficar o mesmo tempo em tela que os demais pontos. */
+    .is-js .loc-item--duplo {
+      min-height: 160svh;
     }
     /* número em escala de pôster: marca-d'água que acende no item ativo */
     .is-js .loc-num {
@@ -622,8 +735,9 @@ const pontos = [
   }
 
   /* ---------------- 5 · Walk Score ---------------- */
+  /* Colada no mapa: sem respiro branco entre as duas. */
   .score {
-    margin-top: clamp(48px, 7vw, 110px);
+    margin-top: 0;
     background: var(--preto);
     color: var(--bege);
     overflow: hidden;
@@ -704,9 +818,11 @@ const pontos = [
   }
 
   @media (min-width: 1024px) {
+    /* Faixa dividida ao meio: metade esquerda é a fotografia (sangrando
+       até a borda da tela), metade direita é o bloco preto com as infos. */
     .score-grid {
-      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-      column-gap: clamp(56px, 6vw, 140px);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: clamp(48px, 5vw, 110px);
       row-gap: 0;
       padding-block: 0;
     }
@@ -714,7 +830,7 @@ const pontos = [
     .score-txt,
     .score-reg,
     .score-cta {
-      grid-column: 1;
+      grid-column: 2;
     }
     .score-num {
       padding-top: clamp(72px, 9vw, 150px);
@@ -732,15 +848,13 @@ const pontos = [
     .score-cta .btn {
       width: auto;
     }
-    /* a foto vira uma lâmina vertical de altura total da faixa, sangrando
-       só à direita e tocando topo e rodapé do bloco preto */
     .score-foto {
-      grid-column: 2;
+      grid-column: 1;
       grid-row: 1 / span 4;
       align-self: stretch;
       height: 100%;
       aspect-ratio: auto;
-      margin: 0 calc(var(--sangria) * -1) 0 0;
+      margin: 0 0 0 calc(var(--sangria) * -1);
     }
   }
 
@@ -802,14 +916,13 @@ const pontos = [
         gsap.set(fotos, { autoAlpha: 0, zIndex: 1 });
         gsap.set(fotos[0], { autoAlpha: 1, zIndex: 2 });
 
-        const ativar = (i: number, dir: 1 | -1) => {
+        const ativar = (i: number, iItem: number, dir: 1 | -1) => {
+          itens.forEach((el, k) => el.classList.toggle('is-ativo', k === iItem));
           if (i === atual) return;
           const idxSai = atual;
           const entra = fotos[i];
           const sai = fotos[idxSai];
           atual = i;
-
-          itens.forEach((el, k) => el.classList.toggle('is-ativo', k === i));
           /* garante que nenhuma foto antiga (ex.: a Arena) permaneça
              visível sob a transição quando o assunto ativo é outro */
           fotos.forEach((f, k) => {
@@ -842,24 +955,42 @@ const pontos = [
           }
         };
 
+        /* Um gatilho por FOTO, não por item: quando um item comanda mais de
+           uma fotografia (Universidades: PUC-PR e Unicuritiba), a altura dele
+           é dividida igualmente entre elas, e cada fatia troca a foto sem
+           trocar o item ativo na coluna de texto. */
+        let iFoto = 0;
         itens.forEach((el, i) => {
-          ScrollTrigger.create({
-            trigger: el,
-            start: 'top 55%',
-            end: 'bottom 55%',
-            onEnter: () => ativar(i, 1),
-            onEnterBack: () => ativar(i, -1),
-          });
+          const n = Math.max(1, Number(el.dataset.fotos) || 1);
+          for (let k = 0; k < n; k++) {
+            const idx = iFoto++;
+            ScrollTrigger.create({
+              trigger: el,
+              start: `${(k / n) * 100}% 55%`,
+              end: `${((k + 1) / n) * 100}% 55%`,
+              onEnter: () => ativar(idx, i, 1),
+              onEnterBack: () => ativar(idx, i, -1),
+            });
+          }
         });
 
         /* a página pode carregar já rolada até o meio da lista (refresh,
            âncora): sincroniza o painel com o item sob a linha de leitura */
-        let inicial = 0;
+        let inicialItem = 0;
+        let inicialFoto = 0;
         const linha = window.innerHeight * 0.55;
+        let acumulado = 0;
         itens.forEach((el, k) => {
-          if (el.getBoundingClientRect().top < linha) inicial = k;
+          const n = Math.max(1, Number(el.dataset.fotos) || 1);
+          const r = el.getBoundingClientRect();
+          if (r.top < linha) {
+            inicialItem = k;
+            const dentro = Math.min(Math.max((linha - r.top) / r.height, 0), 0.999);
+            inicialFoto = acumulado + Math.floor(dentro * n);
+          }
+          acumulado += n;
         });
-        if (inicial > 0) ativar(inicial, 1);
+        if (inicialFoto > 0) ativar(inicialFoto, inicialItem, 1);
 
         return () => {
           raiz.classList.remove('is-js');

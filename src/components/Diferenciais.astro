@@ -1,193 +1,120 @@
 ---
-import { Picture } from 'astro:assets';
+import { Picture, getImage } from 'astro:assets';
+import ComparativoDif from './ComparativoDif.astro';
 import CenaCompacto from './CenaCompacto.astro';
-import unidLuz from '../assets/images/unid-sacada-02.jpg';
-import unidAr from '../assets/images/unid-sacada-01.jpg';
-import unidPlanta from '../assets/images/unid-meio-02.jpg';
-import unidFundo from '../assets/images/unid-meio-01.jpg';
+import plantaSol from '../assets/images/planta-sol.png';
+import solJanela from '../assets/images/sol-janela.png';
 
-/* ATO 1 — os três duelos mercado × WindyCity.
-   Cada par vira uma composição de ~92svh dividida por um fio central:
-   esquerda estreita e rebaixada (mercado, sem foto), direita dominante
-   (WindyCity, foto grande revelada por wipe a partir do fio).
-   Textos exatamente como aprovados — só posição/escala mudam. */
-const duelos = [
-  {
-    mercado:
-      'Pouca iluminação natural — ambientes que dependem de luz artificial mesmo durante o dia.',
-    windy: 'Unidades paralelas à face de iluminação — luz natural em todos os cômodos, sem exceção.',
-    foto: unidLuz,
-    alt: 'Kitchenette em madeira clara e cama no mesmo ambiente, com janela de piso a teto ao lado da cama, cortina leve e vista da cidade',
-    /* janela ampla à direita do enquadramento — recortes preservam cama+janela */
-    pos: '62% 50%',
-    mod: '',
-    sizes: '(max-width: 980px) calc(100vw - 40px), 58vw',
-  },
-  {
-    mercado: 'Ventilação limitada — pouca renovação de ar e menor conforto térmico.',
-    windy:
-      'Nenhum ambiente enclausurado — ventilação natural em todos os ambientes, inclusive banheiros.',
-    foto: unidAr,
-    alt: 'Corredor da cozinha em marcenaria de madeira clara, com vista enfiada até a cama e a abertura da sacada iluminada ao fundo',
-    /* enfiada central cozinha→sacada: centro é o foco */
-    pos: 'center',
-    mod: 'duelo--amplo',
-    sizes: '(max-width: 980px) calc(100vw - 40px), 66vw',
-  },
-  {
-    mercado: 'Espaços comprimidos — plantas que acomodam funções, mas sem fluidez.',
-    windy: 'Plantas flexíveis — layout adaptável, podendo configurar 1 dormitório.',
-    foto: unidPlanta,
-    alt: 'Closet amplo com portas de vidro e iluminação interna ao lado da cama, com televisão, armários e kitchenette resolvidos na mesma parede',
-    /* closet de vidro à esquerda-centro — puxamos levemente o recorte para ele */
-    pos: '42% 50%',
-    mod: 'duelo--recuado',
-    sizes: '(max-width: 980px) calc(100vw - 40px), 52vw',
-  },
-];
+/* Planta do pavimento usada dentro do esquema: entra como <image> do SVG
+   (e não como <Picture>) para viver na mesma caixa de coordenadas das
+   fachadas e do arco do sol. */
+const plantaSrc = (await getImage({ src: plantaSol, width: 900, format: 'webp' })).src;
 ---
 
-<section class="section theme-preto dif" id="diferenciais" aria-labelledby="dif-t">
-  <!-- Abertura: título em toda a largura, lede deslocado à direita -->
-  <div class="wrap">
-    <header class="dif-abre">
-      <p class="eyebrow" data-rv>Diferenciais</p>
-      <h2 class="h2-xl" id="dif-t" data-rv style="--d:80ms">
-        Por que o WindyCity <em class="ac">vale</em> mais que um Studio comum
-      </h2>
-      <p class="lede dif-lede" data-rv style="--d:160ms">
-        A maioria dos Studios reduz a metragem e reduz junto aquilo que mais importa no dia a dia:
-        luz, ar e espaço para viver bem. O WindyCity foi desenhado para não fazer essa troca.
-      </p>
-    </header>
+<section class="section dif" id="diferenciais" aria-labelledby="dif-t">
+  <!-- ============================================================
+       ATO 1 · Comparativo mercado × WindyCity — composição única de
+       duas colunas sobre fundo claro (coluna esquerda sticky, trilha
+       de fotografias à direita) fechando em imagem arquitetônica ampla.
+       O tema claro fica no próprio bloco; os atos seguintes seguem
+       escuros, então cada trecho carrega seus tokens.
+       ============================================================ -->
+  <div class="theme-bege dif-claro">
+    <ComparativoDif />
   </div>
 
-  <!-- ============================================================
-       ATO 1 · Duelos. data-prog em cada <li> alimenta o preenchimento
-       verde do fio divisor (CSS puro via --prog); a foto abre por
-       máscara a partir do fio (data-rv-img="esq").
-       ============================================================ -->
-  <ol class="duelos">
-    {
-      duelos.map((d, i) => (
-        <li class={`duelo ${d.mod}`} data-prog>
-          <div class="wrap duelo-grade">
-            <div class="duelo-mercado">
-              <span class="duelo-num" aria-hidden="true">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <p class="duelo-m" data-rv>
-                <span class="duelo-m-lbl">O padrão do mercado</span>
-                {d.mercado}
-              </p>
-              <div class="duelo-tracos" aria-hidden="true" />
-            </div>
-
-            <div class="duelo-fio" aria-hidden="true">
-              <span />
-            </div>
-
-            <div class="duelo-windy">
-              <div class="duelo-quadro">
-                <div class="duelo-fig" data-rv-img="esq">
-                  <Picture
-                    src={d.foto}
-                    formats={['avif', 'webp']}
-                    fallbackFormat="webp"
-                    widths={[480, 800, 1120, 1600]}
-                    sizes={d.sizes}
-                    alt={d.alt}
-                    loading="lazy"
-                    decoding="async"
-                    style={`--pos:${d.pos}`}
-                  />
-                </div>
-                <p class="duelo-w" data-rv style="--d:140ms">
-                  <span class="duelo-w-lbl">
-                    <span class="duelo-mk" aria-hidden="true" />
-                    WindyCity
-                  </span>
-                  {d.windy}
-                </p>
-              </div>
-            </div>
-          </div>
-        </li>
-      ))
-    }
-  </ol>
-
-  <!-- ============================================================
+  <div class="theme-preto dif-escuro">
+    <!-- ============================================================
        ATO 2 · Demonstração em camadas: foto interna de fundo escurecida
        por véu de token, diagrama SVG sobreposto como camada técnica e
        texto por cima. O diagrama se desenha com ScrollTrigger (scrub
        curto); sem JS ou com reduced-motion ele está completo no HTML.
        ============================================================ -->
+  <!-- Dobra dividida ao meio: à esquerda um bloco verde chapado com o
+       argumento; à direita, fundo branco, a planta do pavimento em escala
+       maior, com Leste e Oeste centralizados em cada lado dela e o sol
+       cruzando por cima. -->
   <div class="demo">
-    <div class="demo-fundo" data-px="60">
-      <Picture
-        src={unidFundo}
-        formats={['avif', 'webp']}
-        fallbackFormat="webp"
-        widths={[760, 1200, 1600, 2200]}
-        sizes="100vw"
-        alt=""
-        loading="lazy"
-        decoding="async"
-      />
-    </div>
-    <div class="demo-veu" aria-hidden="true"></div>
+    <div class="demo-txt">
+      <div class="demo-bg" aria-hidden="true">
+        <Picture
+          src={solJanela}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[560, 800, 1100, 1254]}
+          sizes="(max-width: 980px) 100vw, 50vw"
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      {/* Véu preto: a foto tem áreas muito claras (cortina, janela) e o
+          texto precisa de contraste independente de onde caia o recorte. */}
+      <div class="demo-veu" aria-hidden="true"></div>
 
-    <div class="wrap demo-grade">
-      <div class="demo-txt">
-        <h3 class="h3" data-rv>Unidades paralelas à face de iluminação</h3>
-        <p class="body" data-rv style="--d:120ms">
+      <div class="demo-txt-in">
+        <h3 class="demo-h3" data-rv>
+          Unidades paralelas à face de <em class="ac">iluminação</em>
+        </h3>
+        <p class="demo-p" data-rv style="--d:120ms">
           Cada unidade foi implantada com o lado mais longo encostado diretamente na fachada leste ou
           oeste — o esquema não é perpendicular, é paralelo a ela. A janela acompanha toda a extensão
           da unidade, e não apenas uma abertura no fim de um corredor interno. Isso garante luz
           natural em todos os cômodos do estúdio, sem exceção, e ventilação em todos os ambientes.
         </p>
       </div>
-
-      <figure class="demo-fig" data-demo-diagrama>
-        <svg viewBox="0 0 320 240" role="img" aria-labelledby="arch-desc">
-          <title id="arch-desc">
-            Planta esquemática: unidades implantadas paralelas às fachadas leste e oeste, com janela
-            acompanhando toda a extensão da unidade e corredor central entre elas
-          </title>
-          <line class="dg-face" x1="22" y1="26" x2="22" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
-          <line class="dg-face" x1="298" y1="26" x2="298" y2="214" stroke="#307351" stroke-width="5" stroke-linecap="round"></line>
-
-          <rect class="dg-u" x="30" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect class="dg-u" x="30" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect class="dg-u" x="178" y="26" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-          <rect class="dg-u" x="178" y="126" width="112" height="88" fill="rgba(239,230,226,.07)" stroke="rgba(239,230,226,.42)"></rect>
-
-          <rect class="dg-c" x="142" y="26" width="36" height="188" fill="none" stroke="rgba(239,230,226,.2)" stroke-dasharray="3 4"></rect>
-
-          <g class="dg-s" fill="none" stroke="#307351" stroke-width="1.3">
-            <path d="M8 56h9m0 0-3-3m3 3-3 3"></path>
-            <path d="M8 120h9m0 0-3-3m3 3-3 3"></path>
-            <path d="M8 184h9m0 0-3-3m3 3-3 3"></path>
-            <path d="M312 56h-9m0 0 3-3m-3 3 3 3"></path>
-            <path d="M312 120h-9m0 0 3-3m-3 3 3 3"></path>
-            <path d="M312 184h-9m0 0 3-3m-3 3 3 3"></path>
-          </g>
-
-          <text class="ax dg-l" x="22" y="15" text-anchor="middle">LESTE</text>
-          <text class="ax dg-l" x="298" y="15" text-anchor="middle">OESTE</text>
-          <text class="ax2 dg-l" x="160" y="124" text-anchor="middle" transform="rotate(-90 160 124)">corredor</text>
-          <text class="ax2 dg-l" x="86" y="74" text-anchor="middle">unidade</text>
-          <text class="ax2 dg-l" x="86" y="174" text-anchor="middle">unidade</text>
-          <text class="ax2 dg-l" x="234" y="74" text-anchor="middle">unidade</text>
-          <text class="ax2 dg-l" x="234" y="174" text-anchor="middle">unidade</text>
-        </svg>
-      </figure>
     </div>
+
+    <figure class="demo-fig" data-demo-diagrama>
+      <svg viewBox="0 0 320 350" role="img" aria-labelledby="arch-desc">
+        <title id="arch-desc">
+          Planta do pavimento: unidades implantadas com o lado mais longo paralelo às fachadas leste
+          e oeste, corredor central entre elas, e o percurso do sol de leste a oeste passando sobre
+          o edifício
+        </title>
+
+        <!-- trajetória do sol (só referência; o sol anda sobre ela) -->
+        <path
+          id="dg-arco"
+          class="dg-arco"
+          d="M24 56 A 224 224 0 0 1 296 56"
+          fill="none"
+          stroke="rgba(65,55,55,.22)"
+          stroke-width="1"
+          stroke-dasharray="2 5"></path>
+
+        <g class="dg-sol" data-sol>
+          <circle r="17" fill="url(#dg-brilho)"></circle>
+          <circle r="6" fill="#e8a33c"></circle>
+        </g>
+
+        <!-- planta do pavimento -->
+        <image
+          class="dg-planta"
+          href={plantaSrc}
+          x="40"
+          y="62"
+          width="240"
+          height="280"
+          preserveAspectRatio="xMidYMid meet"></image>
+
+        <!-- Leste e Oeste centralizados na altura da planta, um de cada lado -->
+        <text class="ax dg-l" x="18" y="206" text-anchor="middle">LESTE</text>
+        <text class="ax dg-l" x="302" y="206" text-anchor="middle">OESTE</text>
+
+        <defs>
+          <radialGradient id="dg-brilho">
+            <stop offset="0%" stop-color="#f2b350" stop-opacity="0.6" />
+            <stop offset="100%" stop-color="#f2b350" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+      </svg>
+    </figure>
   </div>
 
-  <!-- ATO 3 · Cena da luz (frase-síntese sobre mídia em 100svh) -->
-  <CenaCompacto />
+    <!-- ATO 3 · Cena da luz (frase-síntese sobre mídia em 100svh) -->
+    <CenaCompacto />
+  </div>
 </section>
 
 <style>
@@ -195,347 +122,127 @@ const duelos = [
      Base = mobile. Composições de tela grande entram em
      @media (min-width: 981px) como progressive enhancement.
      ================================================================ */
+  /* A seção não pinta fundo próprio: cada trecho carrega o seu, porque a
+     dobra comparativa é clara e as seguintes são escuras. O padding do topo
+     fica no bloco claro e o do pé é zero (a cena final encosta na próxima). */
   .dif {
-    padding-bottom: 0;
+    padding-block: 0;
+    background: none;
+  }
+  /* O respiro do topo mora no próprio comparativo: em duas colunas ele
+     precisa ser exatamente o `top` da coluna sticky, para a composição já
+     nascer na posição em que vai ficar parada. */
+  .dif-claro {
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .dif-escuro {
+    background: var(--bg);
+    color: var(--fg);
   }
 
-  /* ---------- Abertura ---------- */
-  .dif-abre {
+  /* ---------- Ato 2 · Metade verde | metade branca ----------
+     À esquerda o argumento sobre verde chapado; à direita a planta sobre
+     branco. Sem fotografia de fundo: o esquema é a peça gráfica da dobra. */
+  .demo {
     display: grid;
-    gap: 24px;
-    margin-bottom: clamp(8px, 3vw, 48px);
+    min-height: 100svh;
+    background: var(--branco);
   }
-  .dif-lede {
-    max-width: 46ch;
-  }
-
-  /* ---------- Ato 1 · Duelos ---------- */
-  .duelos {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-  }
-  .duelo-grade {
+  .demo-txt {
     position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    padding-block: clamp(40px, 8vw, 64px);
-  }
-
-  /* Número gigante como âncora da etapa */
-  .duelo-num {
-    font-family: 'TimesWC', 'Times New Roman', Times, serif;
-    font-style: italic;
-    font-weight: 400;
-    font-size: clamp(4.4rem, 17vw, 10.5rem);
-    line-height: 0.78;
-    letter-spacing: -0.045em;
-    font-variant-numeric: lining-nums tabular-nums;
-    display: block;
-    color: var(--bege-14);
-    margin-bottom: clamp(18px, 3.5vw, 34px);
-  }
-
-  /* Lado mercado: rebaixado, sem foto, encostado num trilho */
-  .duelo-m {
-    border-left: 1px solid var(--rule);
-    padding-left: 18px;
-    font-size: clamp(0.875rem, 1.05vw, 0.9375rem);
-    line-height: 1.55;
-    color: var(--bege-40);
-    max-width: 44ch;
-  }
-  .duelo-m-lbl,
-  .duelo-w-lbl {
-    display: block;
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .duelo-m-lbl {
-    color: var(--bege-40);
-  }
-
-  /* Padrão gráfico discreto de linhas — só ambienta o lado "apagado" */
-  .duelo-tracos {
-    display: none;
-    height: clamp(48px, 9vh, 96px);
-    width: min(220px, 70%);
-    background: repeating-linear-gradient(90deg, var(--bege-08) 0 1px, transparent 1px 10px);
-  }
-
-  /* Fio divisor: trilho sempre visível (--rule) + preenchimento verde
-     conduzido pelo avanço do scroll (--prog publicado pelo driver global) */
-  .duelo-fio {
-    position: relative;
-    width: 1px;
-    height: 46px;
-    margin-block: 12px 16px;
-    background: var(--rule);
-  }
-  .duelo-fio span {
-    position: absolute;
-    inset: 0;
-    background: var(--verde);
-    transform: scaleY(var(--prog, 0));
-    transform-origin: top center;
-  }
-  .duelo-fio::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -3px;
-    width: 7px;
-    height: 7px;
-    transform: translateX(-50%);
-    background: var(--verde);
-  }
-
-  /* Lado WindyCity: foto grande com texto sobreposto no pé */
-  .duelo-quadro {
-    position: relative;
-  }
-  .duelo-fig {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-  }
-  .duelo-fig :global(picture) {
-    display: block;
-    height: 100%;
-  }
-  .duelo-fig :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: var(--pos, center);
-  }
-  /* O texto invade o pé da foto; o gradiente (token preto → transparente)
-     garante contraste e se funde com o fundo da seção */
-  .duelo-w {
-    position: relative;
-    margin-top: calc(clamp(64px, 20vw, 110px) * -1);
-    padding: clamp(44px, 12vw, 72px) 18px 0;
-    background: linear-gradient(
-      to top,
-      var(--preto) 38%,
-      color-mix(in srgb, var(--preto) 62%, transparent) 72%,
-      transparent 100%
-    );
-    font-size: clamp(1.15rem, 2.1vw, 1.7rem);
-    font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: -0.022em;
-    color: var(--bege);
-    max-width: 32ch;
-  }
-  .duelo-w-lbl {
+    isolation: isolate;
     color: var(--bege);
     display: flex;
     align-items: center;
-    gap: 9px;
-  }
-  .duelo-mk {
-    width: 9px;
-    height: 9px;
-    background: var(--verde);
-    flex: none;
-  }
-
-  /* ---------- Ato 2 · Demonstração em camadas ---------- */
-  .demo {
-    position: relative;
-    overflow: hidden;
-    min-height: 100svh;
-    display: grid;
-    align-items: center;
+    padding: clamp(48px, 8vw, 96px) var(--gutter);
     background: var(--preto);
-    padding-block: clamp(72px, 12vh, 160px);
+    /* tokens escuros para o texto sobre a fotografia */
+    --fg: var(--bege);
+    --acento: #45b37c;
   }
-  .demo-fundo {
+  .demo-bg {
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: -2;
   }
-  .demo-fundo :global(picture) {
+  .demo-bg :global(picture) {
     display: block;
     height: 100%;
   }
-  .demo-fundo :global(img) {
+  .demo-bg :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    /* o casal e a janela ficam à direita do quadro; o texto cai sobre a
+       parte mais calma da cena */
+    object-position: 66% 50%;
   }
   .demo-veu {
     position: absolute;
     inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: color-mix(in srgb, var(--preto) 78%, transparent);
-  }
-  .demo-veu::after {
-    content: '';
-    position: absolute;
-    inset: 0;
+    z-index: -1;
     background: linear-gradient(
-      to bottom,
-      var(--preto) 0%,
-      transparent 24%,
-      transparent 76%,
-      var(--preto) 100%
+      100deg,
+      rgb(1 8 17 / 88%) 0%,
+      rgb(1 8 17 / 72%) 48%,
+      rgb(1 8 17 / 46%) 100%
     );
   }
-  .demo-grade {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    gap: clamp(36px, 7vw, 96px);
-    align-items: center;
+  /* Caixa de leitura estreita: a coluna toda tinha largura de parágrafo
+     longo demais para o corpo do texto. */
+  .demo-txt-in {
+    max-width: 34ch;
   }
-  .demo-txt .h3 {
-    margin-bottom: 16px;
-    max-width: 20ch;
+  .demo-h3 {
+    font-size: clamp(1.95rem, 5.4vw, 3.05rem);
+    font-weight: 800;
+    line-height: 1.03;
+    letter-spacing: -0.032em;
+    text-wrap: balance;
+    margin-bottom: clamp(16px, 2.4vw, 26px);
+    color: var(--bege);
   }
-  .demo-txt .body {
-    max-width: 58ch;
+  .demo-p {
+    font-size: clamp(0.95rem, 1.2vw, 1.0625rem);
+    line-height: 1.62;
+    color: var(--bege-80);
   }
+
   .demo-fig {
     margin: 0;
+    display: grid;
+    place-items: center;
+    padding: clamp(28px, 5vw, 72px) clamp(16px, 3vw, 56px);
   }
   .demo-fig svg {
     width: 100%;
-    max-width: 580px;
+    max-width: 620px;
     height: auto;
-    margin-inline: auto;
     display: block;
   }
+  /* Sobre branco, os rótulos vão no marrom da marca */
   .demo-fig :global(.ax) {
     font-family: 'Sora', sans-serif;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.16em;
-    fill: #efe6e2;
+    fill: var(--marrom);
   }
-  .demo-fig :global(.ax2) {
-    font-family: 'Sora', sans-serif;
-    font-size: 8.5px;
-    letter-spacing: 0.08em;
-    fill: rgba(239, 230, 226, 0.42);
+  /* O sol nasce parado no leste; sem JS/movimento reduzido fica ali. */
+  .dg-sol {
+    transform: translate(24px, 56px);
   }
 
   /* ---------------- Desktop ---------------- */
   @media (min-width: 981px) {
-    .dif-abre {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-      align-items: end;
-      column-gap: clamp(40px, 5vw, 96px);
-    }
-    .dif-abre .eyebrow {
-      grid-column: 1 / -1;
-    }
-    .dif-lede {
-      border-left: 1px solid var(--rule);
-      padding-left: clamp(20px, 2.2vw, 40px);
-      max-width: 40ch;
-    }
-
-    /* Composição de ~92svh: mercado estreito | fio central | windy dominante */
-    .duelo-grade {
-      grid-template-columns: minmax(0, 0.8fr) auto minmax(0, 1.5fr);
-      column-gap: clamp(28px, 4vw, 72px);
-      align-items: center;
-      min-height: 92svh;
-      padding-block: clamp(48px, 6vh, 96px);
-    }
-    .duelo-mercado {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: clamp(22px, 3.5vh, 40px);
-    }
-    .duelo-num {
-      margin-bottom: 0;
-      font-size: clamp(5rem, 8.5vw, 10rem);
-    }
-    .duelo-m {
-      border-left: 0;
-      padding-left: 0;
-      max-width: 26ch;
-    }
-    .duelo-tracos {
-      display: block;
-    }
-
-    .duelo-fio {
-      align-self: stretch;
-      height: auto;
-      margin-block: 0;
-    }
-
-    .duelo-windy {
-      min-width: 0;
-    }
-    .duelo-quadro {
-      display: block;
-    }
-    .duelo-fig {
-      aspect-ratio: 4 / 3;
-    }
-    .duelo-w {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      margin-top: 0;
-      max-width: none;
-      padding: clamp(72px, 8vw, 130px) clamp(22px, 2.2vw, 40px) clamp(20px, 2vw, 34px);
-      background: linear-gradient(
-        to top,
-        color-mix(in srgb, var(--preto) 88%, transparent) 0%,
-        color-mix(in srgb, var(--preto) 45%, transparent) 60%,
-        transparent 100%
-      );
-    }
-    .duelo-w-lbl {
-      margin-bottom: 10px;
-    }
-
-    /* Etapa 02: foto panorâmica sangrando até a borda direita da tela */
-    .duelo--amplo .duelo-fig {
-      aspect-ratio: 16 / 10;
-      margin-right: calc(var(--sangria) * -1);
-    }
-    .duelo--amplo .duelo-w {
-      right: calc(var(--sangria) * -1);
-      padding-right: var(--sangria);
-    }
-    /* Etapa 03: foto mais recolhida e proporção diferente — quebra o metrônomo */
-    .duelo--recuado .duelo-quadro {
-      width: 88%;
-    }
-    .duelo--recuado .duelo-fig {
-      aspect-ratio: 3 / 2;
-    }
-
-    .demo-grade {
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    }
-    .demo-txt {
-      border-left: 1px solid var(--rule);
-      padding-left: clamp(24px, 2.6vw, 44px);
+    .demo {
+      grid-template-columns: 1fr 1fr;
     }
   }
 
-  /* Sem movimento: fio divisor inteiro (verde), sem depender de scroll.
-     O restante do movimento é GSAP e já fica atrás de reduzMovimento(). */
-  @media (prefers-reduced-motion: reduce) {
-    .duelo-fio span {
-      transform: none;
-    }
-  }
+  /* O movimento restante desta seção é GSAP e já fica atrás de
+     reduzMovimento(); o comparativo trata o próprio reduced-motion. */
 </style>
 
 <script>
@@ -543,9 +250,8 @@ const duelos = [
 
   /* ATO 2 — o diagrama se constrói conforme o scroll se aproxima dele:
      fachadas leste/oeste se desenham (stroke-dashoffset), unidades surgem
-     em cascata, corredor e rótulos em seguida, setas de incidência por
-     último. Estado inicial escondido SÓ via gsap.set — sem JS ou com
-     reduced-motion o SVG está completo no HTML. */
+     e os rótulos em seguida. Estado inicial escondido SÓ via gsap.set —
+     sem JS ou com reduced-motion o SVG está completo no HTML. */
   const diagrama = document.querySelector<HTMLElement>('[data-demo-diagrama]');
   if (diagrama) {
     aoAproximar(diagrama, async () => {
@@ -557,14 +263,10 @@ const duelos = [
       ]);
       gsap.registerPlugin(ScrollTrigger);
 
-      const faces = diagrama.querySelectorAll('.dg-face');
-      const unidades = diagrama.querySelectorAll('.dg-u');
-      const corredor = diagrama.querySelectorAll('.dg-c');
+      const planta = diagrama.querySelectorAll('.dg-planta');
       const rotulos = diagrama.querySelectorAll('.dg-l');
-      const setas = diagrama.querySelectorAll('.dg-s path');
 
-      gsap.set(faces, { strokeDasharray: 190, strokeDashoffset: 190 });
-      gsap.set([...unidades, ...corredor, ...rotulos, ...setas], { opacity: 0 });
+      gsap.set([...planta, ...rotulos], { opacity: 0 });
 
       gsap
         .timeline({
@@ -576,11 +278,44 @@ const duelos = [
             scrub: 0.6,
           },
         })
-        .to(faces, { strokeDashoffset: 0, duration: 0.9, stagger: 0.15 })
-        .to(unidades, { opacity: 1, duration: 0.35, stagger: 0.12 }, '-=0.35')
-        .to(corredor, { opacity: 1, duration: 0.3 }, '-=0.15')
-        .to(rotulos, { opacity: 1, duration: 0.35, stagger: 0.06 }, '<')
-        .to(setas, { opacity: 1, duration: 0.3, stagger: 0.07 });
+        .to(planta, { opacity: 1, duration: 0.6 })
+        .to(rotulos, { opacity: 1, duration: 0.35, stagger: 0.06 }, '<');
+
+      /* ---------- Percurso do sol ----------
+         O sol anda sobre o próprio arco desenhado no SVG: em vez de
+         aproximar a curva na mão, lemos os pontos do <path> com
+         getPointAtLength — assim o traço e o percurso nunca divergem.
+         A travessia é conduzida pelo scroll (scrub) ao longo de toda a
+         cena, e a fachada iluminada acompanha o lado em que o sol está. */
+      const arco = diagrama.querySelector<SVGPathElement>('#dg-arco');
+      const sol = diagrama.querySelector<SVGGElement>('[data-sol]');
+      const [rotL, rotO] = [...diagrama.querySelectorAll<SVGTextElement>('.dg-l')];
+
+      if (arco && sol) {
+        const total = arco.getTotalLength();
+        const estado = { p: 0 };
+        const posicionar = () => {
+          const pt = arco.getPointAtLength(estado.p * total);
+          gsap.set(sol, { x: pt.x, y: pt.y });
+          /* nascente à esquerda, poente à direita: o rótulo do lado em que
+             o sol está fica cheio, o oposto recua */
+          if (rotL) gsap.set(rotL, { opacity: 0.35 + (1 - estado.p) * 0.65 });
+          if (rotO) gsap.set(rotO, { opacity: 0.35 + estado.p * 0.65 });
+        };
+        posicionar();
+
+        gsap.to(estado, {
+          p: 1,
+          ease: 'none',
+          onUpdate: posicionar,
+          scrollTrigger: {
+            trigger: diagrama.closest('.demo'),
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 0.8,
+          },
+        });
+      }
     });
   }
 </script>

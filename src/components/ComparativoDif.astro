@@ -1,0 +1,665 @@
+---
+import { Picture } from 'astro:assets';
+import unidLuz from '../assets/images/unid-sacada-02.jpg';
+import unidAr from '../assets/images/unid-sacada-01.jpg';
+import unidPlanta from '../assets/images/unid-meio-02.jpg';
+/* Encerramento: sacada ao entardecer com o letreiro da marca. */
+import fechoFachada from '../assets/images/sacada-fecho.png';
+
+/* Os três contrastes mercado × WindyCity. Textos exatamente como aprovados.
+   `pos` foi definido imagem a imagem para o recorte mostrar o argumento:
+   01 privilegia a janela e a entrada de luz (à direita do quadro);
+   02 privilegia a enfiada e a abertura no fim do corredor (centro);
+   03 privilegia a marcenaria e o closet organizado (centro-direita). */
+const itens = [
+  {
+    tema: 'Iluminação',
+    mercado:
+      'Pouca iluminação natural — ambientes que dependem de luz artificial mesmo durante o dia.',
+    windy: 'Unidades paralelas à face de iluminação — luz natural em todos os cômodos, sem exceção.',
+    foto: unidLuz,
+    alt: 'Kitchenette em madeira clara e cama no mesmo ambiente, com janela de piso a teto ao lado da cama, cortina leve e vista da cidade',
+    pos: '70% 50%',
+  },
+  {
+    tema: 'Ventilação',
+    mercado: 'Ventilação limitada — pouca renovação de ar e menor conforto térmico.',
+    windy:
+      'Nenhum ambiente enclausurado — ventilação natural em todos os ambientes, inclusive banheiros.',
+    foto: unidAr,
+    alt: 'Corredor da cozinha em marcenaria de madeira clara, com vista enfiada até a cama e a abertura da sacada iluminada ao fundo',
+    pos: '48% 50%',
+  },
+  {
+    tema: 'Flexibilidade',
+    mercado: 'Espaços comprimidos — plantas que acomodam funções, mas sem fluidez.',
+    windy: 'Plantas flexíveis — layout adaptável, podendo configurar 1 dormitório.',
+    foto: unidPlanta,
+    alt: 'Closet amplo com portas de vidro e iluminação interna ao lado da cama, com televisão, armários e kitchenette resolvidos na mesma parede',
+    pos: '58% 50%',
+  },
+];
+const total = itens.length;
+---
+
+{/* ===================================================================
+    Composição única de duas colunas.
+
+    ESQUERDA (travada): título e texto da seção no topo; no rodapé, o tema
+    do momento em verde, o contador e o lado "O padrão do mercado" — só
+    esse rodapé se alterna conforme a fotografia ativa muda.
+
+    DIREITA: trilha de fotografias, todas do mesmo tamanho, saindo da borda
+    direita da tela e parando a 47% da largura. A contrapartida do
+    WindyCity fica sobre a própria fotografia.
+
+    NO MEIO: fio vertical que se preenche de verde conforme o scroll avança.
+
+    REGRA DE OURO: nada nasce escondido por CSS estático. Toda a composição
+    de duas colunas só existe sob `.cmp.is-js`, aplicada quando há espaço e
+    o usuário não pediu movimento reduzido. Fora disso é um fluxo vertical
+    completo: foto → tema → comparação → foto seguinte.
+    =================================================================== */}
+<div class="cmp" data-cmp>
+  <div class="wrap cmp-grade" data-prog="pin">
+    {/* ---------- Coluna esquerda (no fluxo vertical vira display:contents) ---------- */}
+    <div class="cmp-esq">
+      <div class="cmp-esq-in">
+        <div class="cmp-topo">
+          <p class="eyebrow" data-rv>Diferenciais</p>
+          <h2 class="cmp-h2" id="dif-t" data-rv style="--d:70ms">
+            Por que o WindyCity <em class="ac">vale</em> mais que um Studio comum
+          </h2>
+          <p class="cmp-lede" data-rv style="--d:140ms">
+            A maioria dos Studios reduz a metragem e reduz junto aquilo que mais importa no dia a
+            dia: luz, ar e espaço para viver bem. O WindyCity foi desenhado para não fazer essa
+            troca.
+          </p>
+        </div>
+
+        {/* Rodapé da coluna: tema + contador + lado do mercado.
+            Os três ocupam a mesma célula de grade e se revezam. */}
+        <div class="cmp-pe">
+          {
+            itens.map((it, i) => (
+              <div
+                class={`cmp-leg${i === 0 ? ' is-ativa' : ''}`}
+                data-cmp-leg
+                data-i={i}
+                style={`--i:${i}`}
+              >
+                <p class="cmp-ct">
+                  <span class="cmp-ct-par">
+                    <span class="cmp-ct-n">{i + 1}</span>&nbsp;/&nbsp;{total}
+                  </span>
+                </p>
+                <h3 class="cmp-tema">{it.tema}</h3>
+
+                <p class="cmp-m">
+                  <span class="cmp-lbl">O padrão do mercado</span>
+                  {it.mercado}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    {/* Medidor central: um traço por etapa, preenchendo de verde conforme
+        aquela etapa avança — feedback de "quanto falta para a próxima
+        imagem". Cada traço tem o seu próprio --prog (ver script). */}
+    <div class="cmp-fio" aria-hidden="true">
+      {itens.map((_, i) => (
+        <span class="cmp-tr" data-cmp-tr data-i={i}><span class="cmp-tr-in" /></span>
+      ))}
+    </div>
+
+    {/* ---------- Coluna direita: palco travado ----------
+        As fotografias não sobem pela coluna: ficam num palco sticky da MESMA
+        altura e no MESMO eixo vertical da coluna esquerda, trocando de par a
+        cada etapa. É isso que mantém o comparativo sincronizado — o
+        argumento do mercado e o do WindyCity estão sempre lado a lado, na
+        mesma linha. Os `cmp-passo` (invisíveis) são só o percurso de scroll
+        que define quando trocar. */}
+    <div class="cmp-trilha">
+      <ol class="cmp-palco">
+        {
+          itens.map((it, i) => (
+            <li
+              class={`cmp-item${i === 0 ? ' is-ativo' : ''}`}
+              data-i={i}
+              style={`--i:${i}`}
+            >
+              <figure class="cmp-fig">
+                <Picture
+                  src={it.foto}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="webp"
+                  widths={[520, 760, 1000, 1280, 1672]}
+                  sizes="(min-width: 1024px) 55vw, 100vw"
+                  alt={it.alt}
+                  loading="lazy"
+                  decoding="async"
+                  style={`--pos:${it.pos}`}
+                />
+                {/* Contrapartida do WindyCity sobre a própria fotografia */}
+                <figcaption class="cmp-w">
+                  <span class="cmp-lbl cmp-lbl--w">
+                    <span class="cmp-mk" aria-hidden="true" />
+                    WindyCity
+                  </span>
+                  {it.windy}
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ol>
+
+      {itens.map((_, i) => <div class="cmp-passo" data-cmp-passo data-i={i} aria-hidden="true" />)}
+    </div>
+  </div>
+
+  {/* ---------- Encerramento arquitetônico ----------
+      Abre da largura da coluna direita até a largura total conforme entra
+      (clip-path — sem recálculo de layout). Sem JS, --prog não existe e o
+      fallback `1` já entrega a imagem inteira. O gradiente do pé funde com
+      o bloco escuro seguinte, evitando o corte seco de claro para escuro. */}
+  <figure class="cmp-fecho bleed" data-prog>
+    <div class="cmp-fecho-quadro">
+      <Picture
+        src={fechoFachada}
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        widths={[760, 1200, 1600, 1672]}
+        sizes="100vw"
+        alt="Sacadas do WindyCity ao entardecer, com moradora na varanda e o letreiro da marca na base do edifício"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <div class="cmp-fecho-funde" aria-hidden="true"></div>
+  </figure>
+</div>
+
+<style>
+  /* ================================================================
+     Base = fluxo vertical (mobile, sem JS e telas baixas).
+     ================================================================ */
+  .cmp {
+    position: relative;
+    padding-top: var(--section-y);
+  }
+  .cmp-grade {
+    display: grid;
+    gap: clamp(28px, 6vw, 44px);
+  }
+  .cmp-esq,
+  .cmp-pe,
+  .cmp-trilha,
+  .cmp-palco {
+    display: contents;
+  }
+  /* percurso de scroll: só existe na composição travada */
+  .cmp-passo {
+    display: none;
+  }
+  .cmp-esq-in {
+    display: contents;
+  }
+  .cmp-palco {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  /* o fio só existe na composição de duas colunas */
+  .cmp-fio {
+    display: none;
+  }
+
+  .cmp-topo {
+    order: 0;
+  }
+  .cmp-item {
+    order: calc(var(--i) * 2 + 1);
+  }
+  .cmp-leg {
+    order: calc(var(--i) * 2 + 2);
+  }
+
+  /* ---------------- Bloco editorial do topo ---------------- */
+  .cmp-h2 {
+    font-size: clamp(1.95rem, 5.4vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.03;
+    letter-spacing: -0.032em;
+    text-wrap: balance;
+    margin-bottom: clamp(16px, 2.4vw, 26px);
+    max-width: 18ch;
+  }
+  .cmp-lede {
+    font-size: clamp(0.95rem, 1.25vw, 1.0625rem);
+    line-height: 1.62;
+    color: var(--fg-soft);
+    max-width: 46ch;
+  }
+
+  /* ---------------- Contador + tema ---------------- */
+  .cmp-ct {
+    margin-bottom: 6px;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .cmp-ct-par {
+    font-size: 0.9375rem;
+    font-weight: 400;
+    color: var(--fg-faint);
+    letter-spacing: -0.01em;
+  }
+  .cmp-ct-n {
+    font-weight: 700;
+    color: var(--verde);
+  }
+  /* Tema do momento: é o rótulo mais forte da coluna esquerda */
+  .cmp-tema {
+    color: var(--verde);
+    font-size: clamp(1.6rem, 4.4vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: clamp(14px, 2vw, 22px);
+  }
+
+  /* ---------------- Lados da comparação ---------------- */
+  .cmp-lbl {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+  .cmp-m {
+    font-size: clamp(0.9rem, 1.1vw, 0.9688rem);
+    line-height: 1.55;
+    color: var(--fg-faint);
+    max-width: 42ch;
+  }
+  .cmp-m .cmp-lbl {
+    color: var(--fg-faint);
+  }
+
+  /* ---------------- Fotografias da trilha ---------------- */
+  .cmp-fig {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--marrom-08);
+    aspect-ratio: 16 / 10;
+  }
+  .cmp-fig :global(picture) {
+    display: block;
+    height: 100%;
+  }
+  .cmp-fig :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--pos, center);
+    display: block;
+  }
+  /* Afirmação do WindyCity sobre a foto — gradiente garante contraste */
+  .cmp-w {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: clamp(64px, 14vw, 130px) clamp(18px, 2.2vw, 40px) clamp(18px, 2vw, 34px);
+    background: linear-gradient(
+      to top,
+      rgb(1 8 17 / 88%) 0%,
+      rgb(1 8 17 / 45%) 58%,
+      transparent 100%
+    );
+    color: var(--bege);
+    font-size: clamp(1.05rem, 1.75vw, 1.55rem);
+    font-weight: 600;
+    line-height: 1.28;
+    letter-spacing: -0.02em;
+    max-width: 34ch;
+  }
+  .cmp-lbl--w {
+    color: var(--bege);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 10px;
+  }
+  .cmp-mk {
+    width: 9px;
+    height: 9px;
+    background: var(--verde);
+    flex: none;
+  }
+
+  /* ---------------- Encerramento ---------------- */
+  .cmp-fecho {
+    position: relative;
+    margin-block: clamp(48px, 9vw, 110px) 0;
+    overflow: hidden;
+    line-height: 0;
+  }
+  /* A fonte é panorâmica (16/9): no fluxo vertical mantém proporção
+     horizontal em vez de virar um retrato apertado no meio do prédio. */
+  .cmp-fecho-quadro {
+    aspect-ratio: 4 / 3;
+    max-height: 70svh;
+  }
+  .cmp-fecho :global(picture) {
+    display: block;
+    height: 100%;
+  }
+  .cmp-fecho :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 42%;
+    display: block;
+  }
+  .cmp-fecho-funde {
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 42%;
+    background: linear-gradient(to bottom, transparent, var(--preto));
+    pointer-events: none;
+  }
+
+  /* ================================================================
+     Composição de duas colunas (só sob .is-js — ver comentário acima).
+     ================================================================ */
+  @media (min-width: 1024px) and (min-height: 640px) {
+    .cmp.is-js {
+      --cmp-top: clamp(92px, 11vh, 132px);
+      /* altura da fotografia: 53% da tela em 3/2, com teto para não passar
+         da viewport útil. Coluna esquerda, fio e palco usam a MESMA medida. */
+      --fh: min(calc(53vw / 1.5), calc(100svh - var(--cmp-top) - 6vh));
+      --cmp-topo-caixa: calc((100svh - var(--fh)) / 2 + var(--cmp-top) / 4);
+      padding-top: var(--cmp-top);
+    }
+    /* A coluna esquerda ocupa até 47% da tela; a trilha começa exatamente
+       nesse ponto e sangra até a borda direita. */
+    .cmp.is-js .cmp-grade {
+      /* A primeira coluna vai da margem de conteúdo até 47% da TELA — é o
+         ponto onde o fio corre e onde as fotografias começam. Medir em vw
+         (e não em fr) é o que garante os 47% exatos, independentemente do
+         conteúdo de cada coluna. */
+      /* --sangria é a distância da borda de conteúdo do .wrap até a borda da
+         tela; descontá-la faz a coluna terminar exatamente nos 47% da TELA,
+         inclusive em monitor ultrawide (onde o .wrap trava em --maxw). */
+      grid-template-columns: calc(47vw - var(--sangria)) minmax(0, 1fr);
+      column-gap: 0;
+      align-items: start;
+      gap: 0;
+    }
+    /* A caixa da coluna esquerda tem EXATAMENTE a altura da fotografia e o
+       mesmo topo — é o que põe o título 1/3 e o argumento do mercado na
+       mesma linha do argumento do WindyCity sobre a foto ao lado. */
+    .cmp.is-js .cmp-esq {
+      display: block;
+      grid-column: 1;
+      position: sticky;
+      top: var(--cmp-topo-caixa);
+      height: var(--fh);
+      padding-right: clamp(32px, 4vw, 76px);
+    }
+    .cmp.is-js .cmp-esq-in {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .cmp.is-js .cmp-topo {
+      order: 0;
+    }
+    .cmp.is-js .cmp-h2 {
+      font-size: clamp(1.9rem, 2.9vw, 3.05rem);
+      max-width: 15ch;
+    }
+    .cmp.is-js .cmp-lede {
+      max-width: 38ch;
+    }
+
+    /* Medidor central: três traços empilhados, um por etapa, a 10px das
+       fotografias. Cada um preenche de verde no seu trecho do percurso. */
+    .cmp.is-js .cmp-fio {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: var(--cmp-topo-caixa);
+      height: var(--fh);
+      width: 2px;
+      justify-self: start;
+      z-index: 2;
+    }
+    .cmp.is-js .cmp-tr {
+      position: relative;
+      flex: 1;
+      background: var(--rule);
+    }
+    .cmp.is-js .cmp-tr-in {
+      position: absolute;
+      inset: 0;
+      background: var(--verde);
+      transform: scaleY(var(--p, 0));
+      transform-origin: top center;
+    }
+
+    /* Da borda direita da tela até o fio: a coluna já começa nos 47%, então
+       basta sangrar à direita. 1px de recuo deixa o fio aparecer inteiro. */
+    .cmp.is-js .cmp-trilha {
+      display: block;
+      position: relative;
+      grid-column: 2;
+      grid-row: 1;
+      margin-right: calc(var(--sangria) * -1);
+      margin-left: 12px;
+    }
+    /* Palco travado: mesma altura e mesmo eixo vertical da coluna esquerda.
+       O palco SOMA a própria altura ao percurso (nada de margem negativa):
+       um elemento sticky de altura zero só se solta quando o container
+       inteiro sai da tela, e era isso que fazia a última fotografia ficar
+       presa a mais e invadir a seção seguinte. Com altura real, ele se
+       solta exatamente quando o último passo termina — e o último passo é
+       encurtado na mesma medida para o percurso total não mudar. */
+    .cmp.is-js .cmp-palco {
+      display: block;
+      position: sticky;
+      top: var(--cmp-topo-caixa);
+      height: var(--fh);
+      z-index: 1;
+    }
+    .cmp.is-js .cmp-item {
+      order: 0;
+      position: absolute;
+      inset: 0;
+    }
+    /* mesma proporção e mesmo tamanho em todas as etapas */
+    .cmp.is-js .cmp-fig {
+      aspect-ratio: auto;
+      height: 100%;
+      border-radius: var(--radius) 0 0 var(--radius);
+    }
+    /* Uma tela de scroll por etapa — inclusive a última: a cena só se solta
+       quando o terceiro traço fecha, e não antes (ver `medir` no script). */
+    .cmp.is-js .cmp-passo {
+      display: block;
+      height: 100svh;
+    }
+
+    /* Os três rodapés ocupam a MESMA célula e se revezam */
+    .cmp.is-js .cmp-pe {
+      display: grid;
+      order: 0;
+      min-height: 0;
+    }
+    .cmp.is-js .cmp-leg {
+      order: 0;
+      grid-area: 1 / 1;
+      align-self: end;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      filter: blur(3px);
+      transition:
+        opacity 0.52s var(--ease-out),
+        transform 0.52s var(--ease-out),
+        filter 0.52s var(--ease-out),
+        visibility 0s linear 0.52s;
+    }
+    .cmp.is-js .cmp-leg.is-ativa {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      filter: none;
+      transition:
+        opacity 0.58s var(--ease-out),
+        transform 0.58s var(--ease-out),
+        filter 0.58s var(--ease-out),
+        visibility 0s;
+    }
+
+    /* Troca de etapa: a foto que entra aparece com uma aproximação sutil */
+    .cmp.is-js .cmp-item {
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 0.55s var(--ease-out),
+        visibility 0s linear 0.55s;
+    }
+    .cmp.is-js .cmp-item.is-ativo {
+      opacity: 1;
+      visibility: visible;
+      transition:
+        opacity 0.55s var(--ease-out),
+        visibility 0s;
+    }
+    .cmp.is-js .cmp-fig :global(img) {
+      transform: scale(1.03);
+      transition: transform 0.9s var(--ease-out);
+    }
+    .cmp.is-js .cmp-item.is-ativo .cmp-fig :global(img) {
+      transform: scale(1);
+    }
+
+    .cmp.is-js .cmp-fecho-quadro {
+      aspect-ratio: auto;
+      max-height: none;
+      height: clamp(460px, 82svh, 900px);
+    }
+    .cmp.is-js .cmp-fecho :global(img) {
+      object-position: center 46%;
+    }
+    .cmp.is-js .cmp-fecho {
+      --abre: min(1, max(0, calc((var(--prog, 1) - 0.1) * 2.6)));
+      clip-path: inset(0 0 0 calc(38% * (1 - var(--abre))));
+    }
+  }
+</style>
+
+<script>
+  /* Etapa ativa medida junto com o medidor central (ver `medir`): a mesma
+     linha de referência decide qual fotografia está em cena e quanto do
+     traço já está verde, então os dois nunca se desencontram.
+     Scroll 100% nativo — nada de preventDefault, pin, snap ou etapas. */
+  const cmp = document.querySelector<HTMLElement>('[data-cmp]');
+
+  if (cmp) {
+    const itens = [...cmp.querySelectorAll<HTMLElement>('.cmp-item')];
+    const passos = [...cmp.querySelectorAll<HTMLElement>('[data-cmp-passo]')];
+    const tracos = [...cmp.querySelectorAll<HTMLElement>('[data-cmp-tr]')];
+    const palco = cmp.querySelector<HTMLElement>('.cmp-palco');
+    const legendas = [...cmp.querySelectorAll<HTMLElement>('[data-cmp-leg]')];
+    const duasColunas = matchMedia('(min-width: 1024px) and (min-height: 640px)');
+    const semMovimento = matchMedia('(prefers-reduced-motion: reduce)');
+
+    let ligado = false;
+    let ativo = -1;
+
+    const aplicar = (i: number) => {
+      if (i === ativo) return;
+      ativo = i;
+      for (const el of itens) el.classList.toggle('is-ativo', Number(el.dataset.i) === i);
+      for (const el of legendas) el.classList.toggle('is-ativa', Number(el.dataset.i) === i);
+    };
+
+    const ligar = () => {
+      if (ligado) return;
+      ligado = true;
+      cmp.classList.add('is-js');
+    };
+
+    const desligar = () => {
+      if (!ligado) return;
+      ligado = false;
+      cmp.classList.remove('is-js');
+      for (const el of itens) el.classList.remove('is-ativo');
+      for (const el of legendas) el.classList.remove('is-ativa');
+      for (const t of tracos) t.style.removeProperty('--p');
+      ativo = -1;
+    };
+
+    /* Traço e fotografia compartilham a MESMA referência: a base do palco
+       travado (topo sticky + altura da caixa). Cada traço fecha exatamente
+       quando o seu passo termina ali — e é nesse mesmo instante que o palco
+       se solta. Resultado: a terceira etapa fica travada até o verde
+       completar, em vez de a cena escapar assim que a foto aparece. */
+    let quadro = false;
+    const medir = () => {
+      quadro = false;
+      if (!ligado || !palco) return;
+
+      const topo = parseFloat(getComputedStyle(palco).top) || 0;
+      const linha = topo + palco.offsetHeight;
+
+      let novoAtivo = passos.length - 1;
+      passos.forEach((passo, i) => {
+        const r = passo.getBoundingClientRect();
+        const curso = r.height || 1;
+        const p = Math.min(Math.max((linha - r.top) / curso, 0), 1);
+        tracos[i]?.style.setProperty('--p', p.toFixed(4));
+        if (p < 1 && i < novoAtivo) novoAtivo = i;
+      });
+      aplicar(novoAtivo);
+    };
+    const agendar = () => {
+      if (quadro) return;
+      quadro = true;
+      requestAnimationFrame(medir);
+    };
+    addEventListener('scroll', agendar, { passive: true });
+    addEventListener('resize', agendar, { passive: true });
+
+    /* Movimento reduzido ou tela sem espaço caem na sequência vertical:
+       nada fica escondido atrás de uma troca de estado. */
+    const avaliar = () => {
+      if (duasColunas.matches && !semMovimento.matches) {
+        ligar();
+        agendar();
+      } else {
+        desligar();
+      }
+    };
+
+    avaliar();
+    agendar();
+    duasColunas.addEventListener('change', avaliar);
+    semMovimento.addEventListener('change', avaliar);
+    window.addEventListener('pagehide', desligar, { once: true });
+  }
+</script>

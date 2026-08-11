@@ -2,8 +2,6 @@
 import { Picture } from 'astro:assets';
 import SwipeAreas from './SwipeAreas.astro';
 import fachadaBaixo from '../assets/images/fachada-baixo.jpg';
-import terraco03 from '../assets/images/comum-terraco-03.jpg';
-import lavanderia02 from '../assets/images/comum-lavanderia-02.jpg';
 ---
 
 <section class="section theme-bege acs" id="areas-comuns" aria-labelledby="ac-t">
@@ -55,52 +53,8 @@ import lavanderia02 from '../assets/images/comum-lavanderia-02.jpg';
   <!-- ================= SWIPE SLIDER · 4 painéis de 100svh ================= -->
   <SwipeAreas />
 
-  <!-- ============== DETALHES · dupla editorial assimétrica ==============
-       Vistas complementares dos ambientes 01 e 02 (nenhuma foto repetida dos
-       painéis): a bancada do rooftop grande sangrando pela direita, a
-       lavanderia menor deslocada pra baixo à esquerda, parallax em forças
-       distintas pra elas se descolarem no scroll. -->
-  <div class="wrap">
-    <div class="acs-dupla">
-      <figure class="acs-dupla-a bleed-r" data-px="44" data-rv-img="dir">
-        <div class="acs-media acs-media--terr">
-          <Picture
-            src={terraco03}
-            formats={['avif', 'webp']}
-            fallbackFormat="webp"
-            widths={[560, 900, 1250, 1700]}
-            sizes="(max-width: 860px) 100vw, 62vw"
-            alt="Bancada gourmet de madeira do rooftop, com churrasqueira embutida e nicho de lenha ao lado"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <figcaption class="acs-cap">
-          <span class="acs-ix">01</span>
-          <span class="acs-item">Rooftop</span>
-        </figcaption>
-      </figure>
-
-      <figure class="acs-dupla-b" data-px="92" data-rv-img="cima" style="--d:120ms">
-        <div class="acs-media acs-media--lav">
-          <Picture
-            src={lavanderia02}
-            formats={['avif', 'webp']}
-            fallbackFormat="webp"
-            widths={[420, 640, 900]}
-            sizes="(max-width: 860px) 100vw, 30vw"
-            alt="Lavanderia coletiva do WindyCity em ângulo aberto, com bancada de pedra, prateleiras e plantas"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <figcaption class="acs-cap">
-          <span class="acs-ix">02</span>
-          <span class="acs-item">Lavanderia</span>
-        </figcaption>
-      </figure>
-    </div>
-  </div>
+  <!-- A dobra encerra no slider: a dupla de detalhes (rooftop + lavanderia)
+       repetia ambientes que os painéis já mostram em tela cheia. -->
 </section>
 
 <style>
@@ -111,8 +65,10 @@ import lavanderia02 from '../assets/images/comum-lavanderia-02.jpg';
     layout já fez a seção inteira herdar Times itálica no passado. NADA nesta
     folha começa com ".ac-".
   */
+  /* Sem respiro no pé: o último painel de 100svh do slider encosta direto
+     na faixa do marquee que vem em seguida. */
   .acs {
-    padding-bottom: clamp(70px, 9vw, 130px);
+    padding-bottom: 0;
   }
 
   /* ------------------------- Intro invertida ------------------------- */
@@ -186,55 +142,9 @@ import lavanderia02 from '../assets/images/comum-lavanderia-02.jpg';
     text-transform: uppercase;
   }
 
-  /* --------------------- Peça de mídia da dupla --------------------- */
-  .acs-media {
-    overflow: hidden;
-    height: 100%;
-  }
-  .acs-media :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .acs-cap {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    padding-top: 16px;
-  }
-
-  /* ------------------ Dupla editorial assimétrica ------------------ */
-  .acs-dupla {
-    display: grid;
-    grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr);
-    gap: clamp(24px, 4vw, 72px);
-    align-items: start;
-    padding-top: clamp(64px, 9vw, 150px);
-  }
-  .acs-dupla-a {
-    margin: 0;
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .acs-dupla-b {
-    margin: 0;
-    grid-column: 1;
-    grid-row: 1;
-    /* chega bem mais baixa: quebra a leitura de grade */
-    margin-top: clamp(90px, 16vw, 260px);
-  }
-  .acs-media--terr {
-    height: clamp(320px, 62vh, 680px);
-  }
-  .acs-media--lav {
-    height: clamp(240px, 40vh, 460px);
-  }
-
   /* ------------------------------ Mobile ------------------------------
      Empilhado, imagem da fachada primeiro (ordem do DOM já é essa) e em
-     sangria total; dupla vira coluna alternando o lado da sangria. O
-     parallax global já desliga sozinho abaixo de 761px. */
+     sangria total. O parallax global já desliga sozinho abaixo de 761px. */
   @media (max-width: 860px) {
     .acs-intro {
       display: block;
@@ -255,25 +165,6 @@ import lavanderia02 from '../assets/images/comum-lavanderia-02.jpg';
     }
     .acs-indice {
       margin-top: clamp(28px, 7vw, 40px);
-    }
-
-    .acs-dupla {
-      display: block;
-      padding-top: clamp(48px, 10vw, 72px);
-    }
-    .acs-dupla-b {
-      margin-top: 26px;
-      /* alterna o lado: a grande sangra à direita (bleed-r), esta à esquerda */
-      margin-left: calc(var(--sangria) * -1);
-    }
-    .acs-media--terr {
-      height: clamp(240px, 60vw, 380px);
-    }
-    .acs-media--lav {
-      height: clamp(240px, 66vw, 400px);
-    }
-    .acs-cap {
-      padding-right: var(--gutter);
     }
   }
 </style>

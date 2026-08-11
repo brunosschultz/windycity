@@ -85,6 +85,8 @@
   --fg-faint: var(--marrom-50);
   --rule: var(--marrom-16);
   --surface: var(--branco);
+  /* palavra em Times dentro de título Sora */
+  --acento: var(--verde);
 }
 
 /* Temas de seção — colorblocking (design system: blocos sólidos, não linhas) */
@@ -95,6 +97,7 @@
   --fg-faint: var(--marrom-50);
   --rule: var(--marrom-16);
   --surface: var(--branco);
+  --acento: var(--verde);
 }
 .theme-preto {
   --bg: var(--preto);
@@ -103,6 +106,7 @@
   --fg-faint: var(--bege-40);
   --rule: var(--bege-14);
   --surface: var(--bege-08);
+  --acento: #45b37c;
 }
 .theme-marrom {
   --bg: var(--marrom);
@@ -111,6 +115,7 @@
   --fg-faint: var(--bege-40);
   --rule: var(--bege-14);
   --surface: var(--bege-08);
+  --acento: #45b37c;
 }
 .theme-verde {
   --bg: var(--verde);
@@ -119,6 +124,7 @@
   --fg-faint: var(--bege-40);
   --rule: var(--bege-14);
   --surface: var(--bege-08);
+  --acento: var(--bege);
 }
 .theme-branco {
   --bg: var(--branco);
@@ -127,6 +133,7 @@
   --fg-faint: var(--marrom-50);
   --rule: var(--marrom-16);
   --surface: var(--bege);
+  --acento: var(--verde);
 }
 
 /* ---------- Reset ---------- */
@@ -208,6 +215,11 @@ ol {
   font-size: 1.22em;
   line-height: 0.85;
   letter-spacing: -0.005em;
+  /* Regra da marca: a palavra em Times dentro de um título em Sora é
+     sempre verde. `--acento` troca de tom por tema (ver .theme-*): o verde
+     do brand book não tem contraste suficiente sobre o preto, então nos
+     fundos escuros entra a variação clara já usada na hero. */
+  color: var(--acento);
 }
 
 h1,

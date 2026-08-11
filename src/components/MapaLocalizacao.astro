@@ -1,18 +1,25 @@
 ---
+import { getImage } from 'astro:assets';
 import Logo from './Logo.astro';
 import 'leaflet/dist/leaflet.css';
+import fotoUnicuritiba from '../assets/images/loc-unicuritiba.jpg';
+import fotoPucpr from '../assets/images/loc-pucpr.jpg';
+import fotoArena from '../assets/images/loc-arena.jpg';
+
+/* Miniaturas do cartão de hover: mesmas fotos já usadas na sequência 01–04,
+   servidas em 160px (é o tamanho real do quadro no cartão). */
+const thumb = async (src: ImageMetadata) =>
+  (await getImage({ src, width: 320, height: 320, format: 'webp', fit: 'cover' })).src;
 
 /* Coordenadas obtidas via geocodificação (Nominatim/OpenStreetMap) a
    partir do endereço e da lista de destaques informados pelo Bruno.
-   `foto` ainda não tem imagem real — aguardando fotos autorizadas de
-   cada local (ver conversa). Enquanto isso, o cartão cai no fallback
-   (inicial sobre a cor da marca). */
+   `foto` usa as mesmas imagens já autorizadas da sequência 01–04. */
 const empreendimento = { nome: 'WindyCity', lat: -25.4539596, lng: -49.2698424 };
 
 const destaques = [
-  { nome: 'UNICURITIBA', lat: -25.4497214, lng: -49.2656236, foto: null },
-  { nome: 'PUCPR', lat: -25.4526531, lng: -49.2510942, foto: null },
-  { nome: 'Arena da Baixada', lat: -25.4483457, lng: -49.2768771, foto: null },
+  { nome: 'UNICURITIBA', lat: -25.4497214, lng: -49.2656236, foto: await thumb(fotoUnicuritiba) },
+  { nome: 'PUCPR', lat: -25.4526531, lng: -49.2510942, foto: await thumb(fotoPucpr) },
+  { nome: 'Arena da Baixada', lat: -25.4483457, lng: -49.2768771, foto: await thumb(fotoArena) },
 ];
 
 /* Rua Brigadeiro Franco: em vez de um pin, evidencia a via inteira —
@@ -72,10 +79,9 @@ const ruaBrigadeiroFranco = {
 <style>
   .mapa {
     position: relative;
-    height: 55vh;
-    min-height: 320px;
-    margin-bottom: clamp(40px, 6vw, 72px);
-    background: var(--branco);
+    height: 50vh;
+    min-height: 360px;
+    background: var(--preto);
     /* deixa o cartão de hover sair pra cima da borda do mapa (sobre a
        área branca da seção) em vez de ficar cortado dentro dele */
     overflow: visible;
@@ -88,13 +94,9 @@ const ruaBrigadeiroFranco = {
     display: none;
   }
 
-  /* ---------- base escura (Dark Matter) recolorida pro verde da marca ----------
-     Tileset já nasce escuro (não é filtro simulando escuro) — o filtro aqui
-     só puxa os detalhes (ruas, parques) pro verde, estilo Waze à noite. */
-  .mapa-el :global(.leaflet-tile-pane) {
-    filter: sepia(0.7) saturate(3.5) hue-rotate(75deg) brightness(0.85) contrast(1.05);
-  }
-
+  /* ---------- base escura ----------
+     Dark Matter puro: preto, cinza e branco, SEM filtro de recoloração — a
+     cor no mapa fica por conta dos pins da marca. */
   .mapa-el :global(.leaflet-container) {
     font-family: 'Sora', system-ui, sans-serif;
     background: var(--preto);
@@ -146,7 +148,7 @@ const ruaBrigadeiroFranco = {
     color: var(--bege);
   }
 
-  /* ---------- pins dos destaques: mesma gota do empreendimento, 50% menor, marrom ---------- */
+  /* ---------- pins dos destaques: mesma gota do empreendimento, 50% menor, bege ---------- */
   .mapa-el :global(.pin-dest) {
     filter: drop-shadow(0 4px 8px rgba(1, 8, 17, 0.3));
     cursor: pointer;
@@ -156,8 +158,8 @@ const ruaBrigadeiroFranco = {
      Identifica o pin sem precisar de hover — o cartão com foto/distância
      continua sendo hover (desktop) ou toque (mobile). */
   .mapa-el :global(.tt-dest-nome) {
-    background: var(--marrom) !important;
-    color: var(--bege) !important;
+    background: var(--bege) !important;
+    color: var(--marrom) !important;
     border: none !important;
     border-radius: 4px !important;
     padding: 2px 7px !important;
@@ -168,7 +170,7 @@ const ruaBrigadeiroFranco = {
     box-shadow: 0 2px 8px rgba(1, 8, 17, 0.3) !important;
   }
   .mapa-el :global(.tt-dest-nome)::before {
-    border-top-color: var(--marrom) !important;
+    border-top-color: var(--bege) !important;
   }
 
   /* ---------- rótulo hover da rua evidenciada ---------- */
@@ -358,11 +360,11 @@ const ruaBrigadeiroFranco = {
       // ao mover/dar zoom, o cartão perderia o alinhamento: fecha
       mapa.on('movestart zoomstart', fechar);
 
-      // Destaques: pin igual ao do empreendimento, 50% menor e em marrom.
+      // Destaques: pin igual ao do empreendimento, 50% menor e em bege.
       const grupo = L.featureGroup();
       const iconeDest = L.divIcon({
         className: 'pin-dest',
-        html: pinSvg('var(--marrom)', 0.5),
+        html: pinSvg('var(--bege)', 0.5),
         iconSize: [17, 22],
         iconAnchor: [8.5, 22],
       });
@@ -391,20 +393,20 @@ const ruaBrigadeiroFranco = {
       if (isTouch) mapa.on('click', fechar);
 
       // Rua Brigadeiro Franco inteira: evidenciada como traçado (não como
-      // pin) — uma faixa escura por baixo dá contraste no mapa noturno, o
-      // verde por cima (50% opacidade) é o destaque.
+      // pin). Uma faixa escura por baixo abre espaço no mapa noturno e o
+      // verde por cima é o destaque.
       if (rua.trechos.length) {
         L.polyline(rua.trechos, {
           color: 'var(--preto)',
-          weight: 9,
-          opacity: 0.6,
+          weight: 10,
+          opacity: 0.65,
           lineCap: 'round',
           lineJoin: 'round',
         }).addTo(mapa);
         L.polyline(rua.trechos, {
           color: 'var(--verde)',
           weight: 5,
-          opacity: 0.5,
+          opacity: 0.95,
           lineCap: 'round',
           lineJoin: 'round',
         })

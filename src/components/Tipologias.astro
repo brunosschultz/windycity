@@ -1,13 +1,66 @@
 ---
 import { Picture } from 'astro:assets';
-import plantaStudio from '../assets/images/planta-24-45.png';
-import plantaGarden from '../assets/images/planta-47-08.png';
+import p2445 from '../assets/images/planta-24-45.png';
+import p2628 from '../assets/images/planta-26-28.png';
+import p3358 from '../assets/images/planta-33-58.png';
+import p2841 from '../assets/images/planta-28-41.png';
+import p4708 from '../assets/images/planta-47-08.png';
+import p7170 from '../assets/images/planta-71-70.png';
 /* Fotos de apoio: só as NÃO usadas por Diferenciais (que ocupa unid-sacada-01,
-   unid-sacada-02 e unid-meio-02). Duas bastam para a faixa — paleta branca
-   (meio-01) contra madeira clara (sacada-04), o contraste faz a dupla. */
+   unid-sacada-02 e unid-meio-02). Cada faixa usa uma dupla própria. */
 import ambClaro from '../assets/images/unid-meio-01.jpg';
 import ambMadeira from '../assets/images/unid-sacada-04.jpg';
+import ambMeio3 from '../assets/images/unid-meio-03.jpg';
+import ambSacada3 from '../assets/images/unid-sacada-03.jpg';
 import { waHref } from '../config';
+
+/* ⚠️ A METRAGEM de cada planta vem do nome do arquivo (dado real).
+   A DIVISÃO entre Studio e Garden abaixo foi deduzida da própria planta —
+   têm área privativa GRAMADA no térreo = Garden; têm apenas varanda/terraço
+   pavimentado = Studio. (A de 33,58 m² foi reclassificada como Garden nesta
+   revisão — a faixa ao longo da fachada é grama, não piso.) É a única leitura possível com o material em mãos e
+   precisa de confirmação do cliente; se algum arquivo estiver na lista
+   errada, basta movê-lo de `plantas` entre os dois blocos abaixo. */
+const plantasStudio = [
+  {
+    img: p2445,
+    area: '24,45 m²',
+    alt: 'Planta humanizada de studio de 24,45 m² do WindyCity, com dormitório, estar, cozinha compacta e banheiro integrados',
+    widths: [640, 960, 1280, 1536],
+  },
+  {
+    img: p2628,
+    area: '26,28 m²',
+    alt: 'Planta humanizada de studio de 26,28 m² do WindyCity, com varanda lateral e cozinha integrada ao estar',
+    widths: [560, 860, 1180, 1353],
+  },
+];
+const plantasGarden = [
+  {
+    img: p2841,
+    area: '28,41 m²',
+    alt: 'Planta humanizada de garden de 28,41 m² do WindyCity, com área externa privativa gramada',
+    widths: [480, 700, 913],
+  },
+  {
+    img: p3358,
+    area: '33,58 m²',
+    alt: 'Planta humanizada de garden de 33,58 m² do WindyCity, com faixa gramada privativa ao longo de toda a fachada',
+    widths: [560, 860, 1180, 1318],
+  },
+  {
+    img: p4708,
+    area: '47,08 m²',
+    alt: 'Planta humanizada de garden de 47,08 m² do WindyCity, com área externa privativa gramada e deck de madeira',
+    widths: [560, 800, 1088],
+  },
+  {
+    img: p7170,
+    area: '71,70 m²',
+    alt: 'Planta humanizada de garden de 71,70 m² do WindyCity, com ampla área externa gramada, deck e espreguiçadeiras',
+    widths: [560, 860, 1180, 1313],
+  },
+];
 
 /*
   Arquitetura da dobra: duas CENAS editoriais de ~100svh, uma por tipologia,
@@ -27,8 +80,7 @@ import { waHref } from '../config';
 const tipos = [
   {
     num: '01',
-    img: plantaStudio,
-    alt: 'Planta humanizada de studio do WindyCity, com dormitório, estar, cozinha compacta e banheiro integrados',
+    plantas: plantasStudio,
     nome: 'Studio',
     sub: '— praticidade para quem vive em movimento',
     texto:
@@ -42,13 +94,11 @@ const tipos = [
     ],
     cta: 'Conhecer Studios',
     dir: 'esq',
-    widths: [640, 960, 1280, 1536],
-    sizes: '(max-width: 980px) 92vw, 54vw',
+    sizes: '(max-width: 980px) 88vw, 42vw',
   },
   {
     num: '02',
-    img: plantaGarden,
-    alt: 'Planta humanizada de garden do WindyCity, com área externa privativa gramada e deck de madeira',
+    plantas: plantasGarden,
     nome: 'Garden',
     sub: '— mais espaço para viver por mais tempo',
     texto:
@@ -61,13 +111,15 @@ const tipos = [
     ],
     cta: 'Conhecer Gardens',
     dir: 'dir',
-    widths: [560, 800, 1088],
-    sizes: '(max-width: 980px) 92vw, 46vw',
+    sizes: '(max-width: 980px) 88vw, 42vw',
   },
 ];
 ---
 
-<section class="section theme-bege tp" id="tipologias" aria-labelledby="tp-t">
+{/* Fundo BRANCO: o branco dos arquivos de planta é branco puro, então
+    sobre o bege sobravam manchas claras nas bordas. Com a seção branca o
+    `multiply` funde perfeitamente e nenhuma planta precisa ser reexportada. */}
+<section class="section theme-branco tp" id="tipologias" aria-labelledby="tp-t">
   <div class="wrap">
     <header class="tp-head">
       <div class="tp-head-a">
@@ -96,22 +148,53 @@ const tipos = [
               {t.num}
             </span>
 
-            <figure class="tp-fig">
-              {/* O blend + a escala guiada por --prog ficam num wrapper que
-                  contém SÓ a imagem; a legenda fica fora — texto de 9px
-                  dentro de transform sairia borrado. */}
-              <div class="tp-fig-bl" data-rv-img={t.dir}>
-                <Picture
-                  src={t.img}
-                  formats={['avif', 'webp']}
-                  fallbackFormat="webp"
-                  widths={t.widths}
-                  sizes={t.sizes}
-                  alt={t.alt}
-                  loading="lazy"
-                  decoding="async"
-                />
+            {/* Carrossel das plantas da tipologia. Todas as opções vivem no
+                HTML; sem JS elas simplesmente aparecem empilhadas, com a
+                metragem de cada uma — nada fica escondido esperando script. */}
+            <figure class="tp-fig" data-carrossel>
+              <div class="tp-palco">
+                {t.plantas.map((p, k) => (
+                  <div
+                    class={`tp-slide${k === 0 ? ' is-ativo' : ''}`}
+                    data-slide
+                    data-area={p.area}
+                  >
+                    {/* O blend fica num wrapper que contém SÓ a imagem; a
+                        legenda fica fora — texto de 9px dentro de transform
+                        sairia borrado. */}
+                    <div class="tp-fig-bl" data-rv-img={k === 0 ? t.dir : undefined}>
+                      <Picture
+                        src={p.img}
+                        formats={['avif', 'webp']}
+                        fallbackFormat="webp"
+                        widths={p.widths}
+                        sizes={t.sizes}
+                        alt={p.alt}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <span class="tp-area-inline label">{p.area}</span>
+                  </div>
+                ))}
               </div>
+
+              {/* Controles: só aparecem quando o script assume (.is-js) —
+                  sem JS as setas não teriam o que fazer. */}
+              <div class="tp-ctrl" data-ctrl>
+                <button class="tp-seta" type="button" data-ant aria-label={`Planta anterior de ${t.nome}`}>
+                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <p class="tp-area" data-area-alvo aria-live="polite">{t.plantas[0].area}</p>
+                <button class="tp-seta" type="button" data-prox aria-label={`Próxima planta de ${t.nome}`}>
+                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              </div>
+
               <figcaption class="tp-il label">Imagens meramente ilustrativas</figcaption>
             </figure>
 
@@ -154,40 +237,45 @@ const tipos = [
           </div>
         </article>
 
-        {i === 0 && (
-          /* Faixa fotográfica COMUM entre as duas cenas — evidência da frase
-             de abertura ("compartilham a mesma arquitetura bem resolvida").
-             Sem legenda e sem vínculo com nenhum dos blocos: os arquivos dizem
-             posição no pavimento ("meio"/"sacada"), não tipologia comercial —
-             associá-los a Studio ou Garden seria inventar informação. Dupla
-             assimétrica em sangria total; contexto isolado do multiply. */
-          <div class="tp-faixa bleed">
-            <div class="tp-ft tp-ft--a" data-px="46" data-rv-img="esq">
-              <Picture
-                src={ambClaro}
-                formats={['avif', 'webp']}
-                fallbackFormat="webp"
-                widths={[480, 760, 1080, 1400, 1672]}
-                sizes="(max-width: 860px) 100vw, 58vw"
-                alt="Ambiente interno do WindyCity com cozinha compacta branca, sofá-cama, closet envidraçado e piso de madeira em espinha"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div class="tp-ft tp-ft--b" data-px="24" data-rv-img="dir" style="--d:120ms">
-              <Picture
-                src={ambMadeira}
-                formats={['avif', 'webp']}
-                fallbackFormat="webp"
-                widths={[420, 640, 900, 1200]}
-                sizes="(max-width: 860px) 78vw, 36vw"
-                alt="Detalhe interno do WindyCity com nicho de trabalho, bancada, banco embutido e cozinha em pedra clara ao lado"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
+        {/* Faixa fotográfica depois de CADA cena — o Garden não tinha a dele.
+            Sem legenda e sem vínculo com a tipologia: os arquivos dizem
+            posição no pavimento ("meio"/"sacada"), não tipologia comercial —
+            associá-los a Studio ou Garden seria inventar informação. Dupla
+            assimétrica em sangria total; contexto isolado do multiply. */}
+        <div class="tp-faixa bleed">
+          <div class="tp-ft tp-ft--a" data-px="46" data-rv-img="esq">
+            <Picture
+              src={i === 0 ? ambClaro : ambMeio3}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[480, 760, 1080, 1400, 1672]}
+              sizes="(max-width: 860px) 100vw, 58vw"
+              alt={
+                i === 0
+                  ? 'Ambiente interno do WindyCity com cozinha compacta branca, sofá-cama, closet envidraçado e piso de madeira em espinha'
+                  : 'Ambiente interno do WindyCity visto da entrada, com marcenaria clara contínua, estar e dormitório no mesmo espaço'
+              }
+              loading="lazy"
+              decoding="async"
+            />
           </div>
-        )}
+          <div class="tp-ft tp-ft--b" data-px="24" data-rv-img="dir" style="--d:120ms">
+            <Picture
+              src={i === 0 ? ambMadeira : ambSacada3}
+              formats={['avif', 'webp']}
+              fallbackFormat="webp"
+              widths={[420, 640, 900, 1200]}
+              sizes="(max-width: 860px) 78vw, 36vw"
+              alt={
+                i === 0
+                  ? 'Detalhe interno do WindyCity com nicho de trabalho, bancada, banco embutido e cozinha em pedra clara ao lado'
+                  : 'Detalhe da sacada do WindyCity, com guarda-corpo metálico, forro de madeira e vista para a cidade'
+              }
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
       </>
     ))
   }
@@ -207,6 +295,30 @@ const tipos = [
 
 <script>
   import { aoAproximar, reduzMovimento, dividirPalavras } from '../scripts/ilha';
+
+  /* ---------- Carrossel de plantas ----------
+     Sem GSAP e sem dependência: só troca a classe do slide ativo e o rótulo
+     da metragem. A classe `is-js` no <figure> é o que revela as setas e
+     colapsa a pilha — sem script, as plantas ficam todas visíveis, cada uma
+     com a própria metragem ao lado. */
+  for (const fig of document.querySelectorAll<HTMLElement>('[data-carrossel]')) {
+    const slides = [...fig.querySelectorAll<HTMLElement>('[data-slide]')];
+    const alvoArea = fig.querySelector<HTMLElement>('[data-area-alvo]');
+    if (slides.length < 2 || !alvoArea) continue;
+
+    fig.classList.add('is-js');
+    let atual = 0;
+
+    const mostrar = (i: number) => {
+      atual = (i + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle('is-ativo', k === atual));
+      alvoArea.textContent = slides[atual].dataset.area ?? '';
+    };
+
+    fig.querySelector('[data-ant]')?.addEventListener('click', () => mostrar(atual - 1));
+    fig.querySelector('[data-prox]')?.addEventListener('click', () => mostrar(atual + 1));
+    mostrar(0);
+  }
 
   const secao = document.querySelector('#tipologias');
   if (secao) {
@@ -306,10 +418,40 @@ const tipos = [
     z-index: 1;
     margin: 0;
   }
+  /* Palco de proporção fixa: os seis arquivos têm larguras e alturas bem
+     diferentes (de 2:1 a quase quadrado). Com uma caixa única e `contain`,
+     todas ocupam o MESMO espaço na página e nenhuma é distorcida ou
+     recortada — a planta só se ajusta dentro do palco. */
+  .tp-palco {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    /* Rede de segurança: sem isso, uma planta mais alta que a caixa
+       transbordava e cobria as setas de navegação logo abaixo. */
+    overflow: hidden;
+  }
+  .tp-slide {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
   /* O branco do arquivo da planta vira exatamente o bege da seção — a planta
      flutua sem moldura e deixa o número-fantasma atravessar por baixo. */
   .tp-fig-bl {
     mix-blend-mode: multiply;
+    width: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     /* Aproximação guiada pelo scroll: chega 6% menor e atinge o tamanho
        natural antes do meio da cena. O clamp trava em 1 — nunca estoura a
        própria caixa. Com prefers-reduced-motion o driver publica --prog:1,
@@ -317,9 +459,95 @@ const tipos = [
     transform: scale(clamp(0.94, calc(0.94 + var(--prog, 0) * 0.16), 1));
     transform-origin: center center;
   }
-  .tp-fig-bl :global(img) {
+  .tp-fig-bl :global(picture) {
+    display: flex;
     width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  .tp-fig-bl :global(img) {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
     height: auto;
+    object-fit: contain;
+  }
+  /* Sem JS as plantas ficam empilhadas, cada uma com sua metragem */
+  .tp-area-inline {
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    color: var(--marrom-50);
+  }
+
+  /* ---------- Controles do carrossel ---------- */
+  .tp-ctrl {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(16px, 2.4vw, 28px);
+    margin-top: clamp(14px, 2vw, 22px);
+  }
+  .is-js .tp-ctrl {
+    display: flex;
+  }
+  .tp-seta {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    background: none;
+    color: var(--fg);
+    cursor: pointer;
+    transition:
+      border-color 0.3s var(--ease),
+      color 0.3s var(--ease);
+  }
+  .tp-seta:hover {
+    border-color: var(--verde);
+    color: var(--verde);
+  }
+  .tp-seta:focus-visible {
+    outline: 2px solid var(--verde);
+    outline-offset: 3px;
+  }
+  /* Metragem da planta em exibição */
+  .tp-area {
+    font-family: 'TimesWC', 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-size: clamp(1.35rem, 2.6vw, 2rem);
+    line-height: 1;
+    color: var(--verde);
+    min-width: 6ch;
+    text-align: center;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  /* Com JS, só a planta ativa fica visível e a metragem migra pro controle */
+  .is-js .tp-slide {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s var(--ease-out),
+      visibility 0s linear 0.4s;
+  }
+  .is-js .tp-slide.is-ativo {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.45s var(--ease-out),
+      visibility 0s;
+  }
+  .is-js .tp-area-inline {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .is-js .tp-slide,
+    .is-js .tp-slide.is-ativo {
+      transition: none;
+    }
   }
   .tp-il {
     display: block;
@@ -433,22 +661,21 @@ const tipos = [
       order: 1;
     }
 
-    /* A planta sangra até a borda da tela do seu lado — protagonista, não
-       ilustração dentro de coluna. */
-    .tp-cena--a .tp-fig {
-      margin-left: calc(var(--sangria) * -1);
+    /* A planta fica centralizada na sua metade da tela, com a mesma caixa
+       nas duas cenas — nada de sangria: o carrossel precisa de um palco
+       estável, e as setas ficam sempre sob o centro da planta. */
+    /* Altura EXPLÍCITA (e não aspect-ratio + max-height): com max-height a
+       linha interna da grade ainda crescia junto com a planta mais alta, o
+       palco vazava e a navegação ficava escondida atrás da imagem — era o
+       que sumia com as setas do Garden, cujas plantas são quase quadradas.
+       Com altura fixa, as seis plantas ocupam exatamente a mesma caixa. */
+    .tp-palco {
+      aspect-ratio: auto;
+      height: clamp(320px, 58svh, 620px);
+      margin-inline: auto;
     }
-    .tp-cena--b .tp-fig {
-      margin-right: calc(var(--sangria) * -1);
-    }
-    /* Garden é quase quadrada: sem esta trava ela sairia mais alta que a
-       viewport. 1.171 é a proporção do arquivo (1088/929). */
-    .tp-cena--b .tp-fig-bl {
-      width: min(100%, calc(80svh * 1.171));
-      margin-left: auto;
-    }
-    .tp-cena--b .tp-il {
-      text-align: left;
+    .tp-il {
+      text-align: center;
     }
 
     /* Número no canto da PLANTA (não do texto), meio para fora da tela. */
@@ -466,14 +693,11 @@ const tipos = [
       transform: translate3d(0, calc((0.55 - var(--prog, 0.5)) * 120px), 0);
     }
 
-    /* O nome invade a planta: tensão texto-sobre-imagem. O deslocamento vai
-       no span (estático), nunca no h3 — o h3 é alvo de [data-rv], que
-       escreve em transform. */
-    .tp-cena--a .tp-nome {
-      transform: translateX(calc(clamp(24px, 5vw, 110px) * -1));
-    }
-    .tp-cena--b .tp-nome {
-      transform: translateX(clamp(24px, 5vw, 110px));
+    /* O nome fica no MESMO eixo do texto abaixo dele. Antes ele avançava
+       sobre a planta (translateX), o que deixava "Studio"/"Garden" fora do
+       alinhamento de todo o conteúdo da coluna. */
+    .tp-nome {
+      transform: none;
     }
   }
 

@@ -1,26 +1,11 @@
 ---
-import { Picture } from 'astro:assets';
-import fundo from '../assets/images/fachada-noite-hd.jpg';
 import { CONTATO } from '../config';
 
 /* Enquanto o número real não chega, o form avisa em vez de abrir link quebrado. */
 const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
 ---
 
-<section class="cta" id="contato" aria-labelledby="ct-t">
-  <div class="cta-bg" aria-hidden="true" data-rv-img="centro">
-    <Picture
-      src={fundo}
-      formats={['avif', 'webp']}
-      fallbackFormat="webp"
-      widths={[640, 960, 1280, 1600, 1920]}
-      sizes="100vw"
-      alt=""
-      loading="lazy"
-      decoding="async"
-    />
-  </div>
-  <div class="cta-veil" aria-hidden="true"></div>
+<section class="cta theme-verde" id="contato" aria-labelledby="ct-t">
 
   <!-- Continuação da costura de Condições: o fio desce da borda superior na
        MESMA coordenada x (o eixo esquerdo de conteúdo, var(--sangria)) e
@@ -127,9 +112,7 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
     isolation: isolate;
     overflow: hidden;
     padding-block: var(--section-y);
-    /* base explícita: antes de a máscara da foto abrir, o que se vê é o véu
-       sobre preto — declarar evita depender do fundo do <body> */
-    background: var(--preto);
+    background: var(--verde);
     color: var(--bege);
     --fg: var(--bege);
     --fg-soft: var(--bege-60);
@@ -138,79 +121,8 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
     /* espessura da medida verde — mesma linguagem das barras de Condições */
     --bar: clamp(2px, 0.22vw, 3px);
   }
-  .cta-bg {
-    position: absolute;
-    inset: 0;
-    z-index: -2;
-  }
-  .cta-bg :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 46%;
-  }
-  /* A foto entra por máscara (contrato global data-rv-img), mas SEM a escala
-     de repouso do padrão: nada pode se mexer atrás dos campos, nem por 1s.
-     Especificidade propositalmente acima de `[data-rv-img]:not([data-px]) img`
-     para não depender da ordem de injeção do CSS.
-     Variante "centro": a fachada abre do eixo para as bordas — fecha a página
-     como um plano de cinema, e numa imagem panorâmica (3200x1786) lê muito
-     melhor que a cortina vertical. Mesmo recorte usado no fecho de Áreas
-     Comuns (.acs-fecho-media), que é a outra imagem panorâmica do site. */
-  .cta .cta-bg[data-rv-img] :global(img) {
-    transform: none;
-    transition: clip-path 1.25s var(--ease-out);
-  }
-  .cta-veil {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background:
-      /* 1 · scrim de leitura, VERDE: fecha a coluna esquerda, onde o texto cai
-         sobre a foto (a fachada noturna tem varandas quase brancas que comiam
-         o lede). Horizontal de propósito — acompanha a coluna em qualquer
-         largura, ao contrário da diagonal. Verde e não preto para apagar o
-         realce da foto sem escurecer a seção nem sujar a cor da marca. */
-      linear-gradient(
-        90deg,
-        rgba(48, 115, 81, 0.8) 0%,
-        rgba(48, 115, 81, 0.74) 34%,
-        rgba(48, 115, 81, 0.66) 48%,
-        rgba(48, 115, 81, 0.24) 57%,
-        rgba(48, 115, 81, 0) 66%
-      ),
-      /* 2 · rebaixamento sob o mesmo trecho: o #307351 puro só entrega ~4,2:1
-         com bege, então o texto precisa de um fundo no máximo tão claro
-         quanto o verde chapado. Um ponto de preto garante isso sem virar
-         chapa escura. */
-      linear-gradient(
-          90deg,
-          rgba(1, 8, 17, 0.3) 0%,
-          rgba(1, 8, 17, 0.28) 34%,
-          rgba(1, 8, 17, 0.25) 48%,
-          rgba(1, 8, 17, 0.09) 57%,
-          rgba(1, 8, 17, 0) 66%
-        ),
-      /* 3 · diagonal de marca: verde cheio no canto do texto, janela aberta
-         no miolo (onde está o prédio iluminado), preto no fim */
-      linear-gradient(
-          112deg,
-          rgba(48, 115, 81, 0.96) 0%,
-          rgba(48, 115, 81, 0.88) 24%,
-          rgba(48, 115, 81, 0.56) 46%,
-          rgba(1, 8, 17, 0.46) 60%,
-          rgba(1, 8, 17, 0.8) 82%,
-          rgba(1, 8, 17, 0.93) 100%
-        ),
-      /* 4 · solda com o rodapé preto e reforça o topo sob o eyebrow */
-      linear-gradient(
-          180deg,
-          rgba(1, 8, 17, 0.45) 0%,
-          rgba(1, 8, 17, 0.08) 22%,
-          rgba(1, 8, 17, 0.1) 58%,
-          rgba(1, 8, 17, 0.84) 100%
-        );
-  }
+  /* Verde chapado, sem fotografia: a dobra de contato fecha a página como
+     um bloco sólido da marca — nada se move nem compete com os campos. */
   .cta :global(.eyebrow) {
     color: var(--bege);
   }
@@ -582,34 +494,10 @@ const waBase = CONTATO.whatsapp ? `https://wa.me/${CONTATO.whatsapp}` : '';
       max-width: none;
       margin-left: 0;
     }
-    .cta-bg :global(img) {
-      /* no recorte vertical o topo do prédio contra o céu é mais silencioso
-         atrás do texto do que a faixa de sacadas acesas */
-      object-position: 50% 34%;
-    }
     /* Sem a segunda coluna, o texto inteiro cai sobre a foto: o véu passa a
        ser vertical e fecha o terço superior, onde estão título e lede. A foto
        abre a partir da metade — atrás do card, que é opaco. No celular a
        leitura vem antes da fotografia. */
-    .cta-veil {
-      background:
-        linear-gradient(
-          168deg,
-          rgba(48, 115, 81, 0.96) 0%,
-          rgba(48, 115, 81, 0.93) 34%,
-          rgba(48, 115, 81, 0.89) 48%,
-          rgba(48, 115, 81, 0.62) 58%,
-          rgba(1, 8, 17, 0.74) 72%,
-          rgba(1, 8, 17, 0.93) 100%
-        ),
-        linear-gradient(
-          180deg,
-          rgba(1, 8, 17, 0.4) 0%,
-          rgba(1, 8, 17, 0.3) 26%,
-          rgba(1, 8, 17, 0.3) 50%,
-          rgba(1, 8, 17, 0.62) 100%
-        );
-    }
     .cta-ct {
       max-width: none;
     }

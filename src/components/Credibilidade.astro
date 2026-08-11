@@ -1,5 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
+import LogoGirassol from './LogoGirassol.astro';
 import poster from '../assets/images/fachada-02.png';
 import torre from '../assets/images/fachada-baixo.jpg';
 import fachadaDia from '../assets/images/fachada-dia-hd.jpg';
@@ -12,17 +13,13 @@ const stats = [
   { valor: String(EMPREENDIMENTO.walkScore), count: EMPREENDIMENTO.walkScore, label: 'Walk Score da região' },
   { valor: EMPREENDIMENTO.comercializado, label: 'das unidades já comercializadas' },
   {
-    valor: '[X anos]',
+    valor: `${EMPREENDIMENTO.anosEquipe} anos`,
+    count: EMPREENDIMENTO.anosEquipe,
+    sufixo: 'anos',
     label: 'de experiência combinada da equipe técnica',
-    nota: '(confirmar número exato)',
-    pendente: true,
   },
 ];
 
-const depoimentos = [
-  'Cliente que já comprou com a Girassol conta a experiência de compra e atendimento.',
-  'Segundo relato de cliente, reforçando confiança e transparência.',
-];
 ---
 
 <section class="section theme-preto cr" id="girassol" aria-labelledby="gi-t">
@@ -97,6 +94,10 @@ const depoimentos = [
         </span>
       </figure>
 
+      {/* Assinatura da incorporadora ao centro do palco: entra junto com a
+          progressão dos números (ver script), fechando a leitura de prova. */}
+      <div class="cr-selo" data-cr-selo aria-hidden="true"><LogoGirassol /></div>
+
       <ul class="stats">
         {
           stats.map((s) => (
@@ -104,6 +105,7 @@ const depoimentos = [
               <i class="stat-fio" aria-hidden="true" />
               <span class={`stat-n ${s.pendente ? 'is-pend' : ''}`}>
                 {s.count ? <span data-count={s.count}>0</span> : s.valor}
+                {s.sufixo && <span class="stat-suf">{s.sufixo.trim()}</span>}
               </span>
               <span class="stat-l">{s.label}</span>
               {s.nota && <span class="stat-nota">{s.nota}</span>}
@@ -154,30 +156,10 @@ const depoimentos = [
         </span>
       </div>
       <figcaption class="cr-vcap" data-rv>
-        <span class="label">Vídeo institucional</span>
+        <span class="cr-vtit">Vídeo institucional</span>
         <span class="cr-vsub">Fundadores apresentando a Girassol e o WindyCity</span>
       </figcaption>
     </figure>
-
-    <!-- ============ 5 · DEPOIMENTOS ============
-         Dois blocos desencontrados (esquerda / direita), com a descrição em
-         escala de citação — linhas editoriais, sem card. -->
-    <ul class="depo">
-      {
-        depoimentos.map((d, i) => (
-          <li class="depo-it" data-rv style={`--d:${i * 90}ms`}>
-            <span class="depo-ic" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-                <circle cx="12" cy="12" r="9.2" />
-                <path d="M10 8.5 16 12l-6 3.5v-7Z" stroke-linejoin="round" />
-              </svg>
-            </span>
-            <span class="depo-t">Depoimento em vídeo</span>
-            <span class="depo-d ac">{d}</span>
-          </li>
-        ))
-      }
-    </ul>
 
     <div class="cr-cta" data-rv>
       <a class="btn btn--light" href="#contato">
@@ -263,6 +245,19 @@ const depoimentos = [
             t + 0.02
           );
         });
+        /* A assinatura da Girassol acompanha a progressão: nasce discreta
+           com o primeiro número e chega inteira junto com o último. Estado
+           inicial só via JS — sem script o selo está lá, visível. */
+        const selo = cena.querySelector<HTMLElement>('[data-cr-selo]');
+        if (selo) {
+          tl.fromTo(
+            selo,
+            { autoAlpha: 0, scale: 0.9 },
+            { autoAlpha: 1, scale: 1, duration: 0.62, ease: 'none' },
+            0.06
+          );
+        }
+
         /* respiro final: o último número assenta antes da cena soltar */
         tl.to({}, { duration: 0.16 });
       });
@@ -379,6 +374,22 @@ const depoimentos = [
       ),
       linear-gradient(to bottom, rgba(1, 8, 17, 0.38), rgba(1, 8, 17, 0) 22%);
   }
+  /* Assinatura da incorporadora: centro exato do palco, escala grande */
+  .cr-selo {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .cr-selo :global(svg) {
+    width: clamp(160px, 26vw, 360px);
+    height: auto;
+    max-width: none;
+    opacity: 0.92;
+    filter: drop-shadow(0 10px 40px rgba(1, 8, 17, 0.6));
+  }
   .stats {
     position: absolute;
     z-index: 2;
@@ -412,6 +423,10 @@ const depoimentos = [
   .stat-n.is-pend {
     font-size: clamp(1.3rem, 2.6vw, 2.4rem);
     color: var(--bege-60);
+  }
+  /* "anos" ao lado do número, na mesma linha de base */
+  .stat-suf {
+    margin-left: 0.18em;
   }
   .stat-l {
     font-size: 0.8125rem;
@@ -523,6 +538,15 @@ const depoimentos = [
   .cr-vcap .label {
     color: var(--bege);
   }
+  .cr-vtit {
+    display: block;
+    font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    margin-bottom: 8px;
+  }
   .cr-vsub {
     font-size: 0.875rem;
     color: var(--bege-60);
@@ -534,56 +558,7 @@ const depoimentos = [
       border-color: var(--bege);
     }
   }
-
-  /* ---------- 5 · Depoimentos desencontrados ---------- */
-  .depo {
-    margin-top: clamp(72px, 10vw, 150px);
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-  }
-  .depo-it {
-    grid-column: 1 / -1;
-    border-top: 1px solid var(--rule);
-    padding-top: clamp(18px, 2.4vw, 30px);
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: clamp(14px, 2vw, 26px);
-    row-gap: 10px;
-    align-items: start;
-  }
-  .depo-ic {
-    grid-row: 1 / span 2;
-    width: clamp(34px, 3vw, 44px);
-    height: clamp(34px, 3vw, 44px);
-    color: var(--verde);
-    transition: transform 0.5s var(--ease);
-  }
-  .depo-ic svg {
-    width: 100%;
-    height: 100%;
-  }
-  .depo-t {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--bege-60);
-  }
-  .depo-d {
-    font-size: clamp(1.2rem, 2vw, 1.75rem);
-    line-height: 1.4;
-    letter-spacing: -0.01em;
-    color: var(--bege-80);
-    max-width: 32ch;
-    transition: color 0.4s ease;
-  }
   @media (hover: hover) {
-    .depo-it:hover .depo-ic {
-      transform: translateX(4px);
-    }
-    .depo-it:hover .depo-d {
-      color: var(--bege);
-    }
   }
 
   .cr-cta {
@@ -655,14 +630,6 @@ const depoimentos = [
     .cr-vcap {
       padding-bottom: clamp(8px, 1vw, 18px);
     }
-
-    .depo-it:nth-child(1) {
-      grid-column: 1 / span 7;
-    }
-    .depo-it:nth-child(2) {
-      grid-column: 6 / span 7;
-      margin-top: clamp(40px, 6vw, 88px);
-    }
   }
 
   @media (max-width: 900px) {
@@ -698,7 +665,11 @@ const depoimentos = [
       margin-top: clamp(28px, 4vw, 48px);
       padding-inline: var(--gutter);
     }
-    .stat-l {
+    /* "anos" ao lado do número, na mesma linha de base */
+  .stat-suf {
+    margin-left: 0.18em;
+  }
+  .stat-l {
       color: var(--bege-60);
     }
     .stat-fio,

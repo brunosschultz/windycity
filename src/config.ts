@@ -24,7 +24,7 @@ export const CONTATO = {
   instagramUrl: 'https://instagram.com/girassolincorporacoes',
   email: '[contato@girassolincorporacoes.com.br]',
   cnpj: '[00.000.000/0000-00]',
-  endereco: '[Endereço da obra — a confirmar]',
+  endereco: 'Rua Conselheiro Dantas, 1287 — Prado Velho',
 } as const;
 
 /**
@@ -40,7 +40,9 @@ export const waHref = (mensagem?: string): string => {
 export const EMPREENDIMENTO = {
   unidades: 48,
   walkScore: 92,
-  comercializado: '~50%',
+  comercializado: '50%',
+  /** Anos de experiência combinada da equipe técnica — informado pelo cliente. */
+  anosEquipe: 10,
   entrada: 10,
   obra: 20,
   chaves: 70,

@@ -351,8 +351,18 @@ const paineis = [
         obs.disable();
         armado = false;
         esfriar = Date.now() + 700;
-        // devolve o gesto pro scroll nativo — nunca prende o usuário
-        window.scrollBy({ top: dir * window.innerHeight * 0.12, behavior: 'smooth' });
+        /* Devolve o gesto pro scroll nativo — nunca prende o usuário.
+           Em vez de um empurrão curto (que deixava o palco parado a ~12%
+           fora da tela, meio dentro meio fora, e ainda por cima abaixo do
+           limiar de rearme), leva direto até a borda da seção vizinha: ou
+           o palco sai inteiro por cima, ou a seção anterior volta a ocupar
+           a tela toda. Assim nunca sobra faixa de palco na viewport. */
+        const r = raiz.getBoundingClientRect();
+        const destino =
+          dir > 0
+            ? window.scrollY + r.bottom
+            : window.scrollY + r.top - window.innerHeight;
+        window.scrollTo({ top: Math.max(0, destino), behavior: 'smooth' });
       }
 
       function avancar(dir: number) {
@@ -372,13 +382,19 @@ const paineis = [
       });
       obs.disable();
 
-      // Armar: quando o palco cobre >=98% da viewport, alinha e liga o Observer.
+      /* Armar: assim que o palco cobre a maior parte da viewport, ele se
+         alinha e assume o gesto. O limiar era 0.98 — perto demais do fim
+         do percurso: dava pra parar a rolagem com uma faixa de até 2% da
+         seção seguinte à mostra e nada acontecia. Com 0.9 o encaixe
+         acontece antes, e o alinhamento leva o palco pra exatamente
+         100svh nas duas direções. */
+      const LIMIAR = 0.9;
       const checar = () => {
         if (armado || Date.now() < esfriar) return;
         const r = raiz.getBoundingClientRect();
         const vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
-        if (r.height <= 0 || vis / r.height < 0.98) return;
-        if (Math.abs(r.top) > 2) {
+        if (r.height <= 0 || vis / r.height < LIMIAR) return;
+        if (Math.abs(r.top) > 1) {
           window.scrollTo({ top: window.scrollY + r.top, behavior: 'smooth' });
         }
         armado = true;
@@ -390,7 +406,7 @@ const paineis = [
         (entradas) => {
           for (const e of entradas) if (e.isIntersecting) checar();
         },
-        { threshold: [0.98] }
+        { threshold: [LIMIAR] }
       );
       io.observe(raiz);
 
