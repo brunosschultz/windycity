@@ -384,7 +384,7 @@ const pontos = [
   /* ---------------- 2 · Mídia principal (slot do vídeo de drone) ---------------- */
   .loc-media {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     height: 100svh;
     background: var(--marrom-08);
   }
@@ -502,7 +502,7 @@ const pontos = [
   .loc-foto {
     order: var(--o, 0);
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     border-radius: var(--radius);
     background: var(--marrom-08);
     margin-bottom: clamp(18px, 4vw, 24px);
@@ -560,7 +560,7 @@ const pontos = [
   }
   .cot-tile {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     border-radius: var(--radius);
   }
   .cot-main {
@@ -663,7 +663,7 @@ const pontos = [
       top: calc((100svh - var(--ph)) / 2);
       height: var(--ph);
       margin-left: calc(var(--sangria) * -1);
-      overflow: hidden;
+      overflow: clip;
       border-radius: 0 var(--radius) var(--radius) 0;
     }
     .is-js .loc-foto {
@@ -689,7 +689,7 @@ const pontos = [
     /* Sem caixa cinza: nem o painel nem o quadro do Cotidiano pintam fundo,
        então as três fotos ficam soltas sobre o branco da seção. */
     .is-js .f-cot {
-      overflow: hidden;
+      overflow: clip;
       background: none;
     }
 
@@ -754,7 +754,7 @@ const pontos = [
     margin-top: 0;
     background: var(--preto);
     color: var(--bege);
-    overflow: hidden;
+    overflow: clip;
   }
   .score-grid {
     --padY: clamp(60px, 10vw, 120px);
@@ -817,7 +817,7 @@ const pontos = [
      (mobile) — o oposto do painel largo do item 02 */
   .score-foto {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     margin-inline: calc(var(--sangria) * -1);
     margin-bottom: calc(var(--padY) * -1);
     aspect-ratio: 4 / 5;
