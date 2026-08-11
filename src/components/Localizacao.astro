@@ -432,11 +432,16 @@ const pontos = [
     display: flex;
     align-items: center;
     padding-inline: var(--sangria);
-    background: radial-gradient(
-      120% 78% at 30% 50%,
-      rgb(1 8 17 / 68%) 0%,
-      rgb(1 8 17 / 38%) 45%,
-      rgb(1 8 17 / 0%) 78%
+    /* Gradiente HORIZONTAL, não radial: em tela de celular o radial
+       produzia anéis de banding — as "linhas pontilhadas" que apareciam
+       atravessando o endereço. O linear em um eixo só não banda. */
+    background: linear-gradient(
+      90deg,
+      rgb(1 8 17 / 74%) 0%,
+      rgb(1 8 17 / 62%) 32%,
+      rgb(1 8 17 / 40%) 58%,
+      rgb(1 8 17 / 18%) 80%,
+      rgb(1 8 17 / 8%) 100%
     );
     pointer-events: none;
   }
@@ -448,7 +453,7 @@ const pontos = [
     display: block;
     font-style: normal;
     color: #fff;
-    line-height: 0.95;
+    line-height: 1.14;
     letter-spacing: -0.03em;
     text-wrap: balance;
     text-shadow: 0 2px 40px rgb(0 0 0 / 35%);
@@ -457,6 +462,10 @@ const pontos = [
   .loc-endereco-l2 {
     display: block;
     font-weight: 600;
+    line-height: 1.14;
+  }
+  .loc-endereco-l2 {
+    margin-top: 0.28em;
   }
   .loc-endereco-l1 {
     font-size: clamp(1.9rem, 5.1vw, 5.4rem);
@@ -696,29 +705,32 @@ const pontos = [
       margin: 0;
       padding-block: clamp(28px, 4vh, 48px);
     }
-    .is-js .loc-item + .loc-item {
-      border-top: 1px solid var(--rule);
-    }
     /* Universidades comanda duas fotografias: percorre o dobro para cada
        uma ficar o mesmo tempo em tela que os demais pontos. */
     .is-js .loc-item--duplo {
       min-height: 160svh;
     }
-    /* número em escala de pôster: marca-d'água que acende no item ativo */
+    /* Numeral discreto: deixou de ser marca-d'água em escala de pôster —
+       agora só marca a etapa, e quem carrega o peso visual é o título. */
     .is-js .loc-num {
-      font-size: clamp(7rem, 11vw, 12.5rem);
-      line-height: 0.78;
-      color: var(--marrom-16);
+      font-size: clamp(1.6rem, 2.1vw, 2.1rem);
+      line-height: 1;
+      color: var(--marrom-50);
       transition: color 0.5s var(--ease);
     }
     .is-js .loc-item.is-ativo .loc-num {
       color: var(--verde);
     }
+    /* Título com mais presença e afastado do numeral (antes ele subia
+       -0.62em para encaixar sob o número gigante). */
     .is-js .loc-t {
       position: relative;
       z-index: 1;
-      margin-top: -0.62em;
-      font-size: clamp(1.55rem, 2.3vw, 2.3rem);
+      margin-top: clamp(14px, 1.6vw, 22px);
+      font-size: clamp(2rem, 3.2vw, 3.1rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
       opacity: 0.4;
       transition: opacity 0.45s var(--ease);
     }
