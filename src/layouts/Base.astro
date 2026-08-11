@@ -120,8 +120,45 @@ const schema = {
       const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       /* 1 · Revelação ao entrar na viewport */
+
+      /* Títulos por palavra. O corte acontece SÓ aqui, em JS: sem JS (ou se
+         este script falhar) o h2 fica inteiro e visível — nada escondido por
+         CSS estático. Percorre os nós de texto em vez de trocar textContent,
+         senão o <em class="ac"> do acento seria destruído.
+         Custo: 6 títulos, feito uma vez, antes do observer. */
+      const partirPalavras = (el: HTMLElement) => {
+        const passeio = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        const nos: Text[] = [];
+        for (let n = passeio.nextNode(); n; n = passeio.nextNode()) nos.push(n as Text);
+        let i = 0;
+        for (const no of nos) {
+          const frag = document.createDocumentFragment();
+          for (const parte of (no.textContent ?? '').split(/(\s+)/)) {
+            if (!parte) continue;
+            if (/^\s+$/.test(parte)) {
+              frag.append(' ');
+              continue;
+            }
+            const fora = document.createElement('span');
+            fora.className = 'pal';
+            const dentro = document.createElement('span');
+            dentro.textContent = parte;
+            dentro.style.transitionDelay = `${i++ * 42}ms`;
+            fora.append(dentro);
+            frag.append(fora);
+          }
+          no.replaceWith(frag);
+        }
+        el.classList.add('is-pal');
+      };
+      if (!reduz) {
+        document
+          .querySelectorAll<HTMLElement>('[data-rv-pal]')
+          .forEach((el) => partirPalavras(el));
+      }
+
       const alvos = document.querySelectorAll<HTMLElement>(
-        '[data-rv], [data-rv-img], [data-rv-line]'
+        '[data-rv], [data-rv-img], [data-rv-line], [data-rv-esc], [data-rv-pal]'
       );
       if (reduz) {
         alvos.forEach((el) => el.classList.add('is-in'));

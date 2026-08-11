@@ -49,7 +49,7 @@ const pontos = [
        foto abaixo é o endereço do empreendimento, não um trecho dele. -->
   <header class="wrap loc-abre">
     <p class="eyebrow" data-rv>Localização</p>
-    <h2 class="h2-xl loc-titulo" id="loc-t" data-rv style="--d:40ms">
+    <h2 class="h2-xl loc-titulo" id="loc-t" data-rv-pal>
       Viva a cidade com mais <em class="ac">autonomia</em>
     </h2>
     <p class="lede loc-lede" data-rv style="--d:90ms">
@@ -378,18 +378,29 @@ const pontos = [
   }
 
   /* ---------------- 2 · Mídia principal (slot do vídeo de drone) ---------------- */
+  /* A dobra nasce como um quadro menor, com cantos arredondados, e ABRE
+     até ocupar a tela inteira conforme o scroll avança. O crescimento é
+     por `clip-path`, não por width/height: recorte é pintura, então não
+     há recálculo de layout a cada quadro.
+     `--abre` remapeia o --prog do driver (0 ao encostar embaixo, 1 ao sair
+     em cima) para fechar antes do meio do percurso. Sem JS o --prog não
+     existe e o fallback `1` já entrega o quadro inteiro. */
   .loc-media {
     position: relative;
     overflow: hidden;
     height: 100svh;
     background: var(--marrom-08);
+    --abre: min(1, max(0, calc((var(--prog, 1) - 0.06) * 2.6)));
+    clip-path: inset(
+      calc((1 - var(--abre)) * 9svh) calc((1 - var(--abre)) * 8vw) round
+        calc((1 - var(--abre)) * 16px)
+    );
   }
-  /* Zoom-out conforme o scroll avança: entra ampliada e vai abrindo até a
-     escala natural. Interpola 1.16 → 1.0 sobre --prog (0→1). Sem JS a
-     custom property não existe e o fallback `1` entrega a imagem já aberta. */
+  /* Zoom-out do CONTEÚDO, mais discreto que antes: quem carrega o gesto
+     agora é a abertura do quadro (ver .loc-media). Interpola 1.08 → 1.0. */
   .loc-media-zoom {
     height: 100%;
-    transform: scale(calc(1.16 - 0.16 * var(--prog, 1)));
+    transform: scale(calc(1.08 - 0.08 * var(--prog, 1)));
     transform-origin: center center;
     will-change: transform;
   }
@@ -416,6 +427,9 @@ const pontos = [
   @media (prefers-reduced-motion: reduce) {
     .loc-media-zoom {
       transform: none;
+    }
+    .loc-media {
+      clip-path: none;
     }
   }
   /* Endereço centralizado na altura da foto. O véu agora é radial a partir
@@ -716,24 +730,23 @@ const pontos = [
     .is-js .loc-item--duplo {
       min-height: 160svh;
     }
-    /* Numeral discreto: deixou de ser marca-d'água em escala de pôster —
-       agora só marca a etapa, e quem carrega o peso visual é o título. */
+    /* Numeral em escala de pôster de novo — marca-d'água que acende no
+       item ativo. Só que agora ele NÃO encosta no título: antes o h3 subia
+       -0.62em para encaixar sob o número, o que colava os dois. */
     .is-js .loc-num {
-      font-size: clamp(1.6rem, 2.1vw, 2.1rem);
-      line-height: 1;
-      color: var(--marrom-50);
+      font-size: clamp(6rem, 9.5vw, 11rem);
+      line-height: 0.8;
+      color: var(--marrom-16);
       transition: color 0.5s var(--ease);
     }
     .is-js .loc-item.is-ativo .loc-num {
       color: var(--verde);
     }
-    /* Título com mais presença e afastado do numeral (antes ele subia
-       -0.62em para encaixar sob o número gigante). */
     .is-js .loc-t {
       position: relative;
       z-index: 1;
-      margin-top: clamp(14px, 1.6vw, 22px);
-      font-size: clamp(2rem, 3.2vw, 3.1rem);
+      margin-top: clamp(16px, 2vw, 28px);
+      font-size: clamp(1.9rem, 3vw, 2.9rem);
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.05;

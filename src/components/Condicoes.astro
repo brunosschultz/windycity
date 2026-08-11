@@ -33,7 +33,7 @@ const etapas = [
       <div class="wrap cd-palco-in">
         <div class="cd-head">
           <p class="eyebrow" data-rv>Condições comerciais</p>
-          <h2 class="h2-xl" id="cd-t" data-rv style="--d:80ms">
+          <h2 class="h2-xl" id="cd-t" data-rv-pal>
             Mais <em class="ac">facilidade</em> no início. Mais planejamento até a entrega.
           </h2>
         </div>
@@ -71,8 +71,8 @@ const etapas = [
     <div class="preco" data-rv>
       <span class="preco-k label">Faixa de valores</span>
       <p class="preco-v">
-        a partir de <strong>[R$ valor mínimo]</strong> até <strong>[R$ valor máximo]</strong> — varia
-        por andar e orientação da unidade.
+        a partir de <strong>{EMPREENDIMENTO.precoMin}</strong> até
+        <strong>{EMPREENDIMENTO.precoMax}</strong> — varia por andar e orientação da unidade.
       </p>
       <a class="btn btn--ghost preco-cta" href="#contato">
         <span>Ver condições completas</span>

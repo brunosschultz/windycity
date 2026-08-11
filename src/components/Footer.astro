@@ -7,12 +7,12 @@ const ano = new Date().getFullYear();
 
 <footer class="ft theme-preto">
   <div class="wrap ft-in">
-    <div class="ft-brand">
+    <div class="ft-brand" data-rv>
       <Logo class="ft-logo" title="WindyCity" />
       <p class="ft-slogan">Viva o novo <em class="ac">ritmo</em> urbano</p>
     </div>
 
-    <div class="ft-cols">
+    <div class="ft-cols" data-rv-esc style="--d:90ms; --e:80ms">
       <div class="ft-col">
         <p class="label">Incorporadora</p>
         <p class="ft-v ft-v--strong">{SITE.incorporadora}</p>
@@ -35,7 +35,7 @@ const ano = new Date().getFullYear();
       </div>
     </div>
 
-    <div class="ft-base">
+    <div class="ft-base" data-rv="fade" style="--d:340ms">
       <p class="ft-legal">
         © {ano} {SITE.incorporadora}. Imagens meramente ilustrativas.
       </p>

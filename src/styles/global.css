@@ -641,6 +641,67 @@ h4 {
   will-change: auto;
 }
 
+/* Escalonamento de filhos: o contêiner recebe data-rv-esc e cada filho direto
+   sobe em sequência. Um utilitário só, no lugar de repetir a mesma escada de
+   nth-child em cada componente — e sem observer novo: o alvo continua sendo
+   o contêiner, então é 1 entrada no IntersectionObserver, não N.
+   Deslocamento curto (10px) de propósito: em lista, o movimento grande vira
+   ruído. --d atrasa a lista inteira; --e é o passo entre os itens. */
+[data-rv-esc] > * {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  transition:
+    opacity 0.5s var(--ease-out),
+    transform 0.5s var(--ease-out);
+}
+[data-rv-esc].is-in > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: calc(var(--d, 0ms) + 7 * var(--e, 65ms));
+}
+[data-rv-esc].is-in > *:nth-child(1) {
+  transition-delay: var(--d, 0ms);
+}
+[data-rv-esc].is-in > *:nth-child(2) {
+  transition-delay: calc(var(--d, 0ms) + var(--e, 65ms));
+}
+[data-rv-esc].is-in > *:nth-child(3) {
+  transition-delay: calc(var(--d, 0ms) + 2 * var(--e, 65ms));
+}
+[data-rv-esc].is-in > *:nth-child(4) {
+  transition-delay: calc(var(--d, 0ms) + 3 * var(--e, 65ms));
+}
+[data-rv-esc].is-in > *:nth-child(5) {
+  transition-delay: calc(var(--d, 0ms) + 4 * var(--e, 65ms));
+}
+[data-rv-esc].is-in > *:nth-child(6) {
+  transition-delay: calc(var(--d, 0ms) + 5 * var(--e, 65ms));
+}
+[data-rv-esc].is-in > *:nth-child(7) {
+  transition-delay: calc(var(--d, 0ms) + 6 * var(--e, 65ms));
+}
+
+/* Título que sobe palavra por palavra atrás de uma máscara.
+   O estado escondido depende de .is-pal, classe que só existe depois que o JS
+   cortou o título — sem JS o texto está inteiro e visível.
+   padding/margin de 0.14em compensam o overflow:hidden, que senão cortaria as
+   descidas (g, y, ç) no meio. */
+.is-pal .pal {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.is-pal .pal > span {
+  display: inline-block;
+  transform: translate3d(0, 108%, 0);
+  transition: transform 0.75s var(--ease-out);
+}
+.is-pal.is-in .pal > span {
+  transform: translate3d(0, 0, 0);
+}
+
 /* Revelação de imagem por máscara (clip-path).
    Dois cuidados aprendidos na marra:
    1. o clip-path vai no <img>, nunca no elemento observado — no Chromium o
@@ -748,12 +809,15 @@ h4 {
   }
   [data-rv],
   [data-rv-img],
-  [data-rv-line] {
+  [data-rv-line],
+  [data-rv-esc],
+  [data-rv-esc] > * {
     opacity: 1 !important;
     transform: none !important;
     clip-path: none !important;
   }
   [data-rv-img] img,
+  .is-pal .pal > span,
   .line > span {
     transform: none !important;
     clip-path: none !important;

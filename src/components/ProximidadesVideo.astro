@@ -4,10 +4,14 @@
    de uma cena alta com filho sticky. Ao terminar, a cena é liberada e o
    conteúdo seguinte entra.
 
-   O arquivo de 1920 é pesado (15 MB), então:
+   O arquivo de 1920 é pesado (27 MB), então:
    - `preload="none"` + troca de `src` só quando a cena se aproxima;
-   - variante de 960px para telas pequenas (7 MB);
-   - nada é baixado por quem nunca chega nesta dobra. */
+   - variante de 960px para telas pequenas (12 MB);
+   - nada é baixado por quem nunca chega nesta dobra.
+
+   Peso por segundo idêntico ao corte anterior (9,6 Mbps no 1920, 4,5 no 960):
+   os presets do avconvert são travados em qualidade, então o arquivo só
+   cresceu na proporção da duração — 12,1s viraram 22,1s. */
 ---
 
 <section class="prox" aria-label="Vídeo das proximidades do WindyCity">
@@ -33,10 +37,13 @@
     background: var(--preto);
   }
   /* Cena alta: o percurso extra é o que dá "duração" ao vídeo no scroll.
-     A velocidade percebida é a razão entre os 12s do arquivo e esse
+     A velocidade percebida é a razão entre os 22s do arquivo e esse
      percurso — alongar a cena deixa o vídeo mais lento SEM tocar no vídeo
      (nada de frames extras, nada de peso a mais). Descontada a tela fixa,
-     500svh dão 4 telas de percurso útil, ~2,5x o que havia antes. */
+     500svh dão 4 telas de percurso útil.
+     ATENÇÃO ao trocar o arquivo: com 22s em vez de 12s, cada tela de scroll
+     avança 5,5s de vídeo em vez de 3,0s. Se o corte novo NÃO for o mesmo
+     conteúdo retimado mais devagar, é aqui que se recupera o ritmo. */
   .prox-cena {
     height: 500svh;
     position: relative;

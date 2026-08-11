@@ -43,6 +43,9 @@ export const EMPREENDIMENTO = {
   comercializado: '50%',
   /** Anos de experiência combinada da equipe técnica — informado pelo cliente. */
   anosEquipe: 10,
+  /** Faixa de valores das unidades — informada pelo cliente. */
+  precoMin: 'R$ 279 mil',
+  precoMax: 'R$ 370 mil',
   entrada: 10,
   obra: 20,
   chaves: 70,
