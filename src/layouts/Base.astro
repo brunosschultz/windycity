@@ -117,6 +117,8 @@ const schema = {
          Runtime completo da página. Sem dependências, ~1.4KB.
          Tudo com transform/opacity para não sair do compositor.
       -------------------------------------------------------------- */
+      import { criarRaspador, raspadores } from '../scripts/ilha';
+
       const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       /* 1 · Revelação ao entrar na viewport */
@@ -196,6 +198,32 @@ const schema = {
           { rootMargin: '0px 0px 35% 0px', threshold: 0.01 }
         );
         alvos.forEach((el) => io.observe(el));
+      }
+
+      /* 1c · Leitura no próprio aparelho: ?debug=video mostra, para CADA cena
+         que raspa, a mediana de seek e o modo atual. Bug que só aparece no
+         celular se resolve com medida, não com chute. */
+      if (new URLSearchParams(location.search).get('debug') === 'video') {
+        const painel = document.createElement('div');
+        painel.setAttribute(
+          'style',
+          'position:fixed;left:8px;bottom:8px;z-index:9999;background:#000d;' +
+            'color:#0f0;font:11px/1.5 monospace;padding:6px 8px;border-radius:4px;' +
+            'max-width:calc(100vw - 16px)'
+        );
+        document.body.append(painel);
+        setInterval(() => {
+          painel.textContent = raspadores.length
+            ? `dpr ${devicePixelRatio} · ` +
+              raspadores
+                .map(
+                  (r) =>
+                    `${r.nome} ${r.video.videoWidth}x${r.video.videoHeight} ` +
+                    `${r.ampliacao().toFixed(1)}x · seek ${r.mediana().toFixed(0)}ms (${r.amostras()})`
+                )
+                .join(' | ')
+            : 'nenhuma cena de vídeo iniciada ainda';
+        }, 400);
       }
 
       /* 2 · Header: some ao descer, volta ao subir, ganha fundo após o hero */
@@ -296,6 +324,16 @@ const schema = {
         video?.addEventListener('loadedmetadata', ligarVideo);
         if (video && video.readyState >= 1) ligarVideo();
 
+        /* A hero raspa serializada, igual à cena de proximidades — este
+           driver tinha o mesmo defeito escrito à parte, e por isso ficou de
+           fora da correção anterior.
+           SEM `aoDegradar`: aqui a raspagem É a composição de abertura (o
+           vídeo anda junto com a saída do título), então trocar por
+           reprodução automática mudaria o desenho da hero. Se a medição
+           mostrar que o aparelho não dá conta, isso vira decisão a tomar,
+           não efeito colateral. */
+        const raspador = video ? criarRaspador(video, 'hero') : null;
+
         /* Recorta um trecho de --p e devolve 0→1 dentro dele, com suavização
            (smoothstep) — é o que dá a sensação de "sair/entrar fluido" em vez
            de linear e mecânico. */
@@ -331,7 +369,9 @@ const schema = {
             // -0.02 evita travar 1 frame antes do fim em navegadores que
             // arredondam currentTime pra cima do duration e ignoram o seek
             const alvo = Math.min(p * duracao, duracao - 0.02);
-            if (Math.abs(video.currentTime - alvo) > 0.01) video.currentTime = alvo;
+            /* Zona morta de ~1 quadro (24fps = 0,042s): abaixo disso o seek
+               não muda nada na tela e só gasta decodificador. */
+            if (Math.abs(video.currentTime - alvo) > 0.04) raspador?.irPara(alvo);
           }
           pedido = false;
         };

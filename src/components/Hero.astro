@@ -32,6 +32,20 @@ import { waHref } from '../config';
         preload="auto"
         aria-hidden="true"
       >
+        <!-- Celular em pé recebe um RECORTE EM PÉ, não o 16:9 encolhido. O
+             `cover` numa tela de 430x932 só mostra 26% da largura de um 16:9:
+             os outros 74% eram baixados e descartados, e o que sobrava vinha
+             ampliado 5,5x — daí a sensação de vídeo mole. Com 720x1280 a
+             ampliação cai para 2,2x e 82% dos pixels chegam à tela, pesando
+             MENOS que uma versão deitada equivalente.
+             `orientation` é avaliado no load: girar o aparelho depois não
+             troca o arquivo (o navegador não re-seleciona <source>), por isso
+             o 900 deitado continua como rede de segurança. -->
+        <source
+          src="/video/hero-vert.mp4"
+          media="(max-width: 860px) and (orientation: portrait)"
+          type="video/mp4"
+        />
         <source src="/video/hero-900.mp4" media="(max-width: 860px)" type="video/mp4" />
         <source src="/video/hero-1920.mp4" type="video/mp4" />
       </video>

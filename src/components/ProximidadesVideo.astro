@@ -34,7 +34,7 @@
         preload="none"
         aria-hidden="true"
         data-src-desktop="/video/proximidades-1920.mp4"
-        data-src-mobile="/video/proximidades-960.mp4"></video>
+        data-src-mobile="/video/proximidades-1280.mp4"></video>
 
     </div>
   </div>
@@ -100,7 +100,7 @@
 </style>
 
 <script>
-  import { aoAproximar, reduzMovimento } from '../scripts/ilha';
+  import { aoAproximar, reduzMovimento, criarRaspador } from '../scripts/ilha';
 
   const cena = document.querySelector<HTMLElement>('[data-prox]');
   const video = document.querySelector<HTMLVideoElement>('[data-prox-video]');
@@ -155,42 +155,6 @@
           desenhar();
         });
 
-        /* Um seek por vez. O rAF pede posição nova até 60x por segundo, mas
-           mover o currentTime enquanto o anterior ainda não terminou faz o
-           Chrome do Android descartar o pedido e esvaziar o decodificador a
-           cada vez — é daí que vem o engasgo e o quadro que "passa sem
-           aparecer". No iOS o seek do AVFoundation é rápido o bastante para
-           mascarar isso; no MediaCodec, não.
-           Guardando só o ÚLTIMO alvo pendente, o vídeo anda no ritmo que o
-           aparelho aguenta em vez de acumular fila. */
-        let buscando = false;
-        let pendente: number | null = null;
-        let iniciouBusca = 0;
-        let medivel = false;
-
-        /* Só entra na média o seek que caiu em trecho JÁ bufferizado. Seek em
-           trecho não baixado demora por rede, não por decodificação — sem
-           esta guarda, um iPhone ótimo em conexão ruim seria rebaixado para
-           o modo "tocar" por um problema que não é dele. */
-        const bufferizado = (t: number) => {
-          const b = video.buffered;
-          for (let i = 0; i < b.length; i++) {
-            if (t >= b.start(i) && t <= b.end(i)) return true;
-          }
-          return false;
-        };
-
-        const irPara = (t: number) => {
-          if (buscando) {
-            pendente = t;
-            return;
-          }
-          buscando = true;
-          medivel = bufferizado(t);
-          iniciouBusca = performance.now();
-          video.currentTime = t;
-        };
-
         /* Plano B: se o aparelho não dá conta de raspar, ele TOCA.
            Reduzir a decodificação por seek em 10x (GOP de 30 para 4 quadros)
            melhorou pouco no Android — sinal de que o que sobrou é o custo
@@ -201,18 +165,16 @@
 
            A escolha é medida, não farejada por user-agent: Android bom
            continua raspando, e aparelho ruim de QUALQUER plataforma cai para
-           reprodução. O preço é perder o controle pelo dedo onde o scrub não
-           funcionava mesmo. */
-        const LIMITE_MS = 50; // ~20 atualizações/s: abaixo disso já é engasgo
-        const MIN_AMOSTRAS = 8;
-        let amostras: number[] = [];
+           reprodução. O preço é perder o controle pelo dedo exatamente onde
+           o scrub não funcionava mesmo.
+
+           A serialização do seek em si mora em criarRaspador() — a hero faz
+           a mesma coisa e o código era duplicado. */
         let modo: 'raspar' | 'tocar' = 'raspar';
-        let medido = 0;
 
         const trocarParaTocar = () => {
           if (modo === 'tocar') return;
           modo = 'tocar';
-          pendente = null;
           const fixo = cena.querySelector<HTMLElement>('[data-prox-fixo]');
           const io = new IntersectionObserver(
             (entradas) => {
@@ -230,48 +192,9 @@
           io.observe(fixo ?? cena);
         };
 
-        const aoBuscar = () => {
-          buscando = false;
-          if (modo === 'raspar' && iniciouBusca && medivel) {
-            amostras.push(performance.now() - iniciouBusca);
-            if (amostras.length > 10) amostras.shift();
-            if (amostras.length >= MIN_AMOSTRAS) {
-              const ord = [...amostras].sort((a, b) => a - b);
-              const mediana = ord[Math.floor(ord.length / 2)];
-              medido = mediana;
-              if (mediana > LIMITE_MS) {
-                trocarParaTocar();
-                return;
-              }
-            }
-          }
-          if (pendente === null) return;
-          const t = pendente;
-          pendente = null;
-          irPara(t);
-        };
-        video.addEventListener('seeked', aoBuscar);
-        // se o seek falhar, não trava o scrub para sempre
-        video.addEventListener('error', () => {
-          buscando = false;
+        const raspador = criarRaspador(video, 'mapa', {
+          aoDegradar: trocarParaTocar,
         });
-
-        /* Leitura no próprio aparelho com ?debug=video — bug que só aparece
-           no celular se resolve com medida, não com chute. */
-        if (new URLSearchParams(location.search).get('debug') === 'video') {
-          const painel = document.createElement('div');
-          painel.setAttribute(
-            'style',
-            'position:fixed;left:8px;bottom:8px;z-index:9999;background:#000c;' +
-              'color:#0f0;font:11px/1.4 monospace;padding:6px 8px;border-radius:4px'
-          );
-          document.body.append(painel);
-          setInterval(() => {
-            painel.textContent =
-              `modo: ${modo} · seek mediana: ${medido.toFixed(0)}ms ` +
-              `(limite ${LIMITE_MS}) · amostras: ${amostras.length}`;
-          }, 400);
-        }
 
         let pedido = false;
         const desenhar = () => {
@@ -294,7 +217,7 @@
           /* Zona morta de ~1 quadro (24fps = 0,042s): abaixo disso o seek não
              muda nada na tela e só gasta decodificador. Era 0.01s — um quarto
              de quadro, ou seja, seek jogado fora. */
-          if (Math.abs(video.currentTime - alvo) > 0.04) irPara(alvo);
+          if (Math.abs(video.currentTime - alvo) > 0.04) raspador.irPara(alvo);
         };
         const agendar = () => {
           if (pedido) return;
