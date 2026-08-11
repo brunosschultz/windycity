@@ -4,14 +4,23 @@
    de uma cena alta com filho sticky. Ao terminar, a cena é liberada e o
    conteúdo seguinte entra.
 
-   O arquivo de 1920 é pesado (27 MB), então:
+   O arquivo de 1920 é pesado (18 MB), então:
    - `preload="none"` + troca de `src` só quando a cena se aproxima;
-   - variante de 960px para telas pequenas (12 MB);
+   - variante de 960px para telas pequenas (8 MB);
    - nada é baixado por quem nunca chega nesta dobra.
 
-   Peso por segundo idêntico ao corte anterior (9,6 Mbps no 1920, 4,5 no 960):
-   os presets do avconvert são travados em qualidade, então o arquivo só
-   cresceu na proporção da duração — 12,1s viraram 22,1s. */
+   CODIFICAÇÃO — ao trocar o vídeo, os arquivos PRECISAM ser gerados para
+   scrub, não para assistir. Scrub é seek contínuo, e seek custa decodificar
+   tudo desde o keyframe anterior. Com o padrão do avconvert (1 keyframe por
+   segundo = 30 quadros), cada seek custava até 29 decodificações: no iOS o
+   AVFoundation mascarava, mas o MediaCodec do Android esvazia o decodificador
+   a cada seek e a cena travava por completo.
+   Receita atual: keyframe a cada 4 quadros (0,17s), sem B-frames, 24fps.
+   O avconvert não expõe GOP; foi feito com AVAssetWriter
+   (AVVideoMaxKeyFrameIntervalKey + AVVideoAllowFrameReordering:NO).
+   Resultado: ~10x menos decodificação por seek E arquivos MENORES que os
+   anteriores (8,3 MB contra 12,4 no mobile; 17,9 contra 26,7 no desktop),
+   porque sem B-frames e a 24fps sobra bitrate para o que importa. */
 ---
 
 <section class="prox" aria-label="Vídeo das proximidades do WindyCity">
@@ -194,10 +203,10 @@
           // -0.02 evita travar um quadro antes do fim em navegadores que
           // arredondam currentTime para cima do duration e ignoram o seek
           const alvo = Math.min(p * duracao, duracao - 0.02);
-          /* Zona morta de ~1 quadro (30fps): abaixo disso o seek não muda
-             nada na tela e só gasta decodificador. Era 0.01s — um terço de
-             quadro, ou seja, seek jogado fora. */
-          if (Math.abs(video.currentTime - alvo) > 0.033) irPara(alvo);
+          /* Zona morta de ~1 quadro (24fps = 0,042s): abaixo disso o seek não
+             muda nada na tela e só gasta decodificador. Era 0.01s — um quarto
+             de quadro, ou seja, seek jogado fora. */
+          if (Math.abs(video.currentTime - alvo) > 0.04) irPara(alvo);
         };
         const agendar = () => {
           if (pedido) return;
