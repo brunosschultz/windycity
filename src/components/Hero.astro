@@ -61,6 +61,26 @@ import { waHref } from '../config';
         video.poster = matchMedia('(max-width: 860px)').matches
           ? '/hero-poster-900.webp'
           : '/hero-poster.webp';
+
+        /* O navegador resolve <source media> UMA vez, no load, e nunca
+           reavalia. Se nesse instante a viewport ainda não tem o tamanho
+           final — janela estreita que depois é maximizada, aba restaurada em
+           segundo plano (aqui já vi innerWidth chegar a 0) —, o arquivo
+           errado fica preso. Antes o pior caso era resolução menor; agora
+           seria o RECORTE VERTICAL esticado num monitor, o que salta aos
+           olhos. Uma conferência única corrige, e só recarrega se de fato
+           divergiu — `load()` zera o currentTime, então nada de fazer isso
+           depois que o usuário começou a rolar. */
+        const conferirFonte = () => {
+          const certa = [...video.querySelectorAll('source')].find(
+            (s) => !s.media || matchMedia(s.media).matches
+          );
+          if (certa && !video.currentSrc.endsWith(new URL(certa.src).pathname)) {
+            video.load();
+          }
+        };
+        if (document.readyState === 'complete') conferirFonte();
+        else addEventListener('load', conferirFonte, { once: true });
       }
     </script>
 

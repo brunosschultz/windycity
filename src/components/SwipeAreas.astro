@@ -250,6 +250,27 @@ const paineis = [
     let desmontar: (() => void) | null = null;
     let montando = false;
 
+    /* Diagnóstico de ?debug=areas. Fica FORA do montar() de propósito: se o
+       palco nunca montar, o painel ainda aparece e diz isso — se estivesse
+       lá dentro, a ausência dele seria ambígua (não montou? URL errada?). */
+    let lerEstado: (() => string) | null = null;
+    if (new URLSearchParams(location.search).get('debug') === 'areas') {
+      const p = document.createElement('div');
+      p.setAttribute(
+        'style',
+        'position:fixed;right:8px;bottom:8px;z-index:99999;background:#000d;' +
+          'color:#0f0;font:11px/1.5 monospace;padding:6px 8px;border-radius:4px;' +
+          'max-width:calc(100vw - 16px)'
+      );
+      document.body.append(p);
+      setInterval(() => {
+        p.textContent = lerEstado
+          ? lerEstado()
+          : `palco NÃO montou · desk:${mqDesk.matches} reduz:${mqReduz.matches} ` +
+            `montando:${montando} · seção ${Math.round(raiz.getBoundingClientRect().height)}px`;
+      }, 300);
+    }
+
     const montar = async () => {
       if (montando || desmontar) return;
       montando = true;
@@ -389,17 +410,38 @@ const paineis = [
          acontece antes, e o alinhamento leva o palco pra exatamente
          100svh nas duas direções. */
       const LIMIAR = 0.9;
+      let ultimaRazao = 0;
       const checar = () => {
         if (armado || Date.now() < esfriar) return;
         const r = raiz.getBoundingClientRect();
         const vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
-        if (r.height <= 0 || vis / r.height < LIMIAR) return;
+        /* A referência é o MENOR entre a altura do palco e a da janela.
+           Antes era só `r.height`: se o palco (100svh) ficasse um fio mais
+           alto que a janela — arredondamento de subpixel, barra de rolagem
+           horizontal, svh que não bate exatamente com innerHeight —, a razão
+           nunca chegava a 0.9 e o palco simplesmente NUNCA armava: a seção
+           passava reto mostrando só o primeiro painel. Com o mínimo, cobrir
+           a janela inteira sempre conta como 1. */
+        const referencia = Math.min(r.height, window.innerHeight);
+        ultimaRazao = referencia > 0 ? vis / referencia : 0;
+        if (referencia <= 0 || ultimaRazao < LIMIAR) return;
         if (Math.abs(r.top) > 1) {
           window.scrollTo({ top: window.scrollY + r.top, behavior: 'smooth' });
         }
         armado = true;
         obs.enable();
         precarregar(indice + 1);
+      };
+
+      // alimenta o painel de ?debug=areas, criado fora daqui
+      lerEstado = () => {
+        const r = raiz.getBoundingClientRect();
+        return (
+          `palco ${Math.round(r.height)}px · janela ${window.innerHeight}px · ` +
+          `visível ${(ultimaRazao * 100).toFixed(0)}% (limiar 90%) · ` +
+          `swipe:${raiz.classList.contains('is-swipe') ? 'sim' : 'não'} · ` +
+          `armado:${armado ? 'sim' : 'não'} · painel ${indice + 1}/${paineis.length}`
+        );
       };
 
       const io = new IntersectionObserver(

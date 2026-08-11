@@ -231,23 +231,30 @@ const pontos = [
         </figure>
       </div>
 
-      <ol class="loc-itens">
-        {
-          pontos.map((p, i) => (
-            <li
-              class:list={['loc-item', { 'is-ativo': i === 0, 'loc-item--duplo': i === 2 }]}
-              data-item
-              data-fotos={i === 2 ? 2 : 1}
-              data-rv
-              style={`--d:${i * 55}ms;--o:${i * 2 + 2}`}
-            >
-              <span class="loc-num">{String(i + 1).padStart(2, '0')}</span>
-              <span class="loc-t">{p.t}</span>
-              <span class="loc-d">{p.d}</span>
-            </li>
-          ))
-        }
-      </ol>
+      {/* A caixa existe só para dar PERCURSO de scroll no desktop: os itens
+          empilham num palco sticky e não ocupam mais altura própria, então
+          alguém precisa segurar a rolagem. `display: contents` por padrão —
+          no mobile e sem JS ela some do layout e nada muda.
+          --passos = uma fatia por FOTOGRAFIA (Universidades comanda duas). */}
+      <div class="loc-itens-caixa" data-itens-caixa style={`--passos:${pontos.length + 1}`}>
+        <ol class="loc-itens">
+          {
+            pontos.map((p, i) => (
+              <li
+                class:list={['loc-item', { 'is-ativo': i === 0, 'loc-item--duplo': i === 2 }]}
+                data-item
+                data-fotos={i === 2 ? 2 : 1}
+                data-rv
+                style={`--d:${i * 55}ms;--o:${i * 2 + 2}`}
+              >
+                <span class="loc-num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="loc-t">{p.t}</span>
+                <span class="loc-d">{p.d}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
     </div>
   </div>
 
@@ -508,7 +515,8 @@ const pontos = [
     margin-inline: auto;
   }
   .loc-painel,
-  .loc-itens {
+  .loc-itens,
+  .loc-itens-caixa {
     display: contents;
   }
   .loc-itens {
@@ -711,35 +719,63 @@ const pontos = [
       background: none;
     }
 
-    .is-js .loc-itens {
+    /* A caixa vira o percurso: 80svh por fotografia, igual ao que os itens
+       ocupavam antes somados. É ela que segura o painel preso. */
+    .loc-scrolly.is-js .loc-itens-caixa {
       display: block;
+      height: calc(var(--passos, 5) * 80svh);
     }
-    /* cada item percorre ~80svh: é essa altura que dá ao painel o tempo
-       de ficar preso e trocar de fotografia com calma */
-    .is-js .loc-item {
+    /* O texto vira PALCO, não coluna que rola: gruda na mesma linha da foto
+       e os itens se revezam no mesmo lugar. Antes cada item tinha altura
+       própria e subia pela tela — agora a troca é no lugar, como no
+       comparativo de Diferenciais. */
+    .loc-scrolly.is-js .loc-itens {
+      display: grid;
+      position: sticky;
+      --ph: min(74svh, 40vw);
+      top: calc((100svh - var(--ph)) / 2);
+      height: var(--ph);
+      align-content: center;
+    }
+    /* Empilhados na mesma célula. O estado escondido é o mesmo vocabulário
+       do Diferenciais: sobe 12px, desfoca 3px e some — sutil, sem salto. */
+    .loc-scrolly.is-js .loc-item {
+      grid-area: 1 / 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      min-height: 80svh;
+      min-height: 0;
       margin: 0;
-      padding-block: clamp(28px, 4vh, 48px);
+      padding-block: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      filter: blur(3px);
+      transition:
+        opacity 0.52s var(--ease-out),
+        transform 0.52s var(--ease-out),
+        filter 0.52s var(--ease-out),
+        visibility 0s linear 0.52s;
     }
-    /* Universidades comanda duas fotografias: percorre o dobro para cada
-       uma ficar o mesmo tempo em tela que os demais pontos. */
-    .is-js .loc-item--duplo {
-      min-height: 160svh;
+    .loc-scrolly.is-js .loc-item.is-ativo {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      filter: none;
+      transition:
+        opacity 0.58s var(--ease-out),
+        transform 0.58s var(--ease-out),
+        filter 0.58s var(--ease-out),
+        visibility 0s;
     }
-    /* Numeral em escala de pôster de novo — marca-d'água que acende no
-       item ativo. Só que agora ele NÃO encosta no título: antes o h3 subia
-       -0.62em para encaixar sob o número, o que colava os dois. */
+    /* Numeral em escala de pôster. Com os itens empilhados só o ativo está
+       na tela, então ele já nasce verde: a antiga transição de cor virava
+       um piscar durante o crossfade, porque o item que sai ainda aparece
+       por meio segundo. */
     .is-js .loc-num {
       font-size: clamp(6rem, 9.5vw, 11rem);
       line-height: 0.8;
-      color: var(--marrom-16);
-      transition: color 0.5s var(--ease);
-    }
-    .is-js .loc-item.is-ativo .loc-num {
       color: var(--verde);
     }
     .is-js .loc-t {
@@ -750,17 +786,15 @@ const pontos = [
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.05;
-      opacity: 0.4;
-      transition: opacity 0.45s var(--ease);
     }
     .is-js .loc-d {
       margin-top: 14px;
       font-size: 1rem;
-      opacity: 0.4;
-      transition: opacity 0.45s var(--ease);
     }
-    .is-js .loc-item.is-ativo .loc-t,
-    .is-js .loc-item.is-ativo .loc-d {
+    /* opacidade de título e descrição agora é do ITEM inteiro (crossfade);
+       o esmaecimento individual sobrava e criava transição dupla */
+    .loc-scrolly.is-js .loc-t,
+    .loc-scrolly.is-js .loc-d {
       opacity: 1;
     }
   }
@@ -1044,42 +1078,49 @@ const pontos = [
           }
         };
 
-        /* Um gatilho por FOTO, não por item: quando um item comanda mais de
-           uma fotografia (Universidades: PUC-PR e Unicuritiba), a altura dele
-           é dividida igualmente entre elas, e cada fatia troca a foto sem
-           trocar o item ativo na coluna de texto. */
-        let iFoto = 0;
+        /* UM gatilho, na caixa, dividido em fatias — uma por FOTOGRAFIA.
+           Antes cada item era o próprio trigger, o que só funcionava porque
+           cada um tinha 80svh de altura própria e passava pela tela. Agora
+           os itens estão empilhados no palco sticky: todos ocupam o mesmo
+           lugar, então usá-los como trigger faria as quatro etapas
+           dispararem no mesmo ponto de scroll. O percurso passou a ser a
+           caixa, e o progresso dela é que diz em que etapa estamos.
+           Universidades comanda duas fotos e por isso vale duas fatias —
+           cada fachada fica o mesmo tempo em tela que os demais pontos. */
+        const caixa = raiz.querySelector<HTMLElement>('[data-itens-caixa]');
+
+        // fatia (fotografia) → item de texto correspondente
+        const itemDaFoto: number[] = [];
         itens.forEach((el, i) => {
           const n = Math.max(1, Number(el.dataset.fotos) || 1);
-          for (let k = 0; k < n; k++) {
-            const idx = iFoto++;
-            ScrollTrigger.create({
-              trigger: el,
-              start: `${(k / n) * 100}% 55%`,
-              end: `${((k + 1) / n) * 100}% 55%`,
-              onEnter: () => ativar(idx, i, 1),
-              onEnterBack: () => ativar(idx, i, -1),
-            });
-          }
+          for (let k = 0; k < n; k++) itemDaFoto.push(i);
         });
+        const totalFotos = itemDaFoto.length;
 
-        /* a página pode carregar já rolada até o meio da lista (refresh,
-           âncora): sincroniza o painel com o item sob a linha de leitura */
-        let inicialItem = 0;
-        let inicialFoto = 0;
-        const linha = window.innerHeight * 0.55;
-        let acumulado = 0;
-        itens.forEach((el, k) => {
-          const n = Math.max(1, Number(el.dataset.fotos) || 1);
-          const r = el.getBoundingClientRect();
-          if (r.top < linha) {
-            inicialItem = k;
-            const dentro = Math.min(Math.max((linha - r.top) / r.height, 0), 0.999);
-            inicialFoto = acumulado + Math.floor(dentro * n);
-          }
-          acumulado += n;
-        });
-        if (inicialFoto > 0) ativar(inicialFoto, inicialItem, 1);
+        /* O texto entra por crossfade e não sobe mais junto com o scroll, então
+           o data-rv (que nasce com opacity 0) não pode continuar mandando:
+           quem controla a visibilidade agora é .is-ativo. */
+        itens.forEach((el) => el.classList.add('is-in'));
+
+        let ultimaFatia = -1;
+        const aplicar = (progresso: number) => {
+          const f = Math.min(totalFotos - 1, Math.max(0, Math.floor(progresso * totalFotos)));
+          if (f === ultimaFatia) return;
+          const dir: 1 | -1 = f > ultimaFatia ? 1 : -1;
+          ultimaFatia = f;
+          ativar(f, itemDaFoto[f], dir);
+        };
+
+        if (caixa) {
+          ScrollTrigger.create({
+            trigger: caixa,
+            start: 'top top',
+            end: 'bottom bottom',
+            onUpdate: (self) => aplicar(self.progress),
+            // cobre o carregamento já rolado no meio da dobra (refresh, âncora)
+            onRefresh: (self) => aplicar(self.progress),
+          });
+        }
 
         return () => {
           raiz.classList.remove('is-js');
