@@ -150,6 +150,11 @@ html {
   scroll-behavior: smooth;
   /* compensa o header fixo ao pular por âncora */
   scroll-padding-top: 84px;
+  /* NÃO recortar o eixo horizontal aqui: testado, `overflow-x: clip` no
+     <html> faz a raiz virar contexto de recorte e TODO `position: sticky`
+     da página deixa de grudar (painel da Localização, palco de Diferenciais,
+     coluna de Tipologias). O eixo é contido no <body>, e a causa real do
+     pan lateral no iOS foi tratada no `.bleed` — ver ali. */
 }
 body {
   font-family: 'Sora', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -179,6 +184,9 @@ select,
 textarea {
   font: inherit;
   color: inherit;
+  /* `min-width: auto` é o padrão em flex/grid e deixa o campo crescer pela
+     largura intrínseca — no iOS é uma causa clássica de estouro lateral. */
+  min-width: 0;
 }
 button {
   background: none;
@@ -368,8 +376,11 @@ h4 {
 .bleed {
   width: 100vw;
   max-width: 100vw;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  /* Sem `transform: translateX(-50%)`: no iOS a caixa NÃO transformada
+     entrava na conta da área rolável e sobrava meia tela de scroll lateral.
+     A margem negativa faz o mesmo recuo, mas dentro do fluxo — e funciona
+     igual estando dentro do .wrap (com gutter) ou solto na seção. */
+  margin-inline: calc(50% - 50vw);
 }
 /* Sangra só de um lado — mantém o eixo de leitura e desalinha a imagem.
    `--sangria` é a distância entre a borda de conteúdo do .wrap e a borda

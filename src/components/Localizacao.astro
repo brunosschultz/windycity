@@ -505,7 +505,7 @@ const pontos = [
     overflow: hidden;
     border-radius: var(--radius);
     background: var(--marrom-08);
-    margin-bottom: 16px;
+    margin-bottom: clamp(18px, 4vw, 24px);
   }
   .f-arena {
     aspect-ratio: 16 / 9;
@@ -613,7 +613,9 @@ const pontos = [
     column-gap: 16px;
     row-gap: 6px;
     align-items: baseline;
-    margin: 4px 0 clamp(38px, 8vw, 60px);
+    /* respiro generoso entre um ponto e o próximo, para cada bloco de foto
+       + descrição ler como uma unidade */
+    margin: 4px 0 clamp(64px, 15vw, 96px);
   }
   .loc-item:last-child {
     margin-bottom: 0;
