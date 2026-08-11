@@ -68,7 +68,8 @@ const poster = VIDEO_SRC ? (await getImage({ src: fotoLuz, format: 'webp', width
     min-height: 100svh;
     display: flex;
     align-items: flex-end;
-    overflow: hidden;
+    /* clip: o véu e a foto passam da largura da tela — ver .cena-fixa */
+    overflow: clip;
     /* fundo sólido do token: nada de viewport "vazia" enquanto a foto lazy chega */
     background: var(--preto);
   }

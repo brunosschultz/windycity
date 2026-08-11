@@ -428,7 +428,9 @@ h4 {
 
 /* ---------- Faixa deslizante (slogan oficial da marca) ---------- */
 .marquee {
-  overflow: hidden;
+  /* clip: a faixa é bem mais larga que a tela; no iOS `hidden` não impede
+     ela de alargar o layout viewport (ver .cena-fixa, mais abaixo). */
+  overflow: clip;
   display: flex;
   user-select: none;
   padding-block: clamp(16px, 2vw, 26px);
@@ -687,7 +689,13 @@ h4 {
   position: sticky;
   top: 0;
   height: 100svh;
-  overflow: hidden;
+  /* `clip` e não `hidden`: no Safari do iOS um filho mais largo que a tela
+     dentro de `overflow: hidden` ainda entra na conta do layout viewport e
+     alarga a página inteira — foi o que empurrava o conteúdo para a direita
+     no iPhone. `clip` recorta de verdade e, por não criar contexto de
+     rolagem, não interfere no `position: sticky` (o problema que dá quando
+     se aplica isso no <html>). */
+  overflow: clip;
 }
 .cena-zoom {
   transform: scale(calc(1 + var(--prog, 0) * var(--zoom, 0.08)));
