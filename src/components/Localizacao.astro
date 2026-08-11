@@ -384,7 +384,7 @@ const pontos = [
   /* ---------------- 2 · Mídia principal (slot do vídeo de drone) ---------------- */
   .loc-media {
     position: relative;
-    overflow: clip;
+    overflow: hidden;
     height: 100svh;
     background: var(--marrom-08);
   }
@@ -480,12 +480,20 @@ const pontos = [
   /* ---------------- 3 · Scrollytelling ----------------
      Base (mobile e desktop sem JS): coluna única; display:contents faz
      figuras e itens virarem irmãos na mesma grade e o `order` (--o) os
-     intercala — foto identificada, depois número + texto. */
+     intercala — foto identificada, depois número + texto.
+
+     O respiro lateral desta dobra é EXPLÍCITO e em px (ver o bloco mobile
+     no fim do arquivo), não herdado do gutter em `vw` do .wrap: se o
+     layout viewport do aparelho divergir da tela — o que acontece no
+     Safari do iOS quando algo estica a página — o padding em `vw` deixa de
+     bater com a largura real e a imagem sai do eixo. Em px isso não
+     acontece. */
   .loc-scrolly-wrap {
     margin-block: clamp(48px, 7vw, 110px);
   }
   .loc-scrolly {
     display: grid;
+    width: 100%;
     max-width: 860px;
     margin-inline: auto;
   }
@@ -502,7 +510,7 @@ const pontos = [
   .loc-foto {
     order: var(--o, 0);
     position: relative;
-    overflow: clip;
+    overflow: hidden;
     border-radius: var(--radius);
     background: var(--marrom-08);
     margin-bottom: clamp(18px, 4vw, 24px);
@@ -560,7 +568,7 @@ const pontos = [
   }
   .cot-tile {
     position: relative;
-    overflow: clip;
+    overflow: hidden;
     border-radius: var(--radius);
   }
   .cot-main {
@@ -663,7 +671,7 @@ const pontos = [
       top: calc((100svh - var(--ph)) / 2);
       height: var(--ph);
       margin-left: calc(var(--sangria) * -1);
-      overflow: clip;
+      overflow: hidden;
       border-radius: 0 var(--radius) var(--radius) 0;
     }
     .is-js .loc-foto {
@@ -689,7 +697,7 @@ const pontos = [
     /* Sem caixa cinza: nem o painel nem o quadro do Cotidiano pintam fundo,
        então as três fotos ficam soltas sobre o branco da seção. */
     .is-js .f-cot {
-      overflow: clip;
+      overflow: hidden;
       background: none;
     }
 
@@ -748,13 +756,42 @@ const pontos = [
     }
   }
 
+  /* ================================================================
+     MOBILE / TABLET — a dobra 01–04 se auto-contém.
+     Sem `vw`, sem `--gutter`, sem `--sangria` e sem `max-width` + `margin
+     auto`: largura 100% do pai, respiro em px, e cada peça travada em
+     `max-width: 100%`. Isso torna o centramento imune a qualquer
+     divergência entre o layout viewport e a tela.
+     ================================================================ */
+  @media (max-width: 1023px) {
+    .loc-scrolly-wrap {
+      /* substitui o padding do .wrap por um valor fixo e previsível */
+      padding-inline: 24px;
+      max-width: 100%;
+    }
+    .loc-scrolly {
+      max-width: 100%;
+      margin-inline: 0;
+    }
+    .loc-foto,
+    .loc-item {
+      width: 100%;
+      max-width: 100%;
+      margin-inline: 0;
+    }
+    .loc-colagem {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
   /* ---------------- 5 · Walk Score ---------------- */
   /* Colada no mapa: sem respiro branco entre as duas. */
   .score {
     margin-top: 0;
     background: var(--preto);
     color: var(--bege);
-    overflow: clip;
+    overflow: hidden;
   }
   .score-grid {
     --padY: clamp(60px, 10vw, 120px);
@@ -817,7 +854,7 @@ const pontos = [
      (mobile) — o oposto do painel largo do item 02 */
   .score-foto {
     position: relative;
-    overflow: clip;
+    overflow: hidden;
     margin-inline: calc(var(--sangria) * -1);
     margin-bottom: calc(var(--padY) * -1);
     aspect-ratio: 4 / 5;

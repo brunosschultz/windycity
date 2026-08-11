@@ -429,7 +429,7 @@ const tipos = [
     place-items: center;
     /* Rede de segurança: sem isso, uma planta mais alta que a caixa
        transbordava e cobria as setas de navegação logo abaixo. */
-    overflow: clip;
+    overflow: hidden;
   }
   .tp-slide {
     grid-area: 1 / 1;
@@ -709,7 +709,7 @@ const tipos = [
   }
   .tp-ft {
     position: relative;
-    overflow: clip;
+    overflow: hidden;
     background: var(--marrom-08);
   }
   .tp-ft :global(img) {
