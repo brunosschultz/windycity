@@ -422,8 +422,10 @@ const pontos = [
     object-position: center;
   }
   @media (max-width: 760px) {
+    /* 60svh a pedido: em pé a fachada não precisa da tela inteira, e sobra
+       menos rolagem até o conteúdo seguinte. */
     .loc-media {
-      height: min(78svh, 660px);
+      height: 60svh;
     }
     /* em retrato, desloca o recorte para a direita: mantém o prédio e o
        ponto de ônibus (que a legenda menciona) dentro do quadro */

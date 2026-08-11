@@ -720,11 +720,13 @@ const tipos = [
   .tp-ft--a {
     height: clamp(230px, 60vw, 420px);
   }
-  /* Assimetria também no mobile: a segunda peça é menor e desencostada. */
+  /* No mobile as duas peças ocupam a largura inteira, uma sob a outra: a
+     assimetria (segunda menor e desencostada) lia como thumbnail em tela
+     estreita e escondia o ambiente. A assimetria segue valendo no desktop. */
   .tp-ft--b {
-    width: 78%;
-    justify-self: end;
-    height: clamp(160px, 42vw, 300px);
+    width: 100%;
+    justify-self: stretch;
+    height: clamp(230px, 60vw, 420px);
   }
   @media (min-width: 861px) {
     .tp-faixa {

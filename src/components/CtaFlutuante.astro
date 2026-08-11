@@ -75,25 +75,35 @@ const href = waHref();
     }
   }
 
-  /* Mobile: barra fixa — CTA sempre presente sem cobrir conteúdo */
+  /* Mobile: mesmo botão redondo do desktop, no canto inferior direito.
+     Era uma barra de largura inteira colada no pé — presente demais, comia
+     a base de toda seção e competia com o conteúdo. O rótulo vira só o
+     aria-label; o ícone já é reconhecível sozinho. 56px mantém o alvo de
+     toque confortável mesmo sendo menor que os 60px do desktop. */
   @media (max-width: 760px) {
     .wa {
-      left: 12px;
-      right: 12px;
-      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-      min-height: 56px;
-      border-radius: var(--radius);
-      font-size: 0.875rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      left: auto;
+      right: 14px;
+      bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+      width: 56px;
+      height: 56px;
+      min-height: 0;
+      border-radius: 50%;
+    }
+    .wa-txt {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
     }
     .wa-ic {
-      width: 22px;
-      height: 22px;
+      width: 26px;
+      height: 26px;
     }
     .wa:active {
-      transform: scale(0.985);
+      transform: scale(0.94);
     }
   }
 </style>

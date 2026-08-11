@@ -66,7 +66,11 @@ const plantaSrc = (await getImage({ src: plantaSol, width: 900, format: 'webp' }
     </div>
 
     <figure class="demo-fig" data-demo-diagrama>
-      <svg viewBox="0 0 320 350" role="img" aria-labelledby="arch-desc">
+      <!-- viewBox começa em y=-14, não em 0: o ápice do arco fica em y=10 e o
+           halo do sol tem raio 17, ou seja, ele sangrava 7px acima da borda e
+           saía cortado no alto. Como o svg tem width:100%, esticar o topo do
+           viewBox só acrescenta margem — não reduz a escala do desenho. -->
+      <svg viewBox="0 -14 320 364" role="img" aria-labelledby="arch-desc">
         <title id="arch-desc">
           Planta do pavimento: unidades implantadas com o lado mais longo paralelo às fachadas leste
           e oeste, corredor central entre elas, e o percurso do sol de leste a oeste passando sobre
@@ -304,15 +308,25 @@ const plantaSrc = (await getImage({ src: plantaSol, width: 900, format: 'webp' }
         };
         posicionar();
 
+        /* A cena TRAVA enquanto o sol atravessa. Antes o percurso era diluído
+           na travessia inteira da seção pela viewport ('top bottom' até
+           'bottom top'), e em rolagem normal o sol cruzava o arco inteiro em
+           uma fração de segundo — a animação passava batida. Com o pin, a
+           seção fica presa por ~90% de tela e o arco inteiro acontece nesse
+           intervalo, no ritmo do dedo.
+           O pin começa em 'top top' porque a .demo já tem min-height:100svh:
+           ela encaixa exatamente na janela, sem cortar nada. */
         gsap.to(estado, {
           p: 1,
           ease: 'none',
           onUpdate: posicionar,
           scrollTrigger: {
             trigger: diagrama.closest('.demo'),
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 0.8,
+            start: 'top top',
+            end: '+=90%',
+            pin: true,
+            anticipatePin: 1,
+            scrub: 0.6,
           },
         });
       }

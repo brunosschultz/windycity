@@ -4,10 +4,11 @@
    de uma cena alta com filho sticky. Ao terminar, a cena é liberada e o
    conteúdo seguinte entra.
 
-   O arquivo de 1920 é pesado (18 MB), então:
-   - `preload="none"` + troca de `src` só quando a cena se aproxima;
-   - variante de 960px para telas pequenas (8 MB);
-   - nada é baixado por quem nunca chega nesta dobra.
+   Dois arquivos DIFERENTES, não duas resoluções do mesmo corte:
+   - desktop: corte de 6,7s até o plano aberto (1920x1080, 7,1 MB);
+   - mobile: o corte completo de 22,2s com as aproximações (1280x720, 12 MB).
+   Somado a `preload="none"` + troca de `src` só quando a cena se aproxima,
+   nada é baixado por quem nunca chega nesta dobra.
 
    CODIFICAÇÃO — ao trocar o vídeo, os arquivos PRECISAM ser gerados para
    scrub, não para assistir. Scrub é seek contínuo, e seek custa decodificar
@@ -33,7 +34,7 @@
         playsinline
         preload="none"
         aria-hidden="true"
-        data-src-desktop="/video/proximidades-1920.mp4"
+        data-src-desktop="/video/proximidades-topo-1920.mp4"
         data-src-mobile="/video/proximidades-1280.mp4"></video>
 
     </div>
@@ -53,8 +54,21 @@
      ATENÇÃO ao trocar o arquivo: com 22s em vez de 12s, cada tela de scroll
      avança 5,5s de vídeo em vez de 3,0s. Se o corte novo NÃO for o mesmo
      conteúdo retimado mais devagar, é aqui que se recupera o ritmo. */
+  /* No desktop o vídeo é o CORTE DE 6,7s: a subida da câmera até o plano
+     aberto com os quatro pontos, sem a sequência de aproximações. Em tela
+     larga os quatro cards cabem de uma vez e o zoom em cada um só repetia
+     informação já visível — ele segue no mobile, onde é a única forma de ler
+     os cards.
+     O ponto de corte foi MEDIDO, não estimado: a diferença entre quadros
+     consecutivos mostra a câmera subindo até 6,1s, parada de 6,2s a 6,7s
+     (movimento zero) e voltando a se mover em 6,8s. Cortar depois disso
+     incluía o começo da aproximação seguinte e o vídeo terminava em pleno
+     movimento — era o "pulo" no fim da cena.
+     A cena encurtou na proporção do arquivo (22,2s→6,7s) para o ritmo por
+     tela de scroll continuar o mesmo, ~5,5s de vídeo por tela: descontada a
+     tela fixa, 220svh dão ~1,2 tela de percurso. */
   .prox-cena {
-    height: 500svh;
+    height: 220svh;
     position: relative;
   }
   .prox-fixo {
