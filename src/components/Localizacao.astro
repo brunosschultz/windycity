@@ -11,7 +11,7 @@ import ProximidadesVideo from './ProximidadesVideo.astro';
    blocos abaixo, exatamente a imagem do ponto 01. */
 import aberturaRua from '../assets/images/fachada-dia-hd.jpg';
 import arena from '../assets/images/loc-arena.jpg';
-import mobilidade from '../assets/images/loc-mobilidade.jpg';
+import pontoOnibus from '../assets/images/loc-ponto-onibus.png';
 import pucpr from '../assets/images/loc-pucpr.jpg';
 /* Fachada do Unicuritiba — arquivo trazido da pasta de imagens do outro
    projeto da agência (era o único no computador). Se a origem não for a
@@ -126,12 +126,12 @@ const pontos = [
         <figure class="loc-foto f-mob" data-foto style="--o:3" data-rv-img="esq">
           <div class="loc-mov" data-mov>
             <Picture
-              src={mobilidade}
+              src={pontoOnibus}
               formats={['avif', 'webp']}
               fallbackFormat="webp"
-              widths={[480, 760, 1080, 1536]}
+              widths={[480, 760, 1080, 1315]}
               sizes="(max-width: 1023px) 92vw, 55vw"
-              alt="Estações-tubo de Curitiba com ônibus biarticulado vermelho e prédio histórico ao fundo"
+              alt="Fachada do WindyCity com o letreiro na base e o ponto de ônibus coberto na calçada em frente"
               loading="lazy"
               decoding="async"
             />
