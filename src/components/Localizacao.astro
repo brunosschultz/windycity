@@ -17,7 +17,7 @@ import pucpr from '../assets/images/loc-pucpr.jpg';
    projeto da agência (era o único no computador). Se a origem não for a
    pretendida, basta substituir este arquivo. */
 import unicuritiba from '../assets/images/loc-unicuritiba.jpg';
-import fazendaChurrascada from '../assets/images/loc-fazenda-churrascada.jpg';
+import fazendaChurrascada from '../assets/images/loc-fazenda-churrascada.webp';
 import restaurante from '../assets/images/loc-restaurante.jpg';
 import farmacia from '../assets/images/loc-farmacia.jpg';
 
@@ -194,9 +194,9 @@ const pontos = [
                 src={fazendaChurrascada}
                 formats={['avif', 'webp']}
                 fallbackFormat="webp"
-                widths={[400, 640, 832]}
+                widths={[400, 640, 920, 1280]}
                 sizes="(max-width: 1023px) 56vw, 32vw"
-                alt="Fachada da Fazenda Churrascada, casarão amarelo e laranja com varanda e palmeiras ao lado"
+                alt="Entrada da Fazenda Churrascada, com o telhado de telhas, a varanda de madeira e a placa do restaurante entre as araucárias"
                 loading="lazy"
                 decoding="async"
               />
@@ -607,8 +607,13 @@ const pontos = [
   .f-uni :global(img) {
     object-position: center 45%;
   }
+  /* Ponto focal recalibrado para a foto nova: ela é 3:2 deitada num quadro
+     retrato, então o `cover` mostra só ~54% da largura. Centralizado, esse
+     recorte começava em 23% e decepava a placa da Fazenda Churrascada, que
+     fica entre 14% e 24%. Com 25% o recorte abre em ~11% e a placa entra
+     inteira, sem perder o telhado nem a varanda. */
   .cot-main :global(img) {
-    object-position: center 28%;
+    object-position: 25% 50%;
   }
 
   /* colagem do Cotidiano */
