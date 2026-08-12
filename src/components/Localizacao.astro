@@ -17,7 +17,7 @@ import pucpr from '../assets/images/loc-pucpr.jpg';
    projeto da agência (era o único no computador). Se a origem não for a
    pretendida, basta substituir este arquivo. */
 import unicuritiba from '../assets/images/loc-unicuritiba.jpg';
-import shopping from '../assets/images/loc-shopping.jpg';
+import fazendaChurrascada from '../assets/images/loc-fazenda-churrascada.jpg';
 import restaurante from '../assets/images/loc-restaurante.jpg';
 import farmacia from '../assets/images/loc-farmacia.jpg';
 
@@ -183,7 +183,7 @@ const pontos = [
         </figure>
 
         <!-- Cotidiano reúne as três fotos de serviço, cada uma com o nome
-             próprio visível (exigência do cliente). O Shopping Estação
+             próprio visível (exigência do cliente). A Fazenda Churrascada
              conduz; a farmácia é o arquivo de menor resolução (555px) e por
              isso só aparece em miniatura, recortada com cover (o recorte
              elimina os cantos arredondados embutidos no JPG). -->
@@ -191,16 +191,16 @@ const pontos = [
           <div class="loc-mov loc-colagem" data-mov>
             <div class="cot-tile cot-main">
               <Picture
-                src={shopping}
+                src={fazendaChurrascada}
                 formats={['avif', 'webp']}
                 fallbackFormat="webp"
-                widths={[400, 640, 920, 1280]}
+                widths={[400, 640, 832]}
                 sizes="(max-width: 1023px) 56vw, 32vw"
-                alt="Fachada curva do Shopping Estação, com o relógio no alto"
+                alt="Fachada da Fazenda Churrascada, casarão amarelo e laranja com varanda e palmeiras ao lado"
                 loading="lazy"
                 decoding="async"
               />
-              <span class="cot-rotulo label">Shopping Estação</span>
+              <span class="cot-rotulo label">Fazenda Churrascada</span>
             </div>
             <div class="cot-tile">
               <Picture
