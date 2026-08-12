@@ -1,5 +1,6 @@
 ---
 import { EMPREENDIMENTO } from '../config';
+import { waHref } from '../config';
 
 /* Mesmo texto aprovado de sempre — só separado em duas partes para o
    título da etapa não ficar no mesmo peso da explicação. O travessão
@@ -74,7 +75,7 @@ const etapas = [
         a partir de <strong>{EMPREENDIMENTO.precoMin}</strong> até
         <strong>{EMPREENDIMENTO.precoMax}</strong> — varia por andar e orientação da unidade.
       </p>
-      <a class="btn btn--ghost preco-cta" href="#contato">
+      <a class="btn btn--ghost preco-cta" href={waHref()}>
         <span>Ver condições completas</span>
         <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path

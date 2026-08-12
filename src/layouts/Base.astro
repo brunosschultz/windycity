@@ -13,8 +13,9 @@ const ogImage = new URL('/og-windycity.jpg', Astro.site ?? SITE.url).href;
 /* ---------------------------------------------------------------------------
    Dados estruturados (SEO + GEO).
    Apenas fatos presentes no wireframe aprovado e no material da marca.
-   Preço, telefone, CNPJ e endereço NÃO entram enquanto forem placeholder —
-   schema com dado falso é pior que schema ausente.
+   Telefone, CNPJ e endereço entraram quando o cliente confirmou os valores.
+   Preço segue fora: continua sendo faixa, não valor de oferta — schema com
+   dado falso é pior que schema ausente.
 --------------------------------------------------------------------------- */
 const schema = {
   '@context': 'https://schema.org',
@@ -27,6 +28,8 @@ const schema = {
       slogan: 'Voltados para o sol',
       sameAs: [CONTATO.instagramUrl],
       areaServed: { '@type': 'City', name: SITE.cidade },
+      ...(CONTATO.whatsapp ? { telephone: `+${CONTATO.whatsapp}` } : {}),
+      taxID: CONTATO.cnpj,
     },
     {
       '@type': 'WebSite',
@@ -46,6 +49,7 @@ const schema = {
       numberOfAccommodationUnits: EMPREENDIMENTO.unidades,
       address: {
         '@type': 'PostalAddress',
+        streetAddress: CONTATO.endereco,
         addressLocality: SITE.cidade,
         addressRegion: SITE.estado,
         addressCountry: 'BR',
@@ -54,7 +58,7 @@ const schema = {
       amenityFeature: [
         'Rooftop com espaço gourmet',
         'Lavanderia',
-        'Sala de reunião',
+        'Coworking',
         'Bicicletário',
       ].map((n) => ({ '@type': 'LocationFeatureSpecification', name: n, value: true })),
       accommodationCategory: ['Studio', 'Garden'],

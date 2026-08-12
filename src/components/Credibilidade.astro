@@ -2,6 +2,7 @@
 import { Picture } from 'astro:assets';
 import LogoGirassol from './LogoGirassol.astro';
 import { VIDEO_INSTITUCIONAL } from '../config';
+import { waHref } from '../config';
 import thumbVideo from '../assets/images/thumb-video.png';
 import girassolProposito from '../assets/images/girassol-proposito.png';
 import fachadaDia from '../assets/images/fachada-dia-hd.jpg';
@@ -145,11 +146,10 @@ const stats = [
          Enquadramento recomposto: a imagem sangra só à esquerda e a legenda
          sai de cima da foto para uma coluna própria, ancorada na base. -->
     <figure class="cr-vrow">
-      {/* Capa + play. Enquanto não houver arquivo de vídeo (VIDEO_INSTITUCIONAL
-          é null), isto continua sendo uma capa estática: o play permanece,
-          como pedido, mas NÃO vira botão — um botão que não faz nada ao ser
-          clicado é pior do que nenhum. Assim que o caminho do vídeo entrar no
-          config, o mesmo bloco vira um <button> que troca a capa pelo player.
+      {/* Capa + play. Com VIDEO_INSTITUCIONAL preenchido, o play é um <button>
+          que troca a capa pelo player do YouTube e pede tela cheia. Sem ID, o
+          bloco volta a ser capa estática e o play deixa de ser botão — um
+          botão que não faz nada ao ser clicado é pior do que nenhum.
           O `data-px` (parallax) sai quando há vídeo: deslocar o quadro com um
           player dentro cortaria os controles. */}
       <div
@@ -192,7 +192,7 @@ const stats = [
     </figure>
 
     <div class="cr-cta" data-rv>
-      <a class="btn btn--light" href="#contato">
+      <a class="btn btn--light" href={waHref()}>
         <span>Saiba mais</span>
         <svg class="arw" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path
@@ -210,29 +210,34 @@ const stats = [
 <script>
   import { aoAproximar, reduzMovimento } from '../scripts/ilha';
 
-  /* Clique no play: a capa dá lugar ao player, que já entra tocando.
-     O <video> é criado só aqui — nada de baixar o arquivo de quem nunca
-     clicar. `controls` para o usuário poder pausar, e sem `muted`: o clique
-     É o gesto que autoriza o áudio, então a política de autoplay permite. */
+  /* Clique no play: a capa dá lugar ao player do YouTube, no mesmo quadro.
+     O iframe é criado SÓ aqui — antes do clique nada do YouTube é carregado,
+     nenhum script de terceiro e nenhum cookie. Por isso também o domínio
+     `youtube-nocookie`. */
   const quadro = document.querySelector<HTMLElement>('[data-video]');
   const botao = quadro?.querySelector<HTMLButtonElement>('[data-play]');
   if (quadro && botao) {
     botao.addEventListener('click', () => {
-      const fonte = quadro.dataset.video;
-      if (!fonte) return;
-      const v = document.createElement('video');
-      v.className = 'cr-vplayer';
-      v.src = fonte;
-      v.controls = true;
-      v.playsInline = true;
-      v.preload = 'auto';
+      const id = quadro.dataset.video;
+      if (!id) return;
+
+      const ifr = document.createElement('iframe');
+      ifr.className = 'cr-vplayer';
+      ifr.src =
+        `https://www.youtube-nocookie.com/embed/${id}` +
+        '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+      ifr.title = 'Vídeo institucional da Girassol Incorporações';
+      ifr.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      ifr.allowFullscreen = true;
+      ifr.setAttribute('frameborder', '0');
+
       quadro.classList.add('is-tocando');
-      quadro.append(v);
-      v.play().catch(() => {
-        /* Se o navegador recusar o autoplay com som, o vídeo fica visível
-           com os controles — o usuário dá play. Melhor do que forçar mudo
-           num vídeo institucional, onde a fala é o conteúdo. */
-      });
+      quadro.append(ifr);
+      /* Sem pedir tela cheia. A chamada anterior colocava o CONTÊINER em
+         fullscreen, mas o iframe continuava dimensionado pela caixa antiga:
+         dava tela preta com o vídeo pequeno num canto. Tela cheia agora é
+         escolha do usuário, pelo botão do próprio player — que já sabe se
+         redimensionar. `allowFullscreen` continua ligado para isso. */
     });
   }
 
@@ -591,12 +596,21 @@ const stats = [
   .cr-vmedia.is-tocando .cr-play {
     display: none;
   }
-  .cr-vplayer {
+  /* Serve ao <iframe> do YouTube. Sem `object-fit`: iframe não é mídia
+     substituída — quem cuida do enquadramento é o player. Em tela cheia o
+     quadro vira o container, e as barras pretas do YouTube ficam por conta
+     dele, não do nosso layout. */
+  /* `:global` é obrigatório aqui: o iframe é criado por JS em tempo de
+     execução e por isso NÃO recebe o atributo data-astro-cid-* que o Astro
+     usa para escopar o CSS. Sem isso a regra nunca casava e o iframe ficava
+     no tamanho padrão do navegador — 300x150 num quadro bem maior, ou seja,
+     tela preta com o vídeo pequeno num canto. */
+  :global(.cr-vplayer) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    border: 0;
     background: var(--preto);
   }
 
@@ -607,15 +621,15 @@ const stats = [
     grid-template-columns: 1fr;
     gap: clamp(16px, 2vw, 28px);
   }
-  /* Proporção do vídeo, não altura arbitrária. O quadro antes era um clamp
-     de altura com `cover`, o que recortava 22% da largura da capa — e as
-     duas assinaturas dela (Girassol no alto à direita, BDDB embaixo) ficam
-     justamente nos cantos que sumiam. Em 16:9 nada é cortado, e o player
-     que entra no lugar da capa também é 16:9: sem tarja preta na troca. */
+  /* 16:9 EXATO, não a proporção do arquivo da capa. O thumb é 1327x745, que
+     dá 1.7812 — perto de 16:9 (1.7778), mas não igual. Essa sobra de 1px
+     bastaria para o player do YouTube não encaixar e deixar uma tarja. Com
+     16/9 fechado, o vídeo ocupa o quadro inteiro; a capa perde 0,2% na
+     largura pelo `cover`, o que ninguém enxerga. */
   .cr-vmedia {
     position: relative;
     overflow: hidden;
-    aspect-ratio: 1327 / 745;
+    aspect-ratio: 16 / 9;
     margin-inline: calc(var(--gutter) * -1);
   }
   .cr-vmedia :global(img) {

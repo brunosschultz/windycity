@@ -17,40 +17,50 @@ export const SITE = {
 } as const;
 
 export const CONTATO = {
-  /** Somente dígitos, formato internacional (ex.: '5541999999999'). `null` = ainda não informado. */
-  whatsapp: null as string | null,
-  whatsappDisplay: '(XX) XXXXX-XXXX',
+  /** Somente dígitos, formato internacional. Confirmado pelo cliente. */
+  whatsapp: '554199635801' as string | null,
+  whatsappDisplay: '41 9963-5801',
   instagram: '@girassolincorporacoes',
   instagramUrl: 'https://instagram.com/girassolincorporacoes',
   email: '[contato@girassolincorporacoes.com.br]',
-  cnpj: '[00.000.000/0000-00]',
-  endereco: 'Rua Conselheiro Dantas, 1287 — Prado Velho',
+  /** CNPJ da Girassol Incorporações — confirmado pelo cliente. */
+  cnpj: '38.634.976/0001-99',
+  endereco: 'Rua Conselheiro Dantas, 1287 — Rebouças',
 } as const;
 
 /**
  * Enquanto não houver número de WhatsApp confirmado, todo CTA leva ao
  * formulário da própria página em vez de a um link quebrado.
  */
-export const waHref = (mensagem?: string): string => {
+/**
+ * Mensagem única de abertura, aprovada pelo cliente. TODOS os CTAs levam ao
+ * mesmo link com este texto — não há variação por seção.
+ */
+export const MENSAGEM_WA =
+  'Olá, Gostaria de mais informações sobre o empreendimento WindyCity da Girassol Incorporadora.';
+
+/**
+ * Link de todos os CTAs. O parâmetro existe para quem quiser um texto
+ * diferente, mas o padrão é a mensagem aprovada — passar nada é o caminho
+ * certo na página inteira.
+ */
+export const waHref = (mensagem: string = MENSAGEM_WA): string => {
   if (!CONTATO.whatsapp) return '#contato';
-  const texto = mensagem ? `?text=${encodeURIComponent(mensagem)}` : '';
-  return `https://wa.me/${CONTATO.whatsapp}${texto}`;
+  return `https://wa.me/${CONTATO.whatsapp}?text=${encodeURIComponent(mensagem)}`;
 };
 
 /**
- * Vídeo institucional (fundadores apresentando a Girassol e o WindyCity).
- * `null` = arquivo ainda não entregue — o bloco fica como capa estática e o
- * play não promete o que não existe. Ao receber o vídeo: colocar em
- * `public/video/` e apontar o caminho aqui. Nada mais precisa mudar.
+ * Vídeo institucional no YouTube — só o ID, não a URL: o player é montado a
+ * partir dele no clique. `null` volta o bloco a ser capa estática.
  */
-export const VIDEO_INSTITUCIONAL = null as string | null;
+export const VIDEO_INSTITUCIONAL = 'v7rtZDklGQo' as string | null;
 
 export const EMPREENDIMENTO = {
   unidades: 48,
   walkScore: 92,
   comercializado: '50%',
   /** Anos de experiência combinada da equipe técnica — informado pelo cliente. */
-  anosEquipe: 10,
+  anosEquipe: 20,
   /** Faixa de valores das unidades — informada pelo cliente. */
   precoMin: 'R$ 279 mil',
   precoMax: 'R$ 370 mil',

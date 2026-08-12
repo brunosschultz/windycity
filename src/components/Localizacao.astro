@@ -1,6 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import { EMPREENDIMENTO } from '../config';
+import { waHref } from '../config';
 import MapaLocalizacao from './MapaLocalizacao.astro';
 import ProximidadesVideo from './ProximidadesVideo.astro';
 
@@ -30,7 +31,7 @@ const pontos = [
     d: 'proximidade com jogos, shows e grandes eventos',
     /* `meta` é o dado objetivo do ponto, exibido sobre a fotografia no
        lugar do antigo título repetido. */
-    meta: '950 m',
+    meta: '900 m',
   },
   {
     t: 'Mobilidade',
@@ -90,7 +91,7 @@ const pontos = [
     <figcaption class="loc-media-leg">
       <address class="loc-endereco" data-rv style="--d:160ms">
         <span class="loc-endereco-l1">Rua Conselheiro Dantas, 1287</span>
-        <span class="loc-endereco-l2">Prado Velho | Curitiba/PR</span>
+        <span class="loc-endereco-l2">Rebouças | Curitiba/PR</span>
       </address>
     </figcaption>
   </figure>
@@ -328,8 +329,8 @@ const pontos = [
       </div>
 
       <div class="score-cta" data-rv style="--d:200ms">
-        <a class="btn btn--light" href="#contato">
-          <span>Ver o entorno</span>
+        <a class="btn btn--light" href={waHref()}>
+          <span>Tenho interesse</span>
           <svg
             class="arw"
             width="16"
