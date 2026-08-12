@@ -37,6 +37,14 @@ export const waHref = (mensagem?: string): string => {
   return `https://wa.me/${CONTATO.whatsapp}${texto}`;
 };
 
+/**
+ * Vídeo institucional (fundadores apresentando a Girassol e o WindyCity).
+ * `null` = arquivo ainda não entregue — o bloco fica como capa estática e o
+ * play não promete o que não existe. Ao receber o vídeo: colocar em
+ * `public/video/` e apontar o caminho aqui. Nada mais precisa mudar.
+ */
+export const VIDEO_INSTITUCIONAL = null as string | null;
+
 export const EMPREENDIMENTO = {
   unidades: 48,
   walkScore: 92,

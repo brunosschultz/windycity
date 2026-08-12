@@ -237,7 +237,8 @@ const pontos = [
           no mobile e sem JS ela some do layout e nada muda.
           --passos = uma fatia por FOTOGRAFIA (Universidades comanda duas). */}
       <div class="loc-itens-caixa" data-itens-caixa style={`--passos:${pontos.length + 1}`}>
-        <ol class="loc-itens">
+        <div class="loc-palco">
+          <ol class="loc-itens">
           {
             pontos.map((p, i) => (
               <li
@@ -253,7 +254,30 @@ const pontos = [
               </li>
             ))
           }
-        </ol>
+          </ol>
+
+          {/* Guia de navegação: mostra que a dobra tem quatro pontos, quanto
+              já se percorreu do atual e permite pular direto para qualquer um.
+              Só existe no palco do desktop — no mobile os quatro itens já
+              aparecem em sequência e um indicador de progresso não teria o que
+              indicar. O número é duplicado de propósito: a cópia de dentro do
+              preenchimento é recortada junto com ele, então o algarismo troca
+              de cor exatamente na linha do avanço, em vez de ficar meio verde
+              meio bege sobre o fundo errado. */}
+          <nav class="loc-guia" data-guia aria-label="Pontos da localização">
+            {
+              pontos.map((p, i) => (
+                <button type="button" class="loc-bt" data-guia-bt data-i={i}>
+                  <span class="loc-bt-n">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="loc-bt-cheio" aria-hidden="true">
+                    <span class="loc-bt-n">{String(i + 1).padStart(2, '0')}</span>
+                  </span>
+                  <span class="sr-only">Ir para {p.t}</span>
+                </button>
+              ))
+            }
+          </nav>
+        </div>
       </div>
     </div>
   </div>
@@ -518,8 +542,15 @@ const pontos = [
   }
   .loc-painel,
   .loc-itens,
-  .loc-itens-caixa {
+  .loc-itens-caixa,
+  .loc-palco {
     display: contents;
+  }
+  /* O guia só faz sentido no palco travado do desktop: no mobile os quatro
+     pontos já aparecem em sequência, um sob o outro, e não há progresso
+     dentro de um item para indicar. */
+  .loc-guia {
+    display: none;
   }
   .loc-itens {
     list-style: none;
@@ -680,8 +711,12 @@ const pontos = [
   @media (min-width: 1024px) {
     .loc-scrolly.is-js {
       max-width: none;
+      /* o vão entre foto e borda da tela é medido a partir DESTA variável;
+         guardá-la evita que a margem negativa da caixa e o gap saiam de
+         sincronia se um dos dois mudar */
+      --loc-gap: clamp(48px, 5vw, 120px);
       grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
-      column-gap: clamp(48px, 5vw, 120px);
+      column-gap: var(--loc-gap);
       align-items: start;
     }
     .is-js .loc-painel {
@@ -723,21 +758,109 @@ const pontos = [
 
     /* A caixa vira o percurso: 80svh por fotografia, igual ao que os itens
        ocupavam antes somados. É ela que segura o painel preso. */
+    /* A caixa passa a ocupar o VÃO INTEIRO — da borda direita da fotografia
+       até a borda da tela — desfazendo o gap à esquerda e a sangria à
+       direita. Antes ela começava depois do gap e parava no limite do
+       `.wrap`, então o bloco de texto, alinhado à esquerda dentro de uma
+       coluna larga, ficava visivelmente encostado no lado esquerdo do vão.
+       Com a caixa cobrindo o vão, centrar o conteúdo nela é centrar no vão.
+       Nada disso mexe na largura da fotografia: o grid e o gap continuam
+       iguais, só a caixa transborda para os dois lados. */
     .loc-scrolly.is-js .loc-itens-caixa {
       display: block;
       height: calc(var(--passos, 5) * 80svh);
+      margin-left: calc(var(--loc-gap) * -1);
+      margin-right: calc(var(--sangria) * -1);
     }
     /* O texto vira PALCO, não coluna que rola: gruda na mesma linha da foto
        e os itens se revezam no mesmo lugar. Antes cada item tinha altura
        própria e subia pela tela — agora a troca é no lugar, como no
        comparativo de Diferenciais. */
-    .loc-scrolly.is-js .loc-itens {
-      display: grid;
+    /* O sticky mora no PALCO, não na lista: ele precisa segurar o texto e o
+       guia juntos, na mesma linha da fotografia. */
+    .loc-scrolly.is-js .loc-palco {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* centra o bloco no vão; o texto segue alinhado à esquerda DENTRO dele,
+         como manda o sistema (eixo de leitura constante) */
+      align-items: center;
+      padding-inline: clamp(24px, 2.6vw, 64px);
       position: sticky;
       --ph: min(74svh, 40vw);
       top: calc((100svh - var(--ph)) / 2);
       height: var(--ph);
+    }
+    /* Largura fixa e igual para texto e guia: sem isso o bloco encolheria
+       para o tamanho de cada item e o conjunto ANDARIA de lado a cada troca
+       de ponto, já que os textos têm comprimentos diferentes. 33rem é a
+       largura que a coluna já tinha, então as quebras de linha não mudam. */
+    .loc-scrolly.is-js .loc-itens,
+    .loc-scrolly.is-js .loc-guia {
+      width: min(100%, 33rem);
+    }
+    .loc-scrolly.is-js .loc-itens {
+      display: grid;
       align-content: center;
+    }
+
+    /* ---- Guia numerado 01–04 ---- */
+    .loc-scrolly.is-js .loc-guia {
+      display: flex;
+      gap: 10px;
+      margin-top: clamp(24px, 3.5vh, 44px);
+    }
+    /* Quadrado de verdade: aspect-ratio 1 com largura fixa, para o algarismo
+       não deformar a caixa quando a fonte cair no fallback. */
+    .loc-bt {
+      position: relative;
+      width: clamp(38px, 3.2vw, 46px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 1px solid var(--verde);
+      background: none;
+      color: var(--verde);
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.3s var(--ease);
+    }
+    .loc-bt-n {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    /* O preenchimento avança por clip-path, não por scaleX: transform
+       escalaria também o algarismo de dentro, e a contra-escala necessária
+       para desentortá-lo explode quando o progresso é zero. clip-path é só
+       pintura — não recalcula layout e não toca no filho. */
+    /* inset -1px, não 0: um absoluto se posiciona pela caixa de PADDING, que
+       exclui a borda — com 0 sobrava um anel de 1px por fora do preenchimento.
+       Estendendo por baixo da borda, o verde cobre o botão inteiro, e o
+       `overflow: hidden` do pai apara o que passa. */
+    .loc-bt-cheio {
+      position: absolute;
+      inset: -1px;
+      display: grid;
+      place-items: center;
+      background: var(--verde);
+      color: var(--bege);
+      clip-path: inset(0 calc((1 - var(--p, 0)) * 100%) 0 0);
+    }
+    .loc-bt:hover {
+      border-color: var(--marrom);
+    }
+    .loc-bt:focus-visible {
+      outline: 2px solid var(--marrom);
+      outline-offset: 2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .loc-bt {
+        transition: none;
+      }
     }
     /* Empilhados na mesma célula. O estado escondido é o mesmo vocabulário
        do Diferenciais: sobe 12px, desfoca 3px e some — sutil, sem salto. */
@@ -1104,8 +1227,31 @@ const pontos = [
            quem controla a visibilidade agora é .is-ativo. */
         itens.forEach((el) => el.classList.add('is-in'));
 
+        /* Faixa de progresso de cada ITEM dentro do percurso total, em
+           fatias. Universidades ocupa duas, então sua faixa é o dobro das
+           outras — e o botão 03 leva o dobro do scroll para completar, que é
+           exatamente a informação que o guia deve passar. */
+        const faixa = itens.map((_, i) => {
+          const de = itemDaFoto.indexOf(i);
+          const ate = itemDaFoto.lastIndexOf(i) + 1;
+          return { de: de / totalFotos, ate: ate / totalFotos };
+        });
+
+        const botoes = [...raiz.querySelectorAll<HTMLElement>('[data-guia-bt]')];
+        const pintarGuia = (progresso: number) => {
+          botoes.forEach((bt, i) => {
+            const { de, ate } = faixa[i];
+            const p = Math.min(1, Math.max(0, (progresso - de) / (ate - de)));
+            bt.style.setProperty('--p', p.toFixed(3));
+            // estado para leitor de tela: qual ponto está em foco agora
+            if (p > 0 && p < 1) bt.setAttribute('aria-current', 'true');
+            else bt.removeAttribute('aria-current');
+          });
+        };
+
         let ultimaFatia = -1;
         const aplicar = (progresso: number) => {
+          pintarGuia(progresso);
           const f = Math.min(totalFotos - 1, Math.max(0, Math.floor(progresso * totalFotos)));
           if (f === ultimaFatia) return;
           const dir: 1 | -1 = f > ultimaFatia ? 1 : -1;
@@ -1114,13 +1260,26 @@ const pontos = [
         };
 
         if (caixa) {
-          ScrollTrigger.create({
+          const gatilho = ScrollTrigger.create({
             trigger: caixa,
             start: 'top top',
             end: 'bottom bottom',
             onUpdate: (self) => aplicar(self.progress),
             // cobre o carregamento já rolado no meio da dobra (refresh, âncora)
             onRefresh: (self) => aplicar(self.progress),
+          });
+
+          /* Clique leva ao INÍCIO da faixa do ponto. A posição vem do próprio
+             gatilho (start/end em pixels de scroll), então continua correta se
+             a altura da caixa mudar — não há número mágico duplicado aqui. */
+          botoes.forEach((bt, i) => {
+            bt.addEventListener('click', () => {
+              const destino = gatilho.start + faixa[i].de * (gatilho.end - gatilho.start);
+              window.scrollTo({
+                top: destino + 1, // +1px entra na faixa, não fica na fronteira
+                behavior: reduzMovimento() ? 'auto' : 'smooth',
+              });
+            });
           });
         }
 

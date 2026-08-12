@@ -1,8 +1,9 @@
 ---
 import { Picture } from 'astro:assets';
 import LogoGirassol from './LogoGirassol.astro';
-import poster from '../assets/images/fachada-02.png';
-import torre from '../assets/images/fachada-baixo.jpg';
+import { VIDEO_INSTITUCIONAL } from '../config';
+import thumbVideo from '../assets/images/thumb-video.png';
+import girassolProposito from '../assets/images/girassol-proposito.png';
 import fachadaDia from '../assets/images/fachada-dia-hd.jpg';
 import fachadaNoite from '../assets/images/fachada-noite-hd.jpg';
 import { EMPREENDIMENTO } from '../config';
@@ -45,14 +46,20 @@ const stats = [
         direto: sem coordenador do coordenador.
       </p>
 
-      <figure class="cr-abre-fig bleed-r" data-px="60" data-rv-img="cima">
+      {/* Peça composta da incorporadora, não fotografia: traz texto e o
+          símbolo do girassol embutidos, sobre fundo transparente. Por isso
+          NÃO leva parallax (data-px) nem recorte por `cover` — deslocar ou
+          cortar uma arte com texto a mutila. O texto é branco e só existe
+          por cima do transparente, então ela depende do fundo escuro da
+          seção para ser lida; aqui isso está garantido pelo theme-preto. */}
+      <figure class="cr-abre-fig cr-abre-fig--arte bleed-r" data-rv-img="cima">
         <Picture
-          src={torre}
+          src={girassolProposito}
           formats={['avif', 'webp']}
           fallbackFormat="webp"
-          widths={[640, 960, 1400, 2000]}
-          sizes="(max-width: 900px) 100vw, 62vw"
-          alt="Fachada do WindyCity vista de baixo para cima, com o letreiro windycity na base e as varandas recortadas contra o céu"
+          widths={[640, 960, 1400, 1650]}
+          sizes="(max-width: 900px) 100vw, 52vw"
+          alt="Uma incorporadora com Propósito. Transformar cidades. Transformar espaços. Transformar vidas. Ao lado, a fachada do WindyCity vista de baixo e o símbolo do girassol da Girassol Incorporações."
           loading="lazy"
           decoding="async"
         />
@@ -138,22 +145,45 @@ const stats = [
          Enquadramento recomposto: a imagem sangra só à esquerda e a legenda
          sai de cima da foto para uma coluna própria, ancorada na base. -->
     <figure class="cr-vrow">
-      <div class="cr-vmedia" data-px="80" data-rv-img="esq">
+      {/* Capa + play. Enquanto não houver arquivo de vídeo (VIDEO_INSTITUCIONAL
+          é null), isto continua sendo uma capa estática: o play permanece,
+          como pedido, mas NÃO vira botão — um botão que não faz nada ao ser
+          clicado é pior do que nenhum. Assim que o caminho do vídeo entrar no
+          config, o mesmo bloco vira um <button> que troca a capa pelo player.
+          O `data-px` (parallax) sai quando há vídeo: deslocar o quadro com um
+          player dentro cortaria os controles. */}
+      <div
+        class="cr-vmedia"
+        data-px={VIDEO_INSTITUCIONAL ? undefined : '80'}
+        data-rv-img="esq"
+        data-video={VIDEO_INSTITUCIONAL ?? undefined}
+      >
         <Picture
-          src={poster}
+          src={thumbVideo}
           formats={['avif', 'webp']}
           fallbackFormat="webp"
-          widths={[760, 1100, 1500, 1920]}
+          widths={[760, 1100, 1327]}
           sizes="(max-width: 900px) 100vw, 76vw"
-          alt="Fachada do WindyCity vista da calçada, com pessoas circulando na rua"
+          alt="Capa do vídeo institucional da Girassol Incorporações"
           loading="lazy"
           decoding="async"
         />
-        <span class="cr-play" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1">
-            <path d="M9 7.5 17 12l-8 4.5v-9Z" stroke-linejoin="round"></path>
-          </svg>
-        </span>
+        {
+          VIDEO_INSTITUCIONAL ? (
+            <button class="cr-play" type="button" data-play>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true">
+                <path d="M9 7.5 17 12l-8 4.5v-9Z" stroke-linejoin="round" />
+              </svg>
+              <span class="sr-only">Assistir ao vídeo institucional</span>
+            </button>
+          ) : (
+            <span class="cr-play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1">
+                <path d="M9 7.5 17 12l-8 4.5v-9Z" stroke-linejoin="round" />
+              </svg>
+            </span>
+          )
+        }
       </div>
       <figcaption class="cr-vcap" data-rv>
         <span class="cr-vtit">Vídeo institucional</span>
@@ -179,6 +209,32 @@ const stats = [
 
 <script>
   import { aoAproximar, reduzMovimento } from '../scripts/ilha';
+
+  /* Clique no play: a capa dá lugar ao player, que já entra tocando.
+     O <video> é criado só aqui — nada de baixar o arquivo de quem nunca
+     clicar. `controls` para o usuário poder pausar, e sem `muted`: o clique
+     É o gesto que autoriza o áudio, então a política de autoplay permite. */
+  const quadro = document.querySelector<HTMLElement>('[data-video]');
+  const botao = quadro?.querySelector<HTMLButtonElement>('[data-play]');
+  if (quadro && botao) {
+    botao.addEventListener('click', () => {
+      const fonte = quadro.dataset.video;
+      if (!fonte) return;
+      const v = document.createElement('video');
+      v.className = 'cr-vplayer';
+      v.src = fonte;
+      v.controls = true;
+      v.playsInline = true;
+      v.preload = 'auto';
+      quadro.classList.add('is-tocando');
+      quadro.append(v);
+      v.play().catch(() => {
+        /* Se o navegador recusar o autoplay com som, o vídeo fica visível
+           com os controles — o usuário dá play. Melhor do que forçar mudo
+           num vídeo institucional, onde a fala é o conteúdo. */
+      });
+    });
+  }
 
   const secao = document.querySelector<HTMLElement>('#girassol');
   if (secao) {
@@ -316,6 +372,44 @@ const stats = [
     object-fit: cover;
     object-position: 50% 68%; /* letreiro na metade inferior: nunca cortar */
   }
+  /* A arte é exibida INTEIRA e na proporção original: a caixa assume o
+     formato dela, então não sobra letterbox nem falta pedaço. */
+  .cr-abre-fig--arte {
+    height: auto;
+    aspect-ratio: 1650 / 1350;
+    /* Anula o respiro que separa a abertura da cena seguinte: a arte encosta
+       na base, emendando direto no topo do bloco de baixo. Vale nas duas
+       larguras — no mobile ela já ocupa a tela de borda a borda. */
+    margin-bottom: calc(var(--cr-vao) * -1);
+  }
+  .cr-abre-fig--arte :global(img) {
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+  }
+  /* O véu lateral existia para fundir uma FOTOGRAFIA ao preto e proteger a
+     leitura do título. Sobre a arte ele cairia justamente em cima do texto
+     branco, que já vem com o respiro embutido na composição. */
+  .cr-abre-fig--arte::after {
+    display: none;
+  }
+
+  /* Acento do título: só NESTA seção o verde dá lugar ao degradê do girassol
+     da arte ao lado. Os dois tons foram amostrados da própria peça — a
+     pétala vai de #F8AB00 a #F39200 — em vez de escolhidos no olho.
+     A cor sólida vem primeiro como base: se `background-clip: text` não for
+     suportado, o texto continua legível em amarelo em vez de sumir. */
+  .cr-titulo .ac {
+    color: #f8ab00;
+  }
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .cr-titulo .ac {
+      background: linear-gradient(100deg, #f8ab00 0%, #f39200 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
   /* véu lateral: funde a foto ao fundo preto e segura a leitura do título */
   .cr-abre-fig::after {
     content: '';
@@ -331,9 +425,15 @@ const stats = [
   }
 
   /* ---------- 2 · Cena da prova ---------- */
+  /* Respiro entre a abertura e a cena. Guardado em variável porque a arte
+     do girassol precisa anular exatamente este valor para encostar na cena
+     — se os dois números vivessem separados, sairiam de sincronia. */
+  .cr {
+    --cr-vao: clamp(56px, 9vw, 140px);
+  }
   .cr-cena {
     height: 165svh;
-    margin-top: clamp(56px, 9vw, 140px);
+    margin-top: var(--cr-vao);
   }
   .cr-palco {
     background: var(--preto);
@@ -479,6 +579,27 @@ const stats = [
     max-width: 38ch;
   }
 
+  button.cr-play {
+    cursor: pointer;
+  }
+  button.cr-play:focus-visible {
+    outline: 2px solid var(--bege);
+    outline-offset: 3px;
+  }
+  /* Com o player em cena, a capa e o play saem */
+  .cr-vmedia.is-tocando :global(picture),
+  .cr-vmedia.is-tocando .cr-play {
+    display: none;
+  }
+  .cr-vplayer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--preto);
+  }
+
   /* ---------- 4 · Vídeo institucional ---------- */
   .cr-vrow {
     margin-top: clamp(72px, 10vw, 150px);
@@ -486,10 +607,15 @@ const stats = [
     grid-template-columns: 1fr;
     gap: clamp(16px, 2vw, 28px);
   }
+  /* Proporção do vídeo, não altura arbitrária. O quadro antes era um clamp
+     de altura com `cover`, o que recortava 22% da largura da capa — e as
+     duas assinaturas dela (Girassol no alto à direita, BDDB embaixo) ficam
+     justamente nos cantos que sumiam. Em 16:9 nada é cortado, e o player
+     que entra no lugar da capa também é 16:9: sem tarja preta na troca. */
   .cr-vmedia {
     position: relative;
     overflow: hidden;
-    height: clamp(300px, 54svh, 520px);
+    aspect-ratio: 1327 / 745;
     margin-inline: calc(var(--gutter) * -1);
   }
   .cr-vmedia :global(img) {
@@ -505,7 +631,12 @@ const stats = [
     background: linear-gradient(to top, rgba(1, 8, 17, 0.5), rgba(1, 8, 17, 0) 40%);
     pointer-events: none;
   }
+  /* Vale para o <span> (sem vídeo) e para o <button> (com vídeo): zera o
+     visual padrão de botão para os dois renderizarem idênticos. */
   .cr-play {
+    appearance: none;
+    padding: 0;
+    font: inherit;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -596,6 +727,17 @@ const stats = [
       margin-top: 0;
       align-self: center;
     }
+    /* A altura fixa acima serve à fotografia recortada. A arte manda na
+       própria proporção — vem depois de propósito, para vencer no cascata.
+       `align-self: end` encosta a peça na BASE do bloco de abertura, e a
+       margem negativa engole o respiro que o bloco ainda deixava embaixo:
+       assim ela emenda direto no topo da cena seguinte, sem faixa preta no
+       meio. O conteúdo da esquerda continua centrado no próprio eixo. */
+    .cr-abre-fig--arte {
+      height: auto;
+      max-height: 92svh;
+      align-self: end;
+    }
 
     .cr-cena {
       height: 280svh;
@@ -625,7 +767,7 @@ const stats = [
     .cr-vmedia {
       margin-inline: 0;
       margin-left: calc(var(--sangria) * -1); /* sangra só à esquerda */
-      height: clamp(420px, 80vh, 820px);
+      max-height: 80vh;
     }
     .cr-vcap {
       padding-bottom: clamp(8px, 1vw, 18px);
