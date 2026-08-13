@@ -313,30 +313,75 @@ const schema = {
            (mudo, então permitido sem gesto do usuário) "liga" o decodificador
            e destrava o scrubbing programático. */
         let ligado = false;
+        /* Ligado quando o aparelho não dá conta de raspar e o vídeo passa a
+           tocar sozinho. Precisa existir ANTES de ligarVideo: aquele
+           play/pause de destravar o decodificador pausaria justamente o
+           vídeo que o modo "tocar" acabou de iniciar — os dois disparam no
+           mesmo `loadedmetadata`, e o pause chega depois porque vem de uma
+           promise. */
+        let modoTocar = false;
         const ligarVideo = () => {
           if (ligado || !video) return;
           ligado = true;
           const p = video.play();
           if (p && typeof p.then === 'function') {
-            p.then(() => video.pause()).catch(() => {
+            p.then(() => {
+              if (!modoTocar) video.pause();
+            }).catch(() => {
               ligado = false;
             });
-          } else {
+          } else if (!modoTocar) {
             video.pause();
           }
         };
         video?.addEventListener('loadedmetadata', ligarVideo);
         if (video && video.readyState >= 1) ligarVideo();
 
-        /* A hero raspa serializada, igual à cena de proximidades — este
-           driver tinha o mesmo defeito escrito à parte, e por isso ficou de
-           fora da correção anterior.
-           SEM `aoDegradar`: aqui a raspagem É a composição de abertura (o
-           vídeo anda junto com a saída do título), então trocar por
-           reprodução automática mudaria o desenho da hero. Se a medição
-           mostrar que o aparelho não dá conta, isso vira decisão a tomar,
-           não efeito colateral. */
-        const raspador = video ? criarRaspador(video, 'hero') : null;
+        /* A hero raspa serializada, igual à cena de proximidades.
+           E, quando o aparelho não dá conta de raspar, ela TOCA uma vez.
+
+           O ponto que torna isso barato: a coreografia da abertura não é o
+           vídeo. Saída do título, migração do logo, entrada do "luz natural"
+           e aparição do header são CSS conduzido por --p, e não dependem de
+           o vídeo decodificar coisa nenhuma (ver `medir` acima). Então num
+           Android que engasga a abertura continua inteira: só o movimento
+           interno do vídeo deixa de acompanhar o dedo.
+           A alternativa era sequência de imagens, descartada por peso: o
+           recorte em pé custa 91–133 KB por quadro, o que daria 5,5 a 12 MB
+           acima da dobra contra os 2,09 MB do vídeo de hoje. */
+        /* ==========================================================
+           TEMPORÁRIO — REMOVER APÓS O TESTE DO BRUNO
+           Faz o iPhone se comportar como um Android que não dá conta de
+           raspar, só para avaliar a sensação num aparelho real. Em produção
+           o iOS raspa normalmente: o AVFoundation é rápido o bastante e a
+           medição nunca degradaria lá.
+           Para desligar: trocar para `false` (ou apagar as três linhas e o
+           `forcarTocar` abaixo).
+           ========================================================== */
+        const TESTE_IOS_COMO_ANDROID = true;
+        const eIOS =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        const raspador = video
+          ? criarRaspador(video, 'hero', {
+              forcarTocar: TESTE_IOS_COMO_ANDROID && eIOS,
+              aoDegradar: () => {
+                modoTocar = true;
+                /* Toca DE ONDE ESTÁ, sem voltar ao início. A degradação
+                   acontece depois de 8 seeks medidos, ou seja, com o usuário
+                   já rolando: um `currentTime = 0` aqui rebobinaria o vídeo
+                   na cara dele, no meio da abertura. Continuando do ponto
+                   atual, a troca de raspar para tocar passa despercebida. */
+                /* Toca DE ONDE ESTÁ e segue até o fim. Tentei fazer o vídeo
+                   acompanhar o gesto (play/pause conforme a rolagem), mas o
+                   ciclo rápido de play seguido de pause faz o navegador
+                   abortar a reprodução com AbortError e o vídeo fica parado.
+                   Reprodução contínua é o que funciona de forma confiável. */
+                video.play().catch(() => {});
+              },
+            })
+          : null;
 
         /* Recorta um trecho de --p e devolve 0→1 dentro dele, com suavização
            (smoothstep) — é o que dá a sensação de "sair/entrar fluido" em vez

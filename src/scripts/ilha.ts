@@ -114,10 +114,16 @@ export const raspadores: Raspador[] = [];
 export function criarRaspador(
   video: HTMLVideoElement,
   nome: string,
-  opcoes: { limiteMs?: number; aoDegradar?: () => void } = {}
+  opcoes: { limiteMs?: number; aoDegradar?: () => void; forcarTocar?: boolean } = {}
 ): Raspador {
   const limite = opcoes.limiteMs ?? 40;
   const MIN_AMOSTRAS = 8;
+
+  /* Atalho de teste: ?video=tocar força o modo degradado e ?video=raspar o
+     impede. Serve para ver o resultado de cada caminho sem precisar do
+     aparelho que dispara a condição — é o que permite conferir a versão
+     "Android fraco" numa máquina rápida. Não muda nada sem o parâmetro. */
+  const forcado = new URLSearchParams(location.search).get('video');
 
   let buscando = false;
   let pendente: number | null = null;
@@ -126,6 +132,13 @@ export function criarRaspador(
   let degradou = false;
   let med = 0;
   const amostras: number[] = [];
+
+  /* Com o atalho ligado, degrada no PRIMEIRO pedido de posição — ou seja,
+     no primeiro gesto de rolagem, não no carregamento. É assim que acontece
+     de verdade: a medição precisa de seeks, e seek só existe quando alguém
+     rola. Forçar no load mostraria um comportamento que nunca ocorre. */
+  const forcarNoPrimeiroGesto =
+    (forcado === 'tocar' || opcoes.forcarTocar === true) && !!opcoes.aoDegradar;
 
   /* Só entra na média o seek que caiu em trecho JÁ bufferizado. Seek em
      trecho não baixado demora por rede, não por decodificação — sem esta
@@ -141,6 +154,11 @@ export function criarRaspador(
 
   const irPara = (t: number) => {
     if (degradou) return;
+    if (forcarNoPrimeiroGesto) {
+      degradou = true;
+      opcoes.aoDegradar!();
+      return;
+    }
     if (buscando) {
       pendente = t;
       return;
@@ -159,7 +177,7 @@ export function criarRaspador(
       if (amostras.length >= MIN_AMOSTRAS) {
         const ord = [...amostras].sort((a, b) => a - b);
         med = ord[Math.floor(ord.length / 2)];
-        if (med > limite && opcoes.aoDegradar) {
+        if (med > limite && opcoes.aoDegradar && forcado !== 'raspar') {
           degradou = true;
           pendente = null;
           opcoes.aoDegradar();

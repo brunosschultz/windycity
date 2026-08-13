@@ -18,7 +18,7 @@ export const SITE = {
 
 export const CONTATO = {
   /** Somente dígitos, formato internacional. Confirmado pelo cliente. */
-  whatsapp: '554199635801' as string | null,
+  whatsapp: '5541999635801' as string | null,
   whatsappDisplay: '41 99963-5801',
   instagram: '@girassolincorporacoes',
   instagramUrl: 'https://instagram.com/girassolincorporacoes',
