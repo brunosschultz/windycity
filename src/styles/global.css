@@ -148,6 +148,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Com o Lenis no comando, o `smooth` nativo vira um segundo motor puxando
+     a mesma posição — os dois brigam e o resultado é um scroll que "puxa".
+     A classe só existe quando o Lenis sobe, ou seja, no desktop. */
   /* compensa o header fixo ao pular por âncora */
   scroll-padding-top: 84px;
   /* Trava o balanço lateral (rubber-band) do Safari no iOS. O sintoma era
@@ -822,6 +825,18 @@ h4 {
     transform: none !important;
     clip-path: none !important;
   }
+}
+
+/* ---------- Rolagem suave (só existe quando o Lenis sobe) ---------- */
+html.lenis {
+  scroll-behavior: auto;
+}
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
 /* ---------- Utilitários ---------- */

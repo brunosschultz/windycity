@@ -247,6 +247,7 @@ const paineis = [
 
 <script>
   import { aoAproximar, reduzMovimento, dividirLetras } from '../scripts/ilha';
+  import { corrigirPosicao } from '../scripts/scroll-suave';
 
   const raiz = document.querySelector<HTMLElement>('[data-sw]');
 
@@ -317,7 +318,7 @@ const paineis = [
       raiz.classList.add('is-swipe');
       if (antes.bottom < 0) {
         const delta = antes.height - raiz.getBoundingClientRect().height;
-        if (delta > 0) window.scrollBy(0, -delta);
+        if (delta > 0) corrigirPosicao(-delta);
       }
 
       const marcarHud = () =>
@@ -460,7 +461,7 @@ const paineis = [
         // expansão simétrica à do mount: não deixar a página pular
         if (antesFora.bottom < 0) {
           const delta = raiz.getBoundingClientRect().height - antesFora.height;
-          if (delta > 0) window.scrollBy(0, delta);
+          if (delta > 0) corrigirPosicao(delta);
         }
         animando = false;
         pendente = null;

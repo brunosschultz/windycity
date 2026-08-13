@@ -122,6 +122,8 @@ const schema = {
          Tudo com transform/opacity para não sair do compositor.
       -------------------------------------------------------------- */
       import { criarRaspador, raspadores } from '../scripts/ilha';
+      // rolagem suave: o módulo decide sozinho se sobe (desktop apenas)
+      import '../scripts/scroll-suave';
 
       const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
 

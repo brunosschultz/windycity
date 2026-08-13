@@ -1104,6 +1104,7 @@ const pontos = [
 
 <script>
   import { aoAproximar, reduzMovimento } from '../scripts/ilha';
+  import { rolarAte } from '../scripts/scroll-suave';
 
   /* ---------- Animação do Walk Score ----------
      O arquivo só entra na rede quando a dobra se aproxima; a variante de
@@ -1281,10 +1282,10 @@ const pontos = [
           botoes.forEach((bt, i) => {
             bt.addEventListener('click', () => {
               const destino = gatilho.start + faixa[i].de * (gatilho.end - gatilho.start);
-              window.scrollTo({
-                top: destino + 1, // +1px entra na faixa, não fica na fronteira
-                behavior: reduzMovimento() ? 'auto' : 'smooth',
-              });
+              /* Via rolarAte, não window.scrollTo: com o Lenis ativo a posição
+                 nativa é só um efeito colateral da posição interna dele —
+                 mexer nela direto seria desfeito no quadro seguinte. */
+              rolarAte(destino + 1, { imediato: reduzMovimento() });
             });
           });
         }
