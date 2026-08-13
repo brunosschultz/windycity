@@ -114,7 +114,7 @@ export const raspadores: Raspador[] = [];
 export function criarRaspador(
   video: HTMLVideoElement,
   nome: string,
-  opcoes: { limiteMs?: number; aoDegradar?: () => void; forcarTocar?: boolean } = {}
+  opcoes: { limiteMs?: number; aoDegradar?: () => void } = {}
 ): Raspador {
   const limite = opcoes.limiteMs ?? 40;
   const MIN_AMOSTRAS = 8;
@@ -137,8 +137,15 @@ export function criarRaspador(
      no primeiro gesto de rolagem, não no carregamento. É assim que acontece
      de verdade: a medição precisa de seeks, e seek só existe quando alguém
      rola. Forçar no load mostraria um comportamento que nunca ocorre. */
-  const forcarNoPrimeiroGesto =
-    (forcado === 'tocar' || opcoes.forcarTocar === true) && !!opcoes.aoDegradar;
+  const forcarNoPrimeiroGesto = forcado === 'tocar' && !!opcoes.aoDegradar;
+  /* Posição de scroll no momento em que o raspador nasce. O modo forçado só
+     dispara depois que ela MUDA — não basta haver um pedido de seek.
+     Motivo: o Safari restaura a rolagem ao recarregar (e ao voltar pelo
+     cache), então a página pode abrir já deslocada; a primeira medição de
+     posição pedia um seek sem ninguém ter tocado em nada, e o vídeo saía
+     tocando sozinho na abertura. No comportamento real isso não acontece,
+     porque a degradação exige 8 seeks medidos, não um. */
+  const yInicial = typeof scrollY === 'number' ? scrollY : 0;
 
   /* Só entra na média o seek que caiu em trecho JÁ bufferizado. Seek em
      trecho não baixado demora por rede, não por decodificação — sem esta
@@ -154,7 +161,7 @@ export function criarRaspador(
 
   const irPara = (t: number) => {
     if (degradou) return;
-    if (forcarNoPrimeiroGesto) {
+    if (forcarNoPrimeiroGesto && Math.abs(scrollY - yInicial) > 4) {
       degradou = true;
       opcoes.aoDegradar!();
       return;

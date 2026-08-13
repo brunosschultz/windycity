@@ -349,23 +349,8 @@ const schema = {
            A alternativa era sequência de imagens, descartada por peso: o
            recorte em pé custa 91–133 KB por quadro, o que daria 5,5 a 12 MB
            acima da dobra contra os 2,09 MB do vídeo de hoje. */
-        /* ==========================================================
-           TEMPORÁRIO — REMOVER APÓS O TESTE DO BRUNO
-           Faz o iPhone se comportar como um Android que não dá conta de
-           raspar, só para avaliar a sensação num aparelho real. Em produção
-           o iOS raspa normalmente: o AVFoundation é rápido o bastante e a
-           medição nunca degradaria lá.
-           Para desligar: trocar para `false` (ou apagar as três linhas e o
-           `forcarTocar` abaixo).
-           ========================================================== */
-        const TESTE_IOS_COMO_ANDROID = true;
-        const eIOS =
-          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
         const raspador = video
           ? criarRaspador(video, 'hero', {
-              forcarTocar: TESTE_IOS_COMO_ANDROID && eIOS,
               aoDegradar: () => {
                 modoTocar = true;
                 /* Toca DE ONDE ESTÁ, sem voltar ao início. A degradação
