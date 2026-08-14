@@ -42,12 +42,16 @@ import { waHref } from '../config';
              troca o arquivo (o navegador não re-seleciona <source>), por isso
              o 900 deitado continua como rede de segurança. -->
         <source
-          src="/video/hero-vert.mp4"
+          src={`${import.meta.env.BASE_URL}/video/hero-vert.mp4`}
           media="(max-width: 860px) and (orientation: portrait)"
           type="video/mp4"
         />
-        <source src="/video/hero-900.mp4" media="(max-width: 860px)" type="video/mp4" />
-        <source src="/video/hero-1920.mp4" type="video/mp4" />
+        <source
+          src={`${import.meta.env.BASE_URL}/video/hero-900.mp4`}
+          media="(max-width: 860px)"
+          type="video/mp4"
+        />
+        <source src={`${import.meta.env.BASE_URL}/video/hero-1920.mp4`} type="video/mp4" />
       </video>
     </div>
 
@@ -58,9 +62,11 @@ import { waHref } from '../config';
          antes do navegador buscar a imagem. */
       const video = document.querySelector<HTMLVideoElement>('[data-stage-video]');
       if (video) {
+        /* import.meta.env.BASE_URL é substituído pelo Vite também nos
+           scripts de cliente — vira o literal '/windycity' no bundle */
         video.poster = matchMedia('(max-width: 860px)').matches
-          ? '/hero-poster-900.webp'
-          : '/hero-poster.webp';
+          ? `${import.meta.env.BASE_URL}/hero-poster-900.webp`
+          : `${import.meta.env.BASE_URL}/hero-poster.webp`;
 
         /* O navegador resolve <source media> UMA vez, no load, e nunca
            reavalia. Se nesse instante a viewport ainda não tem o tamanho

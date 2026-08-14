@@ -8,7 +8,10 @@ interface Props {
 }
 const { title = SITE.title, description = SITE.description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
-const ogImage = new URL('/og-windycity.jpg', Astro.site ?? SITE.url).href;
+/* BASE_URL = '/windycity' (astro.config). Caminho absoluto sem o prefixo
+   escaparia da subpasta e cairia no WordPress do cliente. */
+const base = import.meta.env.BASE_URL;
+const ogImage = new URL(`${base}/og-windycity.jpg`.replace('//', '/'), Astro.site ?? SITE.url).href;
 
 /* ---------------------------------------------------------------------------
    Dados estruturados (SEO + GEO).
@@ -72,17 +75,25 @@ const schema = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Tag Manager -->
+    <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5PBVFDD6');</script>
+    <!-- End Google Tag Manager -->
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
     <!-- Fontes críticas: preload evita FOIT no LCP (headline do hero) -->
-    <link rel="preload" href="/fonts/Sora-800.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/Sora-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/Times-Italic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}/fonts/Sora-800.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}/fonts/Sora-400.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}/fonts/Times-Italic.woff2`} as="font" type="font/woff2" crossorigin />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
     <meta name="theme-color" content="#010811" />
 
     <meta property="og:type" content="website" />
@@ -112,6 +123,10 @@ const schema = {
   </head>
 
   <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5PBVFDD6"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
     <slot />
 

@@ -5,8 +5,8 @@
  */
 
 export const SITE = {
-  // TODO: trocar pelo domínio real antes do deploy (usado em canonical, OG e sitemap)
-  url: 'https://windycity.com.br',
+  /** URL pública real — subpasta no domínio da incorporadora. */
+  url: 'https://girassolinc.com.br/windycity',
   nome: 'WindyCity',
   incorporadora: 'Girassol Incorporações',
   cidade: 'Curitiba',

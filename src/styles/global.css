@@ -3,38 +3,42 @@
    Cores, tipografia e regras derivadas de design-system.md (brand book oficial)
    ========================================================================== */
 
-/* ---------- Fontes (subsetadas, woff2, 67KB no total) ---------- */
+/* ---------- Fontes (subsetadas, woff2, 67KB no total) ----------
+   Os caminhos carregam o prefixo /windycity LITERAL: a LP vive numa
+   subpasta do WordPress do cliente e CSS não tem acesso a
+   import.meta.env.BASE_URL. Se a base mudar em astro.config, estes
+   cinco url() precisam mudar junto. */
 @font-face {
   font-family: 'Sora';
-  src: url('/fonts/Sora-400.woff2') format('woff2');
+  src: url('/windycity/fonts/Sora-400.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Sora';
-  src: url('/fonts/Sora-600.woff2') format('woff2');
+  src: url('/windycity/fonts/Sora-600.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Sora';
-  src: url('/fonts/Sora-700.woff2') format('woff2');
+  src: url('/windycity/fonts/Sora-700.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Sora';
-  src: url('/fonts/Sora-800.woff2') format('woff2');
+  src: url('/windycity/fonts/Sora-800.woff2') format('woff2');
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'TimesWC';
-  src: url('/fonts/Times-Italic.woff2') format('woff2');
+  src: url('/windycity/fonts/Times-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
