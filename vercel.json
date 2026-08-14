@@ -1,7 +1,8 @@
 {
   "rewrites": [
     { "source": "/windycity", "destination": "/index.html" },
-    { "source": "/windycity/:path*", "destination": "/:path*" }
+    { "source": "/windycity/", "destination": "/index.html" },
+    { "source": "/windycity/:path+", "destination": "/:path+" }
   ],
   "redirects": [
     { "source": "/", "destination": "/windycity", "permanent": false }
