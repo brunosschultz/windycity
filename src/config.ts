@@ -53,7 +53,7 @@ export const waHref = (mensagem: string = MENSAGEM_WA): string => {
  * Vídeo institucional no YouTube — só o ID, não a URL: o player é montado a
  * partir dele no clique. `null` volta o bloco a ser capa estática.
  */
-export const VIDEO_INSTITUCIONAL = 'v7rtZDklGQo' as string | null;
+export const VIDEO_INSTITUCIONAL = 'g86BtOWhKi8' as string | null;
 
 export const EMPREENDIMENTO = {
   unidades: 48,

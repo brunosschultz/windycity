@@ -475,10 +475,49 @@ import { waHref } from '../config';
       top: 8svh;
       width: 46vw;
     }
-    /* Centralizado na altura da tela, igual ao desktop. */
+    /* Em FLUXO, não em camadas. No desktop cada peça é absoluta porque a
+       composição é bidimensional (lede na coluna direita). No mobile é uma
+       coluna — e camadas absolutas numa coluna reservam espaço no chute:
+       bloco ancorado a 50% da tela, lede a 140px do rodapé. A escala de
+       fonte do sistema (Android) estoura o chute — no aparelho do cliente o
+       lede subiu por cima do "Luz natural" (218px de sobreposição a 150% de
+       fonte; a folga no tamanho padrão era de 2px). Em fluxo, texto maior
+       EMPURRA o vizinho em vez de atropelá-lo.
+       Os `margin-block: auto` centram o bloco no espaço livre — visualmente
+       o mesmo lugar do antigo top:50% — e são os primeiros a ceder quando o
+       texto cresce. */
+    .pin {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-inline: var(--gutter);
+    }
+    /* Os respiros de topo e rodapé são ITENS de flex, não padding: padding é
+       rígido e, com a fonte do sistema em 150%, o conteúdo estourava o pé da
+       tela — o CTA morria sob o overflow:hidden do pin. Como itens com
+       flex-shrink, eles são os primeiros a ceder quando falta altura.
+       O min-height do topo reserva a área do logo (8svh + altura do logo),
+       que é absoluto e não participa do fluxo. */
+    .pin::before {
+      content: '';
+      flex: 0 1 16svh;
+      min-height: calc(8svh + 11vw + 12px);
+    }
+    .pin::after {
+      content: '';
+      flex: 0 1 68px;
+      min-height: 10px;
+      /* sem isto o ::after herda order 0 e vai parar ANTES do conteúdo
+         (os itens usam order 1-3) — o respiro do rodapé sumia e o CTA
+         colava no fundo da tela */
+      order: 4;
+    }
     .hero-bloco {
-      left: var(--gutter);
-      width: calc(100vw - var(--gutter) * 2);
+      position: static;
+      order: 1;
+      width: 100%;
+      margin-block: auto;
+      translate: calc(var(--po) * -2vw) 0;
     }
     .hero-eyebrow {
       font-size: 0.625rem;
@@ -501,15 +540,24 @@ import { waHref } from '../config';
       display: block;
     }
     .hero-lede {
-      left: var(--gutter);
-      top: auto;
-      bottom: 140px;
-      width: calc(100vw - var(--gutter) * 2);
+      position: static;
+      order: 2;
+      width: 100%;
+      margin-top: clamp(14px, 2.4svh, 26px);
       font-size: 0.875rem;
     }
+    /* relative, não static: em static o z-index é ignorado e o Girassol
+       (absoluto) pintaria POR CIMA do botão quando a fonte do sistema
+       aproxima os dois. */
     .hero-cta {
-      left: var(--gutter);
-      bottom: 68px;
+      position: relative;
+      /* zera os deslocamentos da regra base (left 8.958vw / bottom 120px):
+         em relative eles continuam valendo e empurravam o botão 104px para
+         cima, por dentro do lede */
+      inset: auto;
+      z-index: 6;
+      order: 3;
+      margin-top: 16px;
       min-height: 56px;
       padding-inline: 18px 14px;
       gap: 12px;
@@ -524,21 +572,13 @@ import { waHref } from '../config';
       right: var(--gutter);
       bottom: 68px;
       width: 22vw;
+      z-index: 5; /* sob o CTA: com fonte grande os dois se aproximam */
     }
     .stage-payoff .ac {
       font-size: 25.48vw;
     }
   }
 
-  /* Telas baixas (ex.: iPhone SE): o bloco centralizado encavalaria o
-     texto de apoio logo abaixo — aqui ele volta a ficar ancorado no topo,
-     como antes. */
-  @media (max-width: 860px) and (max-height: 700px) {
-    .hero-bloco {
-      top: 18svh;
-      translate: calc(var(--po) * -2vw) 0;
-    }
-  }
 
   @media (prefers-reduced-motion: reduce) {
     .stage {
